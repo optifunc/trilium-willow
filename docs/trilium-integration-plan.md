@@ -96,6 +96,31 @@ and checkbox states remain document fields because that is `mr`'s current contra
 Initialize the root label from the note title at creation; keep later edits
 independent unless explicit title synchronization is requested.
 
+## Remembered position and zoom
+
+Accepted for the next implementation step: remember the view per document locally
+in each browser or desktop profile. Restore it on note switching, reopening, and
+application reload. Desktop and browser retain independent views; view changes
+do not write note content, mark the document dirty, or enter document history and
+save-conflict handling.
+
+- Store the map coordinates at the viewport centre and the zoom factor, rather
+  than raw pixel offsets, so restoration accommodates different pane sizes.
+- With no saved view, centre the root at **100% zoom**. Do not automatically fit
+  the map on first opening. Keep **Fit map** as an explicit user action.
+- Keep simultaneous split panes independent. Preserve each pane's view through
+  widget remounts and editing-ownership transfers; use the most recently interacted
+  view as the document's local default for a newly opened pane.
+- Debounce local storage writes and capture the final view before teardown.
+  Validate stored values; missing or invalid state uses the centred 100% default.
+- Use the widget's existing `viewportchange`, `getViewport()`, `setZoom()`, and
+  `panTo()` APIs in the adapter. No widget change is currently expected.
+
+Verify first opening, note switching, reload, pane resizing, independent splits,
+and editing-ownership transfers in browser and desktop. A synced **Save as opening
+view** action remains an optional future extension; automatic view persistence is
+local only.
+
 ## Adapter responsibilities
 
 1. **Loading and validation.** Resolve the owning note from its pane context,
@@ -239,9 +264,11 @@ desktop/server synchronization, including delayed and offline conflicts.
    version from evidence. This checkpoint decides whether to retain the preferred
    approach or use the JSON-note fallback.
 2. **Usable vertical slice.** Implement the versioned format, shared wrapper,
-   template or launcher, autosave feedback, and error recovery. Acceptance: create
+   template or launcher, autosave feedback, error recovery, and local position/zoom
+   persistence as specified above. Acceptance: create
    a map, edit/restructure/check/collapse, navigate away, reopen and restart Trilium,
-   and recover exactly the committed document without cross-note writes.
+   and recover exactly the committed document without cross-note writes. Restore
+   the locally remembered view; a first opening centres the root at 100% zoom.
 3. **Persistence and host hardening.** Exercise delayed and failed saves, rapid
    A-to-B switching, duplicate views, external updates, deletion, protection,
    read-only transitions, light/dark themes, sizing, and shortcut conflicts. Test
@@ -264,6 +291,8 @@ separately in the progress log.
 - Desktop and browser are required. User reports “latest”; confirm exact builds
   against the v0.105.0 stable baseline during prototype setup.
 - Standalone documents are accepted.
+- Position and zoom are remembered locally per document and client profile; first
+  opening centres the root at 100% zoom without automatic fitting.
 - Internal note links, existing-map migration, and dedicated map export are deferred.
 - Recovery for detected conflicts is accepted. Guaranteed preservation of all
   concurrent versions is outside the current scope.

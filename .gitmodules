@@ -1,0 +1,3 @@
+[submodule "mr"]
+	path = mr
+	url = https://github.com/optifunc/mr.git

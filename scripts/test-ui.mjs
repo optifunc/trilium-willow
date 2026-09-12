@@ -48,13 +48,21 @@ export async function createFromMenu(page, referenceTitle, placement, title) {
   const id = result.note.noteId;
   const pane = page.locator(`.willow-spike[data-note-id="${id}"]:visible`).last();
   await pane.locator('.willow-spike-host[data-ready="true"] .mindmap').waitFor();
-  await nativePane(pane).locator('input.note-title:visible').fill(title);
+  const input = nativePane(pane).locator('input.note-title:visible');
+  await input.click(); await input.press('Meta+A');
+  await page.keyboard.type(title, {delay:70});
+  if (await input.inputValue() !== title || await pane.locator('.mindmap textarea').count())
+    throw new Error('Title typing changed focus or started a map edit');
   await pane.locator('.mindmap').focus();
-  await pane.locator('.mindmap-root-node .mindmap-label').getByText(title,{exact:true}).waitFor();
+  await pane.locator('.mindmap-root-node .mindmap-label').getByText('Mind map',{exact:true}).waitFor();
   for (let attempt = 0; ; attempt++) {
     const saved = await page.evaluate(async ({id,title}) => {
-      const response = await fetch(`/api/notes/${id}/blob`, {cache:'no-store',headers:await glob.getHeaders()});
-      return JSON.parse((await response.json()).content).document.root.text === title;
+      const options = {cache:'no-store',headers:await glob.getHeaders()};
+      const [blob,note] = await Promise.all([
+        fetch(`/api/notes/${id}/blob`,options).then(r=>r.json()),
+        fetch(`/api/notes/${id}`,options).then(r=>r.json()),
+      ]);
+      return JSON.parse(blob.content).document.root.text === 'Mind map' && note.title === title;
     }, {id,title});
     if (saved) break;
     if (attempt === 80) throw new Error('Created map title did not persist');

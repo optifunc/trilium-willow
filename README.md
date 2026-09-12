@@ -12,8 +12,8 @@ submodule change is required.
 
 The test instance is at http://127.0.0.1:37841/. Right-click a note in the tree,
 choose **Insert note after** or **Insert child note**, then **Willow Mind Map**
-under Templates. Enter the title in Trilium's normal title field; the map root
-uses that initial title. Later title and map edits are independent. The test
+under Templates. Enter the title in Trilium's normal title field. The map root
+starts as **Mind map** and is edited independently from the note title. The test
 password and server instructions are in [the environment report](docs/test-trilium.md).
 
 Edit a selected node with F2, commit with Enter, and insert a child with Tab.
@@ -31,6 +31,28 @@ saves local work as a sibling recovery map before loading the saved original;
 **Use incoming** asks before discarding local work. Drafts stay in memory through
 pane changes, but do not survive an abrupt process loss. Cross-device edits can
 still race. Invalid documents offer their original source and a reload action.
+
+## Manual desktop testing
+
+Run from this repository:
+
+```sh
+pnpm dev:desktop
+# Or: node scripts/run-desktop.mjs
+```
+
+This builds the current adapter and opens the downloaded Trilium desktop app.
+On first run it copies the isolated server database into
+`.test/trilium/manual-desktop-data`; later runs preserve your manual test maps
+and update only the shared editor bundle. The app stays open until you quit it
+or press Ctrl+C in the terminal. Use `--no-build` to open the existing build.
+
+The launcher uses `.test/trilium/manual-desktop-profile`, server port 37843,
+and debug port 39224. It is separate from your personal Trilium and from the
+automated desktop tests. The downloaded test app, initialized server database,
+`pnpm` dependencies, and test SQLite dependency must already be installed as
+explained in [the environment report](docs/test-trilium.md). Logs go to
+`.test/trilium/manual-desktop.log`.
 
 ## Development
 

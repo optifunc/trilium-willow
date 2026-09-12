@@ -98,11 +98,12 @@ problems. Use it only if the one-note spike reveals a concrete limitation.
 
 Keep selection, pan, and zoom out of persisted document history in v1. Collapsed
 and checkbox states remain document fields because that is `mr`'s current contract.
-Initialize the root label from the note title at creation; keep later edits
-independent unless explicit title synchronization is requested. Native creation
-starts with “New note” and focuses the title field. A marked template seed gets
-a unique root ID on first editable opening and follows the first title change.
-That change, or a map-content edit, removes the initialization marker.
+New maps start with the root label **Mind map**. Trilium's note title and the
+root label are independent, including the first rename after creation. Template
+IDs are materialized per document in the editor and persisted with the first map
+edit. Merely opening a map does not write note content; doing so can cause the
+host's note reload to reset its title field during typing. Old title-following
+metadata is ignored, preserving existing root labels.
 
 ### Native creation and controls
 
@@ -121,10 +122,13 @@ available through **Cmd/Ctrl+Shift+0**. Show only contextual controls: **Retry s
 second pane viewing the same map.
 
 Bind each Render Note wrapper to its invoking `originEntity`, and rebuild the
-editor only when the effective read-only mode actually changes. Measure the pane
-before mounting, restore the view, and reveal the canvas after fonts and layout
-are ready. This removes repeated map flashes without fitting on first opening;
-Trilium may still show an empty pane while it loads the bundle.
+editor only when the effective read-only mode actually changes. Wait for a measurable pane before mounting and recalculate layout on each
+hidden-to-visible transition. The host can leave a Render Note hidden briefly
+after switching from a text note; measurements taken then are invalid. Restore
+the view before revealing the canvas. During map-to-map replacement, retain an
+inert preview of the old canvas until the new one is ready to paint. Remove the
+preview on a non-Willow destination, error, pane removal, or a five-second timeout.
+No live editor is retained after its pane is removed, and first opening never fits.
 
 ## Remembered position and zoom
 

@@ -4,7 +4,8 @@ import { h, useRef, useState, useEffect, useLayoutEffect, useNoteContext,
   useNoteBlob, useEffectiveReadOnly, useTriliumEvent } from 'trilium:preact';
 import { originEntity, showConfirmDialog } from 'trilium:api';
 import type { Note, NoteContext } from 'trilium:preact';
-import { parseDocument, serializeDocument, initializeTemplate, finishInitialTitle } from './document';
+import { parseDocument, serializeDocument, initializeTemplate } from './document';
+import { clearPreview, retainPreview } from './presentation';
 import { SaveSession } from './save-session';
 import { ViewMemory, type SavedView } from './view-state';
 import { createMap, newNoteId, readContent, writeContent, type CreateRequest } from './host';
@@ -41,7 +42,7 @@ const styles = `${widgetStyles}
 .willow-spike-error, .willow-notice { padding:12px; color:var(--main-text-color); }
 .willow-spike-host:not([data-ready="true"]) { visibility:hidden; }
 .willow-source { width:100%; min-height:120px; }
-.willow-spike .mindmap { --mindmap-background:var(--main-background-color,#fff); --mindmap-text-color:var(--main-text-color,#111); }
+.willow-spike .mindmap, .willow-transition .mindmap { --mindmap-background:var(--main-background-color,#fff); --mindmap-text-color:var(--main-text-color,#111); }
 `;
 
 export default function WillowSpike() {
@@ -58,8 +59,6 @@ export default function WillowSpike() {
   }, []);
   return h('div', { ref: boundary, class: 'willow-spike-boundary render-note-scope' }, attached && h(NotePane, null));
 }
-
-function documentFontsReady() { return document.fonts.ready; }
 
 function parentId(note: Note, context?: NoteContext) {
   const path = context?.notePath?.split('/');
@@ -86,7 +85,6 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
   const editor = useRef<MindMapEditor | null>(null);
   const memory = useRef<ViewMemory | undefined>(undefined);
   const mountedReadonly = useRef<boolean | undefined>(undefined);
-  const revealFrame = useRef(0);
   const view = useRef<SavedView | undefined>(undefined);
   const displayed = useRef<string | undefined>(undefined);
   const applying = useRef(false);
@@ -96,7 +94,7 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
   const session = useRef(diagnostics.sessions.get(note.noteId) ?? new SaveSession(
     () => readContent(note.noteId), content => writeContent(note.noteId, content))).current;
   diagnostics.sessions.set(note.noteId, session);
-  const [ownsEdit, setOwnsEdit] = useState(false);
+  const [ownsEdit, setOwnsEdit] = useState(() => !diagnostics.writers.has(note.noteId));
   const [, redraw] = useState(0);
   const [error, setError] = useState('');
   const [invalid, setInvalid] = useState(false);
@@ -122,6 +120,7 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
     if (target.ntxId === noteContext?.ntxId) {
       if (busyRef.current) throw new Error('Wait for map recovery to finish.');
       await flush();
+      if (host.current && noteContext) retainPreview(host.current, noteContext, styles);
     }
   });
   useTriliumEvent('beforeNoteContextRemove', async ({ ntxIds }) => {
@@ -133,7 +132,6 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
 
   function destroy() {
     if (!editor.current) return;
-    cancelAnimationFrame(revealFrame.current);
     if (host.current) host.current.dataset.ready = 'false';
     mountedReadonly.current = undefined;
     view.current = memory.current?.destroy(); memory.current = undefined;
@@ -143,16 +141,19 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
   }
   function install(content: string) {
     if (!host.current || disposed.current) return;
+    // Render Notes can mount while their host is display:none after a text note.
+    // Measuring then caches 1px labels. Wait for the ResizeObserver's visible size.
+    if (!host.current.clientWidth || !host.current.clientHeight) return;
     try {
       applying.current = true;
-      const document = parseDocument(initializeTemplate(content, note.noteId, note.title));
+      const map = parseDocument(initializeTemplate(content, note.noteId));
       if (editor.current) {
         let replacementError: string | undefined;
         const unsubscribe = editor.current.on('error', ({ message }) => { replacementError = message; });
-        try { editor.current.setDocument(document); } finally { unsubscribe(); }
+        try { editor.current.setDocument(map); } finally { unsubscribe(); }
         if (replacementError) throw new Error(replacementError);
       } else {
-        editor.current = new MindMapEditor(host.current, { document, readonly: readonlyRef.current });
+        editor.current = new MindMapEditor(host.current, { document: map, readonly: readonlyRef.current });
         mountedReadonly.current = readonlyRef.current;
         diagnostics.mounted++;
         diagnostics.active.set(instanceId.current, { noteId: note.noteId, host: host.current, editor: editor.current,
@@ -168,32 +169,29 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
         editor.current.on('editcancel', () => { session.editing = false; });
         editor.current.on('error', ({ message }) => setError(message));
         const instance = editor.current;
-        void documentFontsReady().then(() => {
-          if (disposed.current || editor.current !== instance) return;
-          revealFrame.current = requestAnimationFrame(() => {
-            if (disposed.current || editor.current !== instance || !host.current?.isConnected) return;
+        const reveal = () => {
+            if (disposed.current || editor.current !== instance || !host.current?.isConnected
+              || !host.current.clientWidth || !host.current.clientHeight) return;
             instance.refreshLayout();
             host.current.dataset.ready = 'true';
-          });
-        });
+            if (noteContext) clearPreview(noteContext.ntxId);
+        };
+        if (document.fonts.status === 'loaded') reveal();
+        else void document.fonts.ready.then(reveal);
       }
       displayed.current = content;
       setInvalid(false); setError('');
     } catch (e) {
       destroy(); displayed.current = content;
       setInvalid(true); setError(String(e));
+      if (noteContext) clearPreview(noteContext.ntxId);
     } finally { applying.current = false; }
   }
   function sync() {
     if (disposed.current) return;
-    const owns = diagnostics.writers.get(note.noteId) === instanceId.current;
-    if (owns && !readonlyRef.current && session.local !== undefined && note.getRelationValue('template')
-      && !session.editing && session.incoming === undefined) {
-      try {
-        const content = finishInitialTitle(initializeTemplate(session.local, note.noteId, note.title), note.title);
-        if (content !== session.local) { session.change(content); return; }
-      } catch (e) { setInvalid(true); setError(String(e)); }
-    }
+    // Materialize template IDs in the editor; persist them on the first map edit.
+    // Writing merely on opening reloads Trilium's note object and can reset the
+    // native title field while the user is still typing into it.
     if (session.local !== undefined && session.local !== displayed.current) install(session.local);
     if (noteContext?.note?.noteId === note.noteId && session.state !== 'loading')
       noteContext.setContextData('saveState', { state: session.state === 'conflict' ? 'error' : session.state });
@@ -206,14 +204,32 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
       diagnostics.writers.set(note.noteId, instanceId.current);
       readonlyRef.current = readonly; session.writable = !readonly;
       setOwnsEdit(true);
+    } else {
+      readonlyRef.current = true;
+      setOwnsEdit(false);
     }
     const section = host.current!.parentElement!;
     const container = section.closest('.scrolling-container');
     const size = () => {
       if (container && container.clientHeight > 0) section.style.setProperty('--willow-pane-height', `${Math.max(160, container.clientHeight - 8)}px`);
     };
-    const resize = new ResizeObserver(size);
+    let visible = false;
+    const resize = new ResizeObserver(() => {
+      size();
+      const measurable = !!host.current?.clientWidth && !!host.current?.clientHeight;
+      if (measurable && !visible) {
+        // Recalculate after every hidden-to-visible transition, even at the same size.
+        if (editor.current) {
+          editor.current.refreshLayout();
+          host.current!.dataset.ready = 'true';
+          if (noteContext) clearPreview(noteContext.ntxId);
+        }
+        sync();
+      }
+      visible = measurable;
+    });
     if (container) resize.observe(container);
+    resize.observe(host.current!);
     size();
     const unsubscribe = session.subscribe(sync);
     sync();

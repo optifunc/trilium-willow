@@ -51,16 +51,16 @@ try {
   assert.equal(created.branch.parentNoteId,notes.folder);
   await pane(id).locator('.mindmap').waitFor();
   closeView(await view(id),{zoom:1,centerX:0,centerY:0});
-  assert.equal(JSON.parse(await raw(id)).document.root.text,title);
+  assert.equal(JSON.parse(await raw(id)).document.root.text,'Mind map');
   assert.equal((await request(page,'GET',`notes/${id}`)).type,'render');
-  assert.equal(JSON.parse(await raw(id)).document.root.id,`root-${id}`);
+  await pane(id).locator(`[data-node-id="root-${id}"]`).waitFor();
   assert.equal(await pane(id).locator('button').count(),0);
   const child=await createFromMenu(page,title,'child',`${title} child`);
   assert.equal(child.branch.parentNoteId,id);
-  assert.equal(JSON.parse(await raw(child.id)).document.root.id,`root-${child.id}`);
+  await child.pane.locator(`[data-node-id="root-${child.id}"]`).waitFor();
   await page.locator('.fancytree-title').getByText(title,{exact:true}).click();
   await pane(id).locator('.mindmap').waitFor();
-  passed.push('native after/child menus create Render Notes with unique root IDs, title initialization and 100% centre; no permanent toolbar');
+  passed.push('native after/child menus create Render Notes with unique root IDs, independent title typing and 100% centre; no permanent toolbar');
 
   await pane(id).locator('.mindmap-root-node .mindmap-label').click({button:'right'});
   await pane(id).getByRole('menuitem',{name:/^Add child/}).click();

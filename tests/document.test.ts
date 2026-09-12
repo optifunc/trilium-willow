@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseDocument, serializeDocument, initializeTemplate, finishInitialTitle, TEMPLATE_CONTENT } from '../src/document';
+import { parseDocument, serializeDocument, initializeTemplate, TEMPLATE_CONTENT } from '../src/document';
 
 describe('Willow document envelope', () => {
   it('round trips IDs, order, sides, Unicode, multiline text and state', () => {
@@ -16,24 +16,22 @@ describe('Willow document envelope', () => {
 });
 
 describe('native template initialization', () => {
-  it('gives each instance its own root ID and follows the first native title edit', () => {
-    const a = initializeTemplate(TEMPLATE_CONTENT, 'note-a', 'New note');
-    const b = initializeTemplate(TEMPLATE_CONTENT, 'note-b', 'New note');
+  it('gives each instance its own root ID and an independent default label', () => {
+    const a = initializeTemplate(TEMPLATE_CONTENT, 'note-a');
+    const b = initializeTemplate(TEMPLATE_CONTENT, 'note-b');
     expect(parseDocument(a).root.id).not.toBe(parseDocument(b).root.id);
-    const named = finishInitialTitle(a, 'Project');
-    expect(parseDocument(named).root.text).toBe('Project');
-    expect(finishInitialTitle(named, 'Later note title')).toBe(named);
+    expect(parseDocument(a).root.text).toBe('Mind map');
+    expect(initializeTemplate(a, 'note-a')).toBe(a);
   });
-  it('stops following the title as soon as the map is edited', () => {
-    const seeded = initializeTemplate(TEMPLATE_CONTENT, 'note', 'New note');
-    const document = parseDocument(seeded); document.root.text = 'My root';
-    const edited = serializeDocument(document);
-    expect(finishInitialTitle(edited, 'Later note title')).toBe(edited);
+  it('preserves labels in documents carrying the former title-following marker', () => {
+    const content = JSON.stringify({format:'trilium-willow-mindmap',version:1,titleFromNote:true,
+      document:{root:{id:'existing',text:'My root',children:[]}}});
+    expect(initializeTemplate(content, 'note')).toBe(content);
   });
   it('never initializes empty or malformed source', () => {
-    expect(() => initializeTemplate('', 'note', 'Title')).toThrow();
-    expect(() => initializeTemplate(TEMPLATE_CONTENT.replace('Mind map', 'Changed seed'), 'note', 'Title')).toThrow();
+    expect(() => initializeTemplate('', 'note')).toThrow();
+    expect(() => initializeTemplate(TEMPLATE_CONTENT.replace('Mind map', 'Changed seed'), 'note')).toThrow();
     const original = serializeDocument({ root: { id: 'mine', text: 'Existing', children: [] } });
-    expect(initializeTemplate(original, 'note', 'Title')).toBe(original);
+    expect(initializeTemplate(original, 'note')).toBe(original);
   });
 });

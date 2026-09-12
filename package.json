@@ -10,7 +10,8 @@
     "test": "vitest run",
     "spike:deploy": "node scripts/deploy-spike.mjs",
     "spike:test": "node scripts/test-spike.mjs",
-    "test:trilium": "node scripts/test-spike.mjs && node scripts/test-vertical-slice.mjs",
+    "test:trilium": "node scripts/test-spike.mjs && node scripts/test-vertical-slice.mjs && node scripts/test-navigation.mjs",
+    "dev:desktop": "node scripts/run-desktop.mjs",
     "spike:test:desktop": "node scripts/test-desktop-spike.mjs"
   },
   "dependencies": { "@mindmap/widget": "workspace:*" },

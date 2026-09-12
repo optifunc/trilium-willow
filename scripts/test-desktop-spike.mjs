@@ -1,3 +1,4 @@
+import { checkNavigation } from './check-navigation.mjs';
 import { createFromMenu, waitSaved, measureSwitch } from './test-ui.mjs';
 import { chromium } from 'playwright';
 import { readFile, writeFile } from 'node:fs/promises';
@@ -80,7 +81,7 @@ try {
   const title=`Desktop acceptance ${Date.now()}`;
   const {id}=await createFromMenu(page,'Willow Map A','after',title);
   const createdPane=page.locator(`.willow-spike[data-note-id="${id}"]:visible`).last();
-  await createdPane.locator('.mindmap-root-node .mindmap-label').getByText(title,{exact:true}).waitFor();
+  await createdPane.locator('.mindmap-root-node .mindmap-label').getByText('Mind map',{exact:true}).waitFor();
   async function view() {
     return page.evaluate(id=>{
       const v=[...globalThis[Symbol.for('trilium-willow.spike')].active.values()].find(v=>v.noteId===id&&v.host.isConnected&&v.host.clientWidth>0);
@@ -103,12 +104,13 @@ try {
   for(const frame of switching.frames)assert.deepEqual(frame,switching.frames[0]);
   await createdPane.locator('.mindmap').waitFor();sameView(await view(),remembered);
   await page.reload();await createdPane.locator('.mindmap').waitFor();sameView(await view(),remembered);
+  const navigation=await checkNavigation(page,notes);
   await page.screenshot({path:fileURLToPath(new URL('evidence/spike/desktop.png',testRoot)),fullPage:true});
   const report={testedAt:new Date().toISOString(),bundleSha256:notes.bundleSha256,userData,
     environment:await page.evaluate(()=>({version:glob.triliumVersion,electron:glob.isElectron,url:location.href})),
-    createdNoteId:id,switching,
+    createdNoteId:id,switching,navigation,
     passed:['isolated desktop data/profile','same shared bundle mounted on desktop','real label editing and save','reload persistence',
-      'native template menu initializes title and centres at 100%','desktop pan/zoom survives note switching and renderer reload']};
+      'native template menu keeps title and root independent and centres at 100%','desktop pan/zoom survives note switching and renderer reload']};
   await writeFile(new URL('evidence/spike/desktop.json',testRoot),JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify(report,null,2));
 } finally {

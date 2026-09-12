@@ -1,5 +1,59 @@
 # Progress
 
+## 2026-09-12 — Title isolation, continuous switching, hidden-pane layout
+
+Committed the preceding UI work as `f68c647` before these fixes.
+
+- Reproduced title typing changing the root to the first partial title. Also
+  reproduced lost title characters when opening a new map triggered a content
+  save during typing. Removed title following. New roots start as **Mind map**;
+  note-title edits and root edits are independent. Template IDs are materialized
+  for the editor and persisted on the first map edit, with no content write on
+  opening. Existing root labels are preserved.
+- Reproduced the normal-note transition bug: hidden-host measurements produced
+  1px child nodes and a 1.8px root. Defer mounting until the pane has dimensions
+  and recalculate layout on every hidden-to-visible transition.
+- Keep an inert canvas preview during map-to-map replacement, removing it when
+  the next canvas is ready, when switching elsewhere, on error/pane removal, or
+  after five seconds. This covers the host's bundle-loading gap without keeping
+  a detached live editor. Initialize editing ownership before the first paint so
+  temporary viewer controls cannot shift the map.
+- Added [`scripts/run-desktop.mjs`](../scripts/run-desktop.mjs), also available as
+  `pnpm dev:desktop`. It builds and opens the downloaded app for manual testing,
+  keeps it open, and preserves manual maps between runs. It uses its own
+  `.test/trilium/manual-desktop-data` and `manual-desktop-profile`, separately
+  from personal Trilium and automated test fixtures. Only the shared editor
+  bundle is updated on subsequent launches.
+
+### Verification
+
+Tested bundle SHA-256:
+
+```text
+13eb7c56ae75582ffc5a26db92e5d5256b12e749232fe200fc501b5b3b63f634
+```
+
+Build/typecheck and 23 unit tests passed. The 10 browser lifecycle regressions and
+8 acceptance groups passed with actual sequential title keystrokes (the earlier
+atomic field-fill test missed the bug), native-menu creation, saves, view
+restoration and conflict recovery. The actual isolated desktop passed the same
+bundle and title-typing checks.
+
+New navigation tests passed in both browser and desktop: three normal-note round
+trips retain exactly the same node geometry; two map-to-map switches with an
+artificial 180ms bundle delay have a live canvas or preview in every sampled
+animation frame. Previews disappear when their replacements are ready and do not
+remain on ordinary notes. The manual launcher was exercised both with the existing
+build and with its default build-and-open command, reusing its database.
+
+Evidence: [browser navigation frames](../.test/trilium/evidence/navigation.json),
+[browser acceptance](../.test/trilium/evidence/vertical-slice/browser.json),
+[lifecycle regressions](../.test/trilium/evidence/spike/results.json), and
+[desktop acceptance including navigation](../.test/trilium/evidence/spike/desktop.json).
+Manual-launcher evidence is in [manual-desktop.json](../.test/trilium/evidence/manual-desktop.json).
+The `mr` submodule is unchanged. The remaining persistence/distribution work and
+cross-client conflict limitations are unchanged.
+
 ## 2026-09-12 — Native creation, minimal controls, stable switching
 
 The previous vertical slice was committed as `9442163` before this work.

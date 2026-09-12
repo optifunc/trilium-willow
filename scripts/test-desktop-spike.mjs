@@ -53,7 +53,7 @@ try {
   const userData=fileURLToPath(new URL('desktop-profile',testRoot));
   await page.waitForFunction(() => globalThis.glob?.appContext, undefined, {timeout:30000});
   const installedBundle=await page.evaluate(async id=>{
-    const response=await fetch(`/api/notes/${id}/blob`,{headers:await glob.getHeaders()});
+    const response=await fetch(`/api/notes/${id}/blob`,{cache:'no-store',headers:await glob.getHeaders()});
     return (await response.json()).content;
   },notes.bundle);
   assert.equal(createHash('sha256').update(installedBundle).digest('hex'),notes.bundleSha256);
@@ -69,17 +69,46 @@ try {
   await pane.locator('textarea').fill('Map A edited in isolated desktop');
   await page.keyboard.press('Enter');
   await page.waitForFunction(async id=>{
-    const response=await fetch(`/api/notes/${id}/blob`,{headers:await glob.getHeaders()});
+    const response=await fetch(`/api/notes/${id}/blob`,{cache:'no-store',headers:await glob.getHeaders()});
     const blob=await response.json();
     return JSON.parse(blob.content).document.root.text==='Map A edited in isolated desktop';
   },notes.A);
   await pane.getByRole('status').getByText('Saved',{exact:true}).waitFor();
   await page.reload();
   await pane.locator('.mindmap-label').getByText('Map A edited in isolated desktop',{exact:true}).waitFor();
+  await page.locator('.fancytree-title').getByText('Create a Willow mind map',{exact:true}).click();
+  const title=`Desktop acceptance ${Date.now()}`;
+  await page.getByRole('textbox',{name:'Map title',exact:true}).fill(title);
+  await page.getByRole('button',{name:'Create map',exact:true}).click();
+  const created=page.getByRole('link',{name:'Open new map',exact:true});await created.waitFor();
+  const id=(await created.getAttribute('href')).split('/').at(-1);
+  await created.click();
+  const createdPane=page.locator(`.willow-spike[data-note-id="${id}"]:visible`).last();
+  await createdPane.locator('.mindmap-root-node .mindmap-label').getByText(title,{exact:true}).waitFor();
+  async function view() {
+    return page.evaluate(id=>{
+      const v=[...globalThis[Symbol.for('trilium-willow.spike')].active.values()].find(v=>v.noteId===id&&v.host.isConnected&&v.host.clientWidth>0);
+      const el=v.host.querySelector('.mindmap'), p=v.editor.getViewport();
+      return {zoom:p.zoom,centerX:(el.clientWidth/2-p.x)/p.zoom,centerY:(el.clientHeight/2-p.y)/p.zoom};
+    },id);
+  }
+  function sameView(a,b) {for(const key of ['zoom','centerX','centerY'])assert.ok(Math.abs(a[key]-b[key])<.02,JSON.stringify({a,b}));}
+  sameView(await view(),{zoom:1,centerX:0,centerY:0});
+  await createdPane.locator('.mindmap').click({position:{x:20,y:20}});
+  await page.keyboard.press('Meta+=');
+  await createdPane.locator('.mindmap').hover({position:{x:20,y:20}});await page.mouse.wheel(120,80);
+  await page.waitForFunction(id=>localStorage.getItem(`trilium-willow:view:v1:${id}`),id);
+  const remembered=await view();assert.ok(remembered.zoom>1);
+  await page.locator('.fancytree-title').getByText('Willow Map B',{exact:true}).click();
+  await page.locator('.fancytree-title').getByText(title,{exact:true}).click();
+  await createdPane.locator('.mindmap').waitFor();sameView(await view(),remembered);
+  await page.reload();await createdPane.locator('.mindmap').waitFor();sameView(await view(),remembered);
   await page.screenshot({path:fileURLToPath(new URL('evidence/spike/desktop.png',testRoot)),fullPage:true});
   const report={testedAt:new Date().toISOString(),bundleSha256:notes.bundleSha256,userData,
     environment:await page.evaluate(()=>({version:glob.triliumVersion,electron:glob.isElectron,url:location.href})),
-    passed:['isolated desktop data/profile','same shared bundle mounted on desktop','real label editing and save','reload persistence']};
+    createdNoteId:id,
+    passed:['isolated desktop data/profile','same shared bundle mounted on desktop','real label editing and save','reload persistence',
+      'creation UI initializes title and centres at 100%','desktop pan/zoom survives note switching and renderer reload']};
   await writeFile(new URL('evidence/spike/desktop.json',testRoot),JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify(report,null,2));
 } finally {

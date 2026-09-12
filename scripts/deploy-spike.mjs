@@ -25,6 +25,12 @@ try {
   if (!notes.bundle) notes.bundle = await create(notes.folder, 'Willow shared editor', 'code', 'text/jsx', bundle);
   else await request(page, 'PUT', `notes/${notes.bundle}/data`, { content: bundle });
   await writeFile(file, JSON.stringify(notes, null, 2));
+  if (!notes.launcher) {
+    notes.launcher = await create(notes.folder, 'Create a Willow mind map', 'render', 'application/json', '{}');
+    await writeFile(file, JSON.stringify(notes, null, 2));
+  }
+  await request(page, 'PUT', `notes/${notes.launcher}/set-attribute`, { type: 'relation', name: 'renderNote', value: notes.bundle });
+  await request(page, 'PUT', `notes/${notes.launcher}/set-attribute`, { type: 'label', name: 'willowLauncher', value: '' });
   for (const name of ['A', 'B']) {
     if (!notes[name]) notes[name] = await create(notes.folder, `Willow Map ${name}`, 'render', 'application/json', JSON.stringify({
       format: 'trilium-willow-mindmap', version: 1, document: { root: { id: `root-${name}`, text: `Map ${name}`, children: [

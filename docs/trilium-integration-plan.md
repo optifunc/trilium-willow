@@ -1,12 +1,12 @@
 # Trilium mind-map add-on: options and proposed plan
 
-Date: 2026-09-12. Status: first integration spike complete; full add-on pending.
+Date: 2026-09-12. Status: usable vertical slice implemented; persistence hardening and distribution pending.
 
 Environment checkpoint: the isolated v0.105.0 server is running under
 `.test/trilium`, and browser setup, editing, independent-session readback, and
 server-restart persistence passed. See [test-server report](test-trilium.md).
-The adapter/lifecycle spike now passes on stock v0.105.0 in Chrome and an isolated
-macOS desktop renderer. See [findings, evidence, and limits](progress.md).
+The adapter now includes creation, save/recovery UI, and local view persistence
+on stock v0.105.0 in Chrome and an isolated macOS desktop renderer. See [findings, evidence, and limits](progress.md).
 
 User preference: an add-on for stock Trilium, running the latest version.
 Confirmed scope: desktop and browser; standalone documents. Internal note links,
@@ -35,7 +35,12 @@ The saving hook loads note content, writes through Trilium's note-data endpoint,
 reports save state, and flushes on note switches and context removal. This is a
 tested integration path. The spike verified note context, saving, refresh, splits,
 and cleanup, with adapter workarounds documented in the progress log. Broader persistence
-and conflict hardening remains pending.
+and conflict hardening remains pending. The usable version retains the host's note
+loading and lifecycle events, but replaces `useEditorSpacedUpdate` with a per-note
+save coordinator using the normal note-data endpoint. This gives conflict handling
+control over queued writes and retries. Creation uses the normal note-creation
+endpoint with content and attributes in one transaction; backend scripting remains
+disabled in the test installation.
 
 Current Trilium already has a `mindMap` note type using Mind Elixir. Its format
 is different from `mr`'s document format. The add-on should use its own identity
@@ -98,7 +103,7 @@ independent unless explicit title synchronization is requested.
 
 ## Remembered position and zoom
 
-Accepted for the next implementation step: remember the view per document locally
+Implemented in the usable vertical slice: remember the view per document locally
 in each browser or desktop profile. Restore it on note switching, reopening, and
 application reload. Desktop and browser retain independent views; view changes
 do not write note content, mark the document dirty, or enter document history and
@@ -128,10 +133,10 @@ local only.
    Unknown versions or invalid JSON must show a recoverable error without writing
    an empty replacement. Initialize empty content only for deliberate creation.
 2. **Saving.** Retain committed `documentchange` snapshots and mark pending saves
-   through the host saving hook. Suppress writeback for host-driven replacement.
+   through the per-note save coordinator. Suppress writeback for host-driven replacement.
    Serialize saves, retain failed changes for retry, and never report success
-   before acknowledgement. Verify the hook's behavior rather than assuming all
-   these properties from its name.
+   before acknowledgement. Read the current server content without HTTP caching
+   before each write; this detects some conflicts but is not an atomic comparison.
 3. **Unfinished edits.** `getDocument()` excludes the textarea buffer and can
    contain provisional nodes; `destroy()` discards unfinished edits. Commit before
    saving on navigation, tab close, and explicit refresh. Prototype a controlled
@@ -182,11 +187,11 @@ With export/previews deferred, v1 does not promise a readable map preview withou
 the bundle. A future static outline or image fallback would need a separate
 artifact and a presentation path stock Trilium can render without our code.
 
-## Proposed conflict policy
+## Conflict policy
 
 This is single-user editing with recovery for detected conflicts, not concurrent
 collaborative editing. The following is the accepted target behavior; only the
-subset recorded in the progress log is implemented and verified so far.
+scope recorded in the progress log is implemented and verified so far.
 
 | Situation | Proposed behavior |
 | --- | --- |
@@ -256,14 +261,14 @@ desktop/server synchronization, including delayed and offline conflicts.
 
 ## Implementation sequence and acceptance
 
-1. **Compatibility and lifecycle spike.** Confirm the exact desktop/server builds.
+1. **Compatibility and lifecycle spike — complete.** Confirm the exact desktop/server builds.
    In a disposable stock Trilium instance, import a tiny
    Preact Render Note, mount `mr`, load/save JSON in that same note, and open two
    maps plus two views of one map. Prove context identity, tab/refresh cleanup,
    unfinished-label commits, and package loading. Establish the minimum supported
    version from evidence. This checkpoint decides whether to retain the preferred
    approach or use the JSON-note fallback.
-2. **Usable vertical slice.** Implement the versioned format, shared wrapper,
+2. **Usable vertical slice — implemented.** Implement the versioned format, shared wrapper,
    template or launcher, autosave feedback, error recovery, and local position/zoom
    persistence as specified above. Acceptance: create
    a map, edit/restructure/check/collapse, navigate away, reopen and restart Trilium,

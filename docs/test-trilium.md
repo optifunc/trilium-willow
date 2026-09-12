@@ -1,8 +1,8 @@
 # Local Trilium test server
 
 Provisioned and verified on 2026-09-12. This completes the server/browser setup
-checkpoint. The subsequent [mind-map integration spike](progress.md) is also
-implemented and installed in this test server.
+checkpoint. The subsequent [mind-map adapter](progress.md), including creation,
+recovery, and local view persistence, is installed in this test server.
 
 ## Access and isolation
 

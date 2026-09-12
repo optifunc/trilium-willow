@@ -24,7 +24,7 @@ export async function request(page, method, path, body) {
   return page.evaluate(async ({ method, path, body, baseUrl }) => {
     if (location.origin !== baseUrl) throw new Error('Not connected to the isolated test instance.');
     const response = await fetch(`/api/${path}`, {
-      method, headers: { ...await glob.getHeaders(), 'Content-Type': 'application/json' },
+      method, cache: 'no-store', headers: { ...await glob.getHeaders(), 'Content-Type': 'application/json' },
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     });
     const text = await response.text();

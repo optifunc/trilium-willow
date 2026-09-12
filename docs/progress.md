@@ -1,5 +1,20 @@
 # Progress
 
+## 2026-09-12 — Windows zoom isolation
+
+Reproduced keyboard and Ctrl+wheel double zoom in stock Windows Trilium 0.105.0
+with the add-on. Fixed event propagation in the widget and rebuilt/deployed the
+shared bundle to isolated server and native desktop databases. Added focused
+integration checks and Windows support to the manual desktop launcher, including
+restoring stock desktop zoom shortcuts when copying a server-created fixture.
+Build/typechecks, 194 unit tests, 24 three-engine widget cases and actual Windows
+Electron/Chrome integration checks passed. Native macOS rerun and the broader
+release matrix remain outside this focused verification. Full cause, evidence,
+runtime adaptation and reproducible commands: [Windows report](test-windows.md).
+
+Changes remain uncommitted in both this repository and the `mr` submodule; a
+future release must include the widget change and update the parent gitlink.
+
 ## 2026-09-12 — Manual GitHub Actions
 
 Committed distribution as `1a3edbc`, then implemented manual **Build** and

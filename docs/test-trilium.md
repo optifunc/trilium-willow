@@ -1,5 +1,9 @@
 # Local Trilium test server
 
+For the current Windows setup, zoom investigation, and run commands, see
+[Windows verification](test-windows.md). The original macOS setup below is
+retained as historical platform-specific documentation.
+
 For package installation checks, run `pnpm package` then `pnpm test:distribution`.
 The latter creates independent empty server and desktop databases under
 `.test/trilium/distribution/run-*`, using ports 37848/37849 and desktop CDP 39227.

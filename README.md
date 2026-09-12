@@ -3,7 +3,8 @@
 An experimental stock-Trilium adapter for the mind-map editor in [`mr`](mr/README.md).
 The usable adapter is tested on Trilium v0.105.0 in Chrome and an isolated macOS
 desktop build. An installable experimental package is available locally; the
-distribution lifecycle is tested on both clients.
+distribution lifecycle is tested on both clients. Windows desktop and Chrome
+zoom isolation is covered by [the Windows test report](docs/test-windows.md).
 
 Each map is a Render Note containing versioned JSON. All maps reference one shared
 JSX code note containing the bundled editor. No server modification or widget
@@ -74,7 +75,7 @@ deferred.
 
 ## Manual desktop testing
 
-Run from this repository:
+Run from this repository (macOS arm64 or Windows x64 test installation):
 
 ```sh
 pnpm dev:desktop

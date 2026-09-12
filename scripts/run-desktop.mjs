@@ -16,7 +16,8 @@ if (args.includes('--help')) {
   process.exit(0);
 }
 if (args.some(arg => arg !== '--no-build')) throw new Error('Unknown option; use --help.');
-if (process.platform !== 'darwin' || process.arch !== 'arm64') throw new Error('This test installation contains the macOS arm64 Trilium app.');
+const windows = process.platform === 'win32' && process.arch === 'x64';
+if (!windows && !(process.platform === 'darwin' && process.arch === 'arm64')) throw new Error('This launcher supports the macOS arm64 and Windows x64 test installations.');
 for (const port of [37843,39224]) {
   const occupied = await new Promise(resolve => {
     const socket = createConnection({host:'127.0.0.1',port});
@@ -25,10 +26,10 @@ for (const port of [37843,39224]) {
   });
   if (occupied) throw new Error(`Port ${port} is occupied. Quit the manual test app before starting it again.`);
 }
-const executable = path('desktop/Trilium Notes.app/Contents/MacOS/trilium');
+const executable = path(windows ? 'desktop/trilium.exe' : 'desktop/Trilium Notes.app/Contents/MacOS/trilium');
 await access(executable);
 if (!args.includes('--no-build')) {
-  const build = spawnSync('pnpm',['build'],{cwd:fileURLToPath(repo),stdio:'inherit'});
+  const build = spawnSync(windows ? 'pnpm.cmd' : 'pnpm',['build'],{cwd:fileURLToPath(repo),stdio:'inherit',shell:windows,windowsHide:true});
   if (build.error) throw build.error;
   if (build.status !== 0) process.exit(build.status ?? 1);
 }
@@ -46,7 +47,7 @@ if (!initialized) {
 }
 const log = openSync(path('manual-desktop.log'),'a');
 const child = spawn(executable,['--remote-debugging-port=39224','--remote-debugging-address=127.0.0.1'],{
-  cwd:fileURLToPath(root),stdio:['ignore',log,log],
+  cwd:fileURLToPath(root),stdio:['ignore',log,log],windowsHide:true,
   env:{...process.env,TRILIUM_DATA_DIR:path('manual-desktop-data'),TRILIUM_ELECTRON_DATA_DIR:path('manual-desktop-profile'),
     TRILIUM_HOST:'127.0.0.1',TRILIUM_PORT:'37843',TRILIUM_ENV:'production'},
 });
@@ -72,6 +73,21 @@ try {
   }
   if (!page) throw new Error('No desktop renderer appeared.');
   await page.waitForFunction(()=>globalThis.glob?.appContext);
+  if (!initialized) {
+    // Server-created databases persist empty desktop-only bindings. Restore the
+    // stock zoom keys once when seeding this desktop fixture; retain later edits.
+    await page.evaluate(async () => {
+      const headers = await glob.getHeaders();
+      const response = await fetch('/api/keyboard-actions', { headers });
+      if (!response.ok) throw new Error('Could not read desktop keyboard defaults.');
+      const actions = await response.json();
+      for (const action of actions.filter(a => ['zoomIn','zoomOut','zoomReset'].includes(a.actionName))) {
+        const name = `keyboardShortcuts${action.actionName[0].toUpperCase()}${action.actionName.slice(1)}`;
+        const result = await fetch(`/api/options/${name}/${encodeURIComponent(JSON.stringify(action.defaultShortcuts))}`, {method:'PUT',headers});
+        if (!result.ok) throw new Error(`Could not restore ${action.actionName}.`);
+      }
+    });
+  }
   // Update only the code note; retain maps made during previous manual tests.
   await page.evaluate(async ({id,bundle})=>{
     if (location.protocol !== 'trilium-app:' || !glob.isElectron) throw new Error('Not the isolated desktop renderer.');

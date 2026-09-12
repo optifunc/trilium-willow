@@ -2,6 +2,11 @@
 
 Date: 2026-09-12. Status: proposal; implementation has not started.
 
+Environment checkpoint: the isolated v0.105.0 server is running under
+`.test/trilium`, and browser setup, editing, independent-session readback, and
+server-restart persistence passed. See [test-server report](test-trilium.md).
+The adapter/lifecycle spike itself has not yet been implemented.
+
 User preference: an add-on for stock Trilium, running the latest version.
 Confirmed scope: desktop and browser; standalone documents. Internal note links,
 existing-map migration, and dedicated map export are deferred.

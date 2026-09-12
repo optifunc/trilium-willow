@@ -1,6 +1,6 @@
 # Trilium mind-map add-on: options and proposed plan
 
-Date: 2026-09-12. Status: usable vertical slice and native creation UI implemented; persistence hardening and distribution pending.
+Date: 2026-09-12. Status: initial persistence/host-hardening pass complete; distribution next.
 
 Environment checkpoint: the isolated v0.105.0 server is running under
 `.test/trilium`, and browser setup, editing, independent-session readback, and
@@ -121,8 +121,12 @@ available through **Cmd/Ctrl+Shift+0**. Show only contextual controls: **Retry s
 **Keep both**, **Use incoming**, invalid-source actions, and **Edit here** in a
 second pane viewing the same map.
 
-Bind each Render Note wrapper to its invoking `originEntity`, and rebuild the
-editor only when the effective read-only mode actually changes. Wait for a measurable pane before mounting and recalculate layout on each
+Pin each wrapper to its initial synchronous note context, and rebuild the editor
+only when the effective read-only mode actually changes. If an older request for
+the same shared bundle completes after navigation, serve the current Willow note;
+keep the wrapper pinned thereafter. A host replacement commits detached textarea
+text through the normal blur handler and transfers ownership to the replacement
+in the same pane. Wait for a measurable pane before mounting and recalculate layout on each
 hidden-to-visible transition. The host can leave a Render Note hidden briefly
 after switching from a text note; measurements taken then are invalid. Restore
 the view before revealing the canvas. During map-to-map replacement, retain an
@@ -303,11 +307,15 @@ desktop/server synchronization, including delayed and offline conflicts.
    a map, edit/restructure/check/collapse, navigate away, reopen and restart Trilium,
    and recover exactly the committed document without cross-note writes. Restore
    the locally remembered view; a first opening centres the root at 100% zoom.
-3. **Persistence and host hardening.** Exercise delayed and failed saves, rapid
+3. **Persistence and host hardening — initial pass complete.** Exercised delayed and failed saves, rapid
    A-to-B switching, duplicate views, external updates, deletion, protection,
-   read-only transitions, light/dark themes, sizing, and shortcut conflicts. Test
-   revisions/restore, sync to another instance, and data export/import. Known dirty
-   content must remain recoverable; silent overwrite or reset is a failing result.
+   read-only transitions, light/dark themes, sizing, and clipboard shortcuts. Tested
+   revisions/restore, real sync with a second database, and native export/import.
+   Fixed read-only draft retry, dark editing contrast, and out-of-order bundle
+   completion losing the current editor. Known in-memory drafts remain recoverable.
+   Two accepted limits remain: native offline sync can replace an already saved
+   competing version, and a single-map archive omits the external editor relation.
+   See the [hardening results](progress.md) for exact evidence and scope.
 4. **Distribution.** Produce the installable subtree, test a clean installation,
    upgrade, and removal, and document supported versions and limitations. Verify
    that old user maps survive an add-on update and remain recoverable without it.

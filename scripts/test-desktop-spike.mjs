@@ -91,6 +91,12 @@ try {
   }
   function sameView(a,b) {for(const key of ['zoom','centerX','centerY'])assert.ok(Math.abs(a[key]-b[key])<.02,JSON.stringify({a,b}));}
   sameView(await view(),{zoom:1,centerX:0,centerY:0});
+  await createdPane.locator('.mindmap-root-node .mindmap-label').click({button:'right'});
+  await createdPane.getByRole('menuitem',{name:/^Add child/}).click();
+  await createdPane.locator('.mindmap textarea').fill('Desktop clipboard child');await page.keyboard.press('Enter');
+  await page.keyboard.press('Meta+c');await page.keyboard.press('Meta+v');
+  await page.waitForFunction(id=>[...document.querySelectorAll(`.willow-spike[data-note-id="${id}"] .mindmap-node`)].filter(e=>e.textContent==='Desktop clipboard child').length===2,id);
+  await waitSaved(createdPane);
   await createdPane.locator('.mindmap').click({position:{x:20,y:20}});
   await page.keyboard.press('Meta+=');
   await createdPane.locator('.mindmap').hover({position:{x:20,y:20}});await page.mouse.wheel(120,80);
@@ -110,7 +116,7 @@ try {
     environment:await page.evaluate(()=>({version:glob.triliumVersion,electron:glob.isElectron,url:location.href})),
     createdNoteId:id,switching,navigation,
     passed:['isolated desktop data/profile','same shared bundle mounted on desktop','real label editing and save','reload persistence',
-      'native template menu keeps title and root independent and centres at 100%','desktop pan/zoom survives note switching and renderer reload']};
+      'native template menu keeps title and root independent and centres at 100%','native desktop clipboard copy/paste','desktop pan/zoom survives note switching and renderer reload']};
   await writeFile(new URL('evidence/spike/desktop.json',testRoot),JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify(report,null,2));
 } finally {

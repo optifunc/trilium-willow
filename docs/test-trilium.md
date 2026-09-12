@@ -18,7 +18,8 @@ recovery, and local view persistence, is installed in this test server.
   downloads, dependencies, logs, screenshots, and database.
 
 The server listens on `127.0.0.1` only. It uses a new empty knowledge base and is
-not configured to sync with another instance. The existing desktop installation
+not configured to initiate sync with another instance. The optional hardening test
+connects a disposable peer to it over loopback, as described below. The existing desktop installation
 and personal database were not used or modified.
 
 ## Installation details
@@ -91,5 +92,23 @@ Evidence: [JSON report](../.test/trilium/evidence/browser-smoke.json) and
 
 The subsequent integration spike mounted `mr` in a shared Render Note bundle and
 verified map persistence and lifecycle in the browser, plus desktop mount/edit/
-reload in a separate test app. See the [progress log](progress.md) for the tested scope and remaining
-sync, clipboard, and conflict work.
+reload in a separate test app. See the [progress log](progress.md) for the tested
+scope, subsequent hardening results, and remaining limitations.
+
+## Persistence and host hardening
+
+Run `pnpm test:hardening` after deploying the bundle. The test creates disposable
+notes and uses separate browser contexts. It tests delayed/offline saves, two
+clients, read-only changes, revision restoration, deletion/undelete, protected
+sessions, theme contrast, clipboard, and native archive import/export. Theme
+changes are restored; protected-session logout intentionally reloads test clients.
+
+`node scripts/test-sync.mjs` runs the real sync engine in a second server process
+with `.test/trilium/sync-data` on port 37844. A proxy bound to 127.0.0.1:37845
+forwards only to the primary test server; temporarily refusing requests simulates
+an offline link. Both processes are stopped after the test. The peer database
+persists for future runs; test notes are newly created on each run.
+
+Evidence is in `.test/trilium/evidence/hardening/`. Synchronization of competing
+already-saved versions follows Trilium's last-write-wins behavior. A map-only
+archive preserves the JSON but needs its external editor relation reattached.

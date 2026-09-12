@@ -1,5 +1,88 @@
 # Progress
 
+## 2026-09-12 — Restore light-mode selection contrast
+
+Restored the widget's original `#d2d2d2` selection background in light mode;
+the hardening change had inherited Trilium Next light's much paler `#f5f5f5`.
+Dark mode still uses Trilium's accent (`#555` in Next dark). The dark selector
+accounts for Render Note CSS scoping. Build passed and computed selected-node
+backgrounds were verified in both themes on the test server.
+
+Deployed bundle: `c4a2789797d498c6721d888b80e3bd9902009f56488495a51c332f09974100ea`.
+
+## 2026-09-12 — Persistence and host hardening
+
+Committed the preceding fixes/desktop launcher as `dfb5c86` before this step.
+The initial hardening pass is complete; distribution is next.
+
+### Fixes
+
+- Read-only transitions now keep a newly committed, unfinished label in a
+  retryable error state. Previously unlocking left that draft marked unsaved with
+  neither a save timer nor a Retry action.
+- Editor fields, selection, drag previews, and menus now follow Trilium's theme.
+  Dark editing text previously had contrast 1.61:1 against a white field; the
+  corrected Next dark field measures 9.67:1 (Next light: 21:1).
+- Reproduced an old bundle response completing after a newer map had opened,
+  leaving a blank pane. Pin the wrapper to its initial synchronous context, with
+  a same-bundle fallback for late responses. Existing wrappers remain pinned on
+  later navigation. Detached textareas commit through the widget's blur handler;
+  replacement editors in the same pane inherit editing ownership. An unfinished
+  label survives the deliberately reordered responses.
+
+The `mr` submodule remains unchanged. These fixes are deployed to the test server.
+
+### Verification
+
+Tested bundle SHA-256:
+
+```text
+d86d85ffbd40e84d71348506933c1d36983bed8fb776c13065a9fe4def63893f
+```
+
+- Build/typecheck and 24 unit tests passed, including the new read-only regression.
+- The existing 10 browser lifecycle regressions and 8 acceptance groups passed.
+  Navigation checks include normal-note round trips, continuous previews, and
+  intentionally out-of-order bundle completion while editing.
+- Seven new persistence groups passed: delayed serialized saves/navigation;
+  disconnected writes and retry; independent clients and conflict recovery;
+  read-only transitions; exact revision restoration; deletion/undelete retaining
+  a failed draft (no attempted write into a known-deleted note); and protected
+  editing/logout. Clean protected logout removes decrypted editors and sessions;
+  local storage contains view coordinates, not document text.
+- Host checks passed actual clipboard copy/paste, light/dark editing contrast,
+  and a native subtree export/import preserving exact JSON.
+- Real native sync with a second loopback server passed bundle/map transfer,
+  saving locally while offline, upload on reconnection, and updates in the other
+  direction. Both processes used the same protocol and separate databases.
+- The actual isolated desktop passed creation, editing, clipboard copy/paste,
+  view restoration, and the navigation checks. The delay harness intercepts XHR
+  at the frontend boundary so it exercises Electron's custom local protocol as
+  well as HTTP. Interception is removed after each scenario.
+
+Evidence: [persistence](../.test/trilium/evidence/hardening/browser.json),
+[themes/clipboard/archive](../.test/trilium/evidence/hardening/host.json),
+[native sync](../.test/trilium/evidence/hardening/sync.json),
+[browser navigation](../.test/trilium/evidence/navigation.json), and
+[desktop](../.test/trilium/evidence/spike/desktop.json).
+Reproduce with `pnpm test:trilium`, `pnpm test:hardening`, and
+`pnpm spike:test:desktop` after building/deploying the bundle.
+
+### Confirmed limits
+
+Native sync chooses one complete document when independent databases have already
+acknowledged competing edits. The test reproduced that behavior; the add-on's
+preflight checks and recovery controls cannot guarantee retaining both such
+versions. Draft recovery remains in memory and does not survive abrupt process
+loss. Clean protected-session logout was tested; forced expiry with an unsaved
+offline draft is not covered by a durability guarantee.
+
+A single-map archive retains the JSON but omits `~renderNote` pointing outside
+that subtree. Restoring that relation to the installed shared editor reopens the
+map. The round-trip test verifies this repair explicitly. Packaging must document
+this and test relation preservation for the full add-on subtree. Dedicated map
+export remains deferred.
+
 ## 2026-09-12 — Title isolation, continuous switching, hidden-pane layout
 
 Committed the preceding UI work as `f68c647` before these fixes.

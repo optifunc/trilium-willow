@@ -73,6 +73,16 @@ describe('document save coordination', () => {
     session.writable = false; first.resolve('base');
     await expect(saved).rejects.toThrow('read-only'); expect(write).not.toHaveBeenCalled();
   });
+  it('keeps a label committed during locking retryable after unlocking', async () => {
+    const {session,write} = fixture();
+    session.editing = true; session.writable = false;
+    session.change('unfinished label'); session.editing = false;
+    expect(session.state).toBe('error'); expect(session.local).toBe('unfinished label');
+    expect(write).not.toHaveBeenCalled();
+    session.writable = true;
+    await session.flush();
+    expect(session.state).toBe('saved'); expect(session.base).toBe('unfinished label');
+  });
   it('does not resend a write whose response was lost but content was stored', async () => {
     const { session, write, remote } = fixture();
     write.mockImplementationOnce(async content => { remote(content); throw new Error('response lost'); });

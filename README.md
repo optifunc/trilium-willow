@@ -2,7 +2,7 @@
 
 An experimental stock-Trilium adapter for the mind-map editor in [`mr`](mr/README.md).
 The usable adapter is tested on Trilium v0.105.0 in Chrome and an isolated macOS
-desktop build. Packaging and further persistence hardening remain pending.
+desktop build. The first persistence/host-hardening pass is complete; packaging is next.
 
 Each map is a Render Note containing versioned JSON. All maps reference one shared
 JSX code note containing the bundled editor. No server modification or widget
@@ -30,7 +30,14 @@ retains the draft after a failure. For a detected external change, **Keep both**
 saves local work as a sibling recovery map before loading the saved original;
 **Use incoming** asks before discarding local work. Drafts stay in memory through
 pane changes, but do not survive an abrupt process loss. Cross-device edits can
-still race. Invalid documents offer their original source and a reload action.
+still race. Actual offline-sync tests confirm that Trilium picks one version when
+both databases have already acknowledged competing edits. Invalid documents offer
+their original source and a reload action.
+
+Native subtree export/import preserves map JSON. Exporting only a map omits its
+relation to the shared editor outside the archive; reattach `~renderNote` to the
+installed Willow editor to render that imported map. Dedicated map export remains
+deferred.
 
 ## Manual desktop testing
 
@@ -71,6 +78,7 @@ With the isolated test server and its Chrome CDP session running:
 ```sh
 pnpm spike:deploy
 pnpm test:trilium
+pnpm test:hardening
 pnpm spike:test:desktop
 node scripts/test-restart.mjs
 ```
@@ -79,7 +87,11 @@ These tools target the isolated test installation. The restart check verifies th
 server PID and directory before stopping and restarting it. Deployment updates the
 bundle while retaining maps. Browser tests deliberately reset the two disposable
 maps. Desktop tests refresh a separate database from a consistent backup of the
-test server and close the isolated app afterward. The downloaded desktop app and
+test server and close the isolated app afterward. Hardening tests use disposable
+maps and independent browser contexts; they briefly switch the test theme and
+exercise protected-session login/logout. The sync test starts a separate database
+under `.test/trilium/sync-data` on port 37844 and a loopback proxy on 37845, then
+stops both. No external sync service is involved. The downloaded desktop app and
 test SQLite dependency are described in [the progress log](docs/progress.md).
 
 [Integration plan](docs/trilium-integration-plan.md) ·

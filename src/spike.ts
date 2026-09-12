@@ -42,7 +42,19 @@ const styles = `${widgetStyles}
 .willow-spike-error, .willow-notice { padding:12px; color:var(--main-text-color); }
 .willow-spike-host:not([data-ready="true"]) { visibility:hidden; }
 .willow-source { width:100%; min-height:120px; }
-.willow-spike .mindmap, .willow-transition .mindmap { --mindmap-background:var(--main-background-color,#fff); --mindmap-text-color:var(--main-text-color,#111); }
+.willow-spike .mindmap, .willow-transition .mindmap {
+  --mindmap-background:var(--main-background-color,#fff); --mindmap-text-color:var(--main-text-color,#111);
+  --mindmap-selection-color:#d2d2d2; --mindmap-focus-color:var(--main-text-color,#777);
+}
+.willow-spike .mindmap:is(.dark-theme *), .willow-transition .mindmap:is(.dark-theme *) {
+  --mindmap-selection-color:var(--accented-background-color,#555);
+}
+.willow-spike .mindmap-editor, .willow-spike .mindmap-drag-image {
+  background:var(--main-background-color,#fff); color:var(--main-text-color,#111);
+}
+.willow-spike .mindmap-menu { background:var(--main-background-color,#fff); color:var(--main-text-color,#111); }
+.willow-spike .mindmap-menu-shortcut { color:inherit; opacity:.75; }
+.willow-spike .mindmap-menu button:hover, .willow-spike .mindmap-menu-navigated button:focus { background:var(--accented-background-color,#e5e5e5); }
 `;
 
 export default function WillowSpike() {
@@ -72,8 +84,13 @@ function parentId(note: Note, context?: NoteContext) {
 function NotePane() {
   const { noteContext } = useNoteContext();
   // Render Note roots can receive navigation events before Trilium removes them.
-  // Pin this root to the document that invoked its bundle, not the hook's lagging note.
-  const note = originEntity;
+  // Pin once to the synchronous context, not the hook's lagging note. Trilium
+  // can also finish an older bundle request after opening a different Willow
+  // document. The same shared editor can serve that current document safely.
+  const note = useRef(noteContext?.note?.type === 'render'
+    && noteContext.note.hasLabel('willowMindMap')
+    && noteContext.note.getRelationValue('renderNote') === originEntity.getRelationValue('renderNote')
+    ? noteContext.note : originEntity).current;
   if (!noteContext || noteContext.note?.noteId !== note.noteId || note.type !== 'render') return null;
   if (note.hasOwnedLabel('template')) return h('p', { class: 'willow-notice' },
     'Create a map from the note tree: Insert note after or Insert child note → Willow Mind Map.');
@@ -108,9 +125,15 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
   readonlyRef.current = readonly || !ownsEdit;
   const blob = useNoteBlob(note);
 
-  function commitEdit() {
-    if (composing.current) throw new Error('Finish text composition before leaving the map.');
-    host.current?.querySelector('textarea')?.blur();
+  function commitEdit(detached = false) {
+    if (composing.current && !detached) throw new Error('Finish text composition before leaving the map.');
+    const textarea = host.current?.querySelector('textarea');
+    textarea?.blur();
+    // Removing a focused element does not dispatch blur. A late host render can
+    // detach our root before cleanup runs; finish through the widget's normal
+    // blur handler so the detached textarea's last text reaches the save session.
+    if (textarea && host.current?.querySelector('textarea') === textarea)
+      textarea.dispatchEvent(new FocusEvent('blur'));
   }
   async function flush() {
     commitEdit();
@@ -235,10 +258,20 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
     sync();
     return () => {
       resize.disconnect(); unsubscribe();
-      try { commitEdit(); void session.flush().catch(() => {}); }
+      try { commitEdit(true); void session.flush().catch(() => {}); }
       finally {
         disposed.current = true; destroy();
-        if (diagnostics.writers.get(note.noteId) === instanceId.current) diagnostics.writers.delete(note.noteId);
+        if (diagnostics.writers.get(note.noteId) === instanceId.current) {
+          diagnostics.writers.delete(note.noteId);
+          // A host replacement may mount its new root before disposing this one.
+          // Hand ownership to that replacement in the same pane, not another split.
+          const replacement = [...diagnostics.active].find(([, v]) => v.noteId === note.noteId
+            && v.host.isConnected && v.host.parentElement?.dataset.willowContext === noteContext?.ntxId);
+          if (replacement) {
+            diagnostics.writers.set(note.noteId, replacement[0]);
+            replacement[1].grant(true);
+          }
+        }
       }
     };
   }, []);

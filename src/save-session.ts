@@ -39,6 +39,14 @@ export class SaveSession {
   change(content: string) {
     this.local = content;
     if (this.incoming !== undefined) this.state = 'conflict';
+    else if (!this.writable && this.dirty) {
+      // The host may make a note read-only while its textarea still has focus.
+      // Committing that textarea must retain a retryable draft, not a stranded
+      // "unsaved" state with no timer or recovery action after unlocking.
+      this.cancelTimer();
+      this.state = 'error';
+      this.error = 'Editing became read-only. Your draft is retained in this session.';
+    }
     else {
       this.state = this.saving ? 'saving' : this.dirty ? 'unsaved' : 'saved';
       this.error = '';

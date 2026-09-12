@@ -8,5 +8,5 @@ try {
   const result = await checkNavigation(page,notes);
   await writeFile(new URL('evidence/navigation.json',testRoot),JSON.stringify({testedAt:new Date().toISOString(),bundleSha256:notes.bundleSha256,...result},null,2));
   await page.screenshot({path:new URL('evidence/navigation.png',testRoot).pathname});
-  console.log('Passed: three normal-note round trips; no blank frames in two delayed map switches; previews removed.');
+  console.log('Passed: three normal-note round trips; no blank frames in two delayed map switches; previews removed; stale bundle completion retains the current map and draft.');
 } finally {await browser.close();}

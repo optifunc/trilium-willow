@@ -11,7 +11,8 @@
     "spike:deploy": "node scripts/deploy-spike.mjs",
     "spike:test": "node scripts/test-spike.mjs",
     "test:trilium": "node scripts/test-spike.mjs && node scripts/test-vertical-slice.mjs && node scripts/test-navigation.mjs && node scripts/test-selection-focus.mjs",
-    "test:hardening": "node scripts/test-hardening.mjs && node scripts/test-host.mjs && node scripts/test-sync.mjs",
+    "test:hardening": "node scripts/test-hardening.mjs && node scripts/test-host.mjs && node scripts/test-sync.mjs && node scripts/test-review-regressions.mjs",
+    "test:desktop:lifecycle": "node scripts/test-desktop-lifecycle.mjs",
     "dev:desktop": "node scripts/run-desktop.mjs",
     "spike:test:desktop": "node scripts/test-desktop-spike.mjs"
   },

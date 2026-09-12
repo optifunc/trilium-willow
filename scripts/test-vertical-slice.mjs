@@ -30,13 +30,13 @@ async function edit(id, text) {
   await pane(id).locator('.mindmap textarea').fill(text);
 }
 async function view(id, contextId) {
-  await page.waitForFunction(({id,contextId})=>[...globalThis[Symbol.for('trilium-willow.spike')].active.values()]
-    .some(v=>v.noteId===id&&v.host.isConnected&&v.host.clientWidth>0&&(!contextId||v.host.parentElement.dataset.willowContext===contextId)),{id,contextId});
-  return page.evaluate(({id,contextId})=>{
+  const result=await page.waitForFunction(({id,contextId})=>{
     const v=[...globalThis[Symbol.for('trilium-willow.spike')].active.values()].find(v=>v.noteId===id&&v.host.isConnected&&v.host.clientWidth>0&&(!contextId||v.host.parentElement.dataset.willowContext===contextId));
+    if(!v)return false;
     const el=v.host.querySelector('.mindmap'), p=v.editor.getViewport();
     return {zoom:p.zoom,centerX:(el.clientWidth/2-p.x)/p.zoom,centerY:(el.clientHeight/2-p.y)/p.zoom};
   },{id,contextId});
+  try{return await result.jsonValue();}finally{await result.dispose();}
 }
 function closeView(a,b) { for(const key of ['zoom','centerX','centerY']) assert.ok(Math.abs(a[key]-b[key])<.02,`${key}: ${JSON.stringify({a,b})}`); }
 let id;

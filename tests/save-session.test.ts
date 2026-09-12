@@ -62,6 +62,7 @@ describe('document save coordination', () => {
     const { session, read } = fixture();
     session.editing = true; session.receive('incoming');
     expect(session.local).toBe('base'); expect(session.state).toBe('conflict');
+    session.editing = false; // The adapter commits the textarea before recovery.
     read.mockRejectedValueOnce(new Error('offline'));
     await expect(session.useIncoming()).rejects.toThrow('offline');
     expect(session.local).toBe('base'); expect(session.incoming).toBe('incoming');
@@ -88,5 +89,39 @@ describe('document save coordination', () => {
     write.mockImplementationOnce(async content => { remote(content); throw new Error('response lost'); });
     session.change('local'); await expect(session.flush()).rejects.toThrow();
     await session.flush(); expect(write).toHaveBeenCalledOnce(); expect(session.state).toBe('saved');
+  });
+  it.each(['draft', 'unfinished', 'undo-back-to-copy'])('retains newer %s changes during the final recovery read', async kind => {
+    const {session,read} = fixture();
+    session.change('copied draft'); session.receive('incoming');
+    const held = deferred<string>(); read.mockReturnValueOnce(held.promise);
+    const copy = vi.fn(async () => {});
+    const recovery = session.useIncoming(copy);
+    await vi.waitFor(() => expect(read).toHaveBeenCalledOnce());
+    expect(session.recovering).toBe(true);
+    await expect(session.useIncoming()).rejects.toThrow('Wait');
+    await expect(session.flush()).rejects.toThrow('Wait');
+    if (kind === 'unfinished') session.editing = true;
+    else { session.change('newer draft'); if (kind === 'undo-back-to-copy') session.change('copied draft'); }
+    const newest = session.local;
+    held.resolve('incoming');
+    await expect(recovery).rejects.toThrow('changed during recovery');
+    expect(session.local).toBe(newest); expect(session.incoming).toBe('incoming');
+    expect(session.state).toBe('conflict'); expect(session.recovering).toBe(false);
+    expect(copy).toHaveBeenCalledWith('copied draft');
+  });
+  it('does not discard edits made while discard confirmation is open', async () => {
+    const {session,read} = fixture(); session.change('before confirmation');session.receive('incoming');
+    const permission = deferred<boolean>();
+    const recovery = session.useIncoming(undefined, () => permission.promise);
+    session.change('after confirmation opened'); permission.resolve(true);
+    await expect(recovery).rejects.toThrow('changed during recovery');
+    expect(read).not.toHaveBeenCalled(); expect(session.local).toBe('after confirmation opened');
+  });
+  it('allows a replacement pane to replay unchanged incoming content during recovery', async () => {
+    const {session,read} = fixture(); session.change('draft');session.receive('incoming');
+    const held=deferred<string>();read.mockReturnValueOnce(held.promise);
+    const recovery=session.useIncoming();await vi.waitFor(()=>expect(read).toHaveBeenCalledOnce());
+    session.receive('incoming');held.resolve('incoming');await recovery;
+    expect(session.state).toBe('saved');expect(session.local).toBe('incoming');
   });
 });

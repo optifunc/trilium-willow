@@ -1,5 +1,6 @@
 import { checkNavigation } from './check-navigation.mjs';
 import { checkSelectionFocus } from './check-selection-focus.mjs';
+import { checkReviewRegressions } from './check-review-regressions.mjs';
 import { createFromMenu, waitSaved, measureSwitch } from './test-ui.mjs';
 import { chromium } from 'playwright';
 import { readFile, writeFile } from 'node:fs/promises';
@@ -116,10 +117,11 @@ try {
   await page.reload();await createdPane.locator('.mindmap').waitFor();sameView(await view(),remembered);
   const navigation=await checkNavigation(page,notes);
   const selectionFocus=await checkSelectionFocus(page,notes);
+  const reviewRegressions=await checkReviewRegressions(page,notes);
   await page.screenshot({path:fileURLToPath(new URL('evidence/spike/desktop.png',testRoot)),fullPage:true});
   const report={testedAt:new Date().toISOString(),bundleSha256:notes.bundleSha256,userData,
     environment:await page.evaluate(()=>({version:glob.triliumVersion,electron:glob.isElectron,url:location.href})),
-    createdNoteId:id,switching,navigation,selectionFocus,
+    createdNoteId:id,switching,navigation,selectionFocus,reviewRegressions,
     passed:['isolated desktop data/profile','same shared bundle mounted on desktop','real label editing and save','reload persistence',
       'native template menu keeps title and root independent and centres at 100%','native desktop clipboard copy/paste','desktop pan/zoom survives note switching and renderer reload']};
   await writeFile(new URL('evidence/spike/desktop.json',testRoot),JSON.stringify(report,null,2)+'\n');

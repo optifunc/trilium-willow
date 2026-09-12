@@ -78,6 +78,9 @@ export async function checkSelectionFocus(page,notes) {
       const key=`trilium-willow:view:v1:${id}`,view=JSON.parse(localStorage.getItem(key));
       localStorage.setItem(key,JSON.stringify({...view,selection:{ids,activeId}}));
     },{id:a.id,ids,activeId});
+    // Start a fresh frontend so this exercises persisted defaults, not the
+    // independent snapshot retained by the existing pane context.
+    await page.reload();await ready(b);
   }
   await seedSelection(['missing','hidden','left'],'missing');
   await tree(a).click();await ready(a);await focused(a);

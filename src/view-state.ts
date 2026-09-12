@@ -20,6 +20,32 @@ export function captureView(view: Viewport, width: number, height: number): Save
 }
 export function viewKey(noteId: string) { return `trilium-willow:view:v1:${noteId}`; }
 
+/** Pane defaults survive wrapper replacement; a newly opened context uses local storage. */
+export class PaneViews {
+  private records = new Map<string, { contextId: string; value?: SavedView; read?: () => SavedView }>();
+  private key(contextId: string, noteId: string) { return JSON.stringify([contextId, noteId]); }
+  get(contextId: string, noteId: string) {
+    const record = this.records.get(this.key(contextId, noteId));
+    return record?.read?.() ?? record?.value;
+  }
+  attach(contextId: string, noteId: string, read: () => SavedView) {
+    const key = this.key(contextId, noteId), record = { contextId, read, value: undefined as SavedView | undefined };
+    this.records.set(key, record);
+    return () => {
+      // A replacement can mount before the outgoing component is cleaned up.
+      if (this.records.get(key) !== record) return;
+      record.value = read();
+      this.records.set(key, { contextId, value: record.value });
+    };
+  }
+  forgetContext(contextId: string) {
+    for (const [key, record] of this.records) if (record.contextId === contextId) this.records.delete(key);
+  }
+}
+const paneKey = Symbol.for('trilium-willow.pane-views');
+const shared = globalThis as typeof globalThis & { [paneKey]?: PaneViews };
+export const paneViews = shared[paneKey] ??= new PaneViews();
+
 /** Each instance keeps its own centre; only interactions update the next-open default. */
 export class ViewMemory {
   private view: SavedView;
@@ -43,9 +69,10 @@ export class ViewMemory {
       clearTimeout(this.timer);
       this.timer = setTimeout(() => this.persist(), 250);
     });
-    this.unsubscribe = editor.on('viewportchange', () => {
+    this.unsubscribe = editor.on('viewportchange', ({ origin }) => {
       if (this.restoring || !this.width || !this.height) return;
       this.view = captureView(editor.getViewport(), this.width, this.height);
+      if (origin === 'user') this.interacted = true;
       if (this.interacted) {
         clearTimeout(this.timer);
         this.timer = setTimeout(() => this.persist(), 250);

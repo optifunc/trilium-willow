@@ -112,3 +112,20 @@ persists for future runs; test notes are newly created on each run.
 Evidence is in `.test/trilium/evidence/hardening/`. Synchronization of competing
 already-saved versions follows Trilium's last-write-wins behavior. A map-only
 archive preserves the JSON but needs its external editor relation reattached.
+
+## Desktop window lifecycle and synchronization
+
+Run `pnpm test:desktop:lifecycle` with the primary test server and Chrome available.
+The test uses the downloaded native app with its own `lifecycle-data` and
+`lifecycle-profile`, desktop port 37846, CDP port 39226, and a proxy on 37847 that
+forwards only to the primary loopback server. Initial data is seeded through
+Trilium's native sync setup. The database is retained for subsequent runs.
+
+The test invokes the actual native window-close action with unfinished labels,
+holds or fails the resulting write, verifies the window remains open, then retries
+closing after saving and opens a new native window. It also tests delayed native
+desktop/server sync with an unfinished draft, recovery-copy sync, offline saves,
+and competing acknowledged edits. Evidence is in
+`.test/trilium/evidence/desktop-lifecycle.json`. macOS keeps the app running after
+window closure; process termination in test cleanup is not counted as successful
+close handling or proof of abrupt-loss durability.

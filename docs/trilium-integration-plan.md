@@ -154,8 +154,13 @@ save-conflict handling.
 - Keep simultaneous split panes independent. Preserve each pane's view through
   widget remounts and editing-ownership transfers; use the most recently interacted
   view as the document's local default for a newly opened pane.
+- Retain snapshots by note and pane context across complete wrapper replacement,
+  taking the outgoing live snapshot even if the replacement mounts before cleanup.
+  Discard context snapshots when the native pane closes.
 - Debounce local storage writes and capture the final view before teardown.
   Validate stored values; missing or invalid state uses the centred 100% default.
+- Each user-origin viewport update schedules persistence, including movement after
+  pausing during one drag. A debounce write does not end the gesture.
 - Use the widget's existing viewport and selection events/getters/setters in the
   adapter. No widget change is required.
 
@@ -305,6 +310,15 @@ with the maps. Browser results establish shared UI behavior; desktop acceptance
 must additionally cover shortcuts, clipboard, focus, closing the window, and
 desktop/server synchronization, including delayed and offline conflicts.
 
+These desktop gates are exercised by the isolated desktop suites, including
+`pnpm test:desktop:lifecycle`. Native window closing commits an unfinished label
+and blocks while its write is delayed or failed. Retrying after a successful save
+closes the window; a new native window restores the saved label. On macOS the app
+remains running after its last window closes; process cleanup is not counted as
+window-close evidence. Actual desktop/server sync tests cover unfinished drafts
+during delayed sync, recovery-copy transfer, offline saves/reconnection, and
+whole-document convergence of competing acknowledged versions.
+
 ## Implementation sequence and acceptance
 
 1. **Compatibility and lifecycle spike — complete.** Confirm the exact desktop/server builds.
@@ -325,7 +339,13 @@ desktop/server synchronization, including delayed and offline conflicts.
    read-only transitions, light/dark themes, sizing, and clipboard shortcuts. Tested
    revisions/restore, real sync with a second database, and native export/import.
    Fixed read-only draft retry, dark editing contrast, and out-of-order bundle
-   completion losing the current editor. Known in-memory drafts remain recoverable.
+   completion losing the current editor. Follow-up review fixes coordinate recovery
+   in the shared session and validate draft/edit and incoming generations after
+   each asynchronous boundary, including the final read. Newer work aborts the
+   recovery result; the earlier copy and newer draft remain available. Both Keep
+   both and confirmed discard use this guard. Pane refresh and ownership attempts
+   during recovery are covered explicitly. This is not durability across forced
+   termination or a guarantee that native sync retains competing saved versions.
    Two accepted limits remain: native offline sync can replace an already saved
    competing version, and a single-map archive omits the external editor relation.
    See the [hardening results](progress.md) for exact evidence and scope.

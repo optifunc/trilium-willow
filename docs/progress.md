@@ -1,5 +1,76 @@
 # Progress
 
+## 2026-09-12 — Review fixes and desktop lifecycle gates
+
+Addressed all four review findings. Earlier completion summaries overstated
+recovery guarantees and wrapper-remount coverage, and did not establish native
+desktop closing or desktop/server conflicts. The results below supersede those
+claims for the tested Trilium v0.105.0 browser and macOS desktop builds.
+
+- **Recovery race:** moved busy state, recovery-copy identity, and recovery result
+  into the shared document session. Both Keep both and confirmed discard validate
+  draft/edit and incoming generations after asynchronous work, including the final
+  read. A newer draft, even one changed back to the same text, invalidates the
+  result without clearing the draft or earlier copy. Unfinished editing also
+  invalidates it. Replayed identical incoming notifications are harmless. Busy
+  state survives refresh and blocks editing/ownership transfer across panes.
+- **Independent split views:** retain snapshots by note and pane context. A new
+  wrapper can read the outgoing live snapshot before its cleanup runs; late
+  cleanup cannot replace the new snapshot. Closing a pane clears its context
+  snapshots. The document-wide local default remains for newly opened contexts.
+- **Paused drag:** every user-origin viewport update marks the view for local
+  persistence. Continuing the same drag after a debounce write saves the final
+  position, including on teardown.
+- **Desktop lifecycle:** a close attempt commits unfinished labels and starts
+  saving, while keeping the window open until acknowledgement. Delayed writes
+  must finish, and failed writes must be retried, before retrying window close.
+  Added actual native close/new-window checks and actual desktop/server delayed
+  and offline conflict checks using a separate desktop database and loopback proxy.
+
+### Verification
+
+Deployed bundle SHA-256:
+
+```text
+3b7d67e61e2b47603fcbf782d45e5ac26551ccbf1bbe020bb3390e2d6e6787cc
+```
+
+Build/typecheck and **31 unit tests passed**. The browser lifecycle (10), acceptance
+(8), selection/focus (7), navigation, persistence (7), host integration (3), and
+server-sync checks passed. Four new review groups passed in both browser and
+desktop: refreshing distinct split views; delayed recovery with refresh;
+ownership attempts during recovery; and paused drag/reload. The recovery tests
+verify the UI lock and deliberately bypass it with a programmatic edit to verify
+the independent generation guard, then read back both recovery copies and the
+original. Unit tests additionally cover an unfinished edit, edit/undo back to the
+copied text, delayed discard confirmation, and duplicate incoming notifications.
+
+Six native desktop lifecycle/sync groups passed: initial bundle/map sync; closing
+with an unfinished label and a delayed write; the same with a failed write and
+Retry; delayed sync preserving an unfinished desktop draft in a synced recovery
+copy; offline local saves followed by reconnection; and convergence of competing
+already-acknowledged desktop/server edits. Native close events and new native
+windows establish closing behavior. On macOS the process remains running after
+its last window closes; SIGTERM used for final test cleanup is not close evidence.
+
+The existing desktop creation, title isolation, clipboard, reload, navigation,
+and selection/focus checks also passed. Browser tests and desktop fixture backups
+must run sequentially: browser validation deliberately installs invalid JSON
+temporarily, which must not be captured in the desktop test snapshot.
+
+Evidence: [browser review regressions](../.test/trilium/evidence/review-regressions.json),
+[desktop regressions](../.test/trilium/evidence/spike/desktop.json), and
+[native desktop lifecycle/sync](../.test/trilium/evidence/desktop-lifecycle.json).
+Run `pnpm test:trilium`, `pnpm test:hardening`, `pnpm spike:test:desktop`, and
+`pnpm test:desktop:lifecycle` sequentially after deployment.
+
+Native sync can still choose one complete document when two databases have
+already acknowledged competing versions. Recovery remains in memory until saved;
+forced termination and protected-session expiry with an unsaved offline draft are
+not durability guarantees. Map-only archive imports still need their external
+editor relation restored. These limits are separate from the fixed recovery race.
+The `mr` submodule is unchanged. Distribution remains the next planned step.
+
 ## 2026-09-12 — Local selection memory and tree-click focus
 
 Committed the preceding hardening/contrast work as `5a4b288` before this step.

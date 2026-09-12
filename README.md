@@ -39,6 +39,12 @@ still race. Actual offline-sync tests confirm that Trilium picks one version whe
 both databases have already acknowledged competing edits. Invalid documents offer
 their original source and a reload action.
 
+Recovery is coordinated across panes, including refreshes. A newer draft or
+unfinished edit invalidates a pending recovery result instead of being discarded.
+On desktop, closing with unfinished work commits the label and starts saving; the first close
+is blocked while saving or recovery is pending. Retry closing after the header
+shows Saved, or use Retry save after a failed write.
+
 Native subtree export/import preserves map JSON. Exporting only a map omits its
 relation to the shared editor outside the archive; reattach `~renderNote` to the
 installed Willow editor to render that imported map. Dedicated map export remains
@@ -85,6 +91,7 @@ pnpm spike:deploy
 pnpm test:trilium
 pnpm test:hardening
 pnpm spike:test:desktop
+pnpm test:desktop:lifecycle
 node scripts/test-restart.mjs
 ```
 
@@ -98,6 +105,10 @@ exercise protected-session login/logout. The sync test starts a separate databas
 under `.test/trilium/sync-data` on port 37844 and a loopback proxy on 37845, then
 stops both. No external sync service is involved. The downloaded desktop app and
 test SQLite dependency are described in [the progress log](docs/progress.md).
+
+Desktop lifecycle tests use a separate `.test/trilium/lifecycle-data` database and
+`lifecycle-profile`, native window close/reopen, and a loopback sync proxy. They
+cover delayed/failed close-time writes and actual desktop/server conflicts.
 
 [Integration plan](docs/trilium-integration-plan.md) ·
 [Progress, evidence and limitations](docs/progress.md)

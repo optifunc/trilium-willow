@@ -8,8 +8,8 @@ import { parseDocument, serializeDocument, initializeTemplate } from './document
 import { clearPreview, retainPreview } from './presentation';
 import { treeFocus } from './tree-focus';
 import { SaveSession } from './save-session';
-import { ViewMemory, type SavedView } from './view-state';
-import { createMap, newNoteId, readContent, writeContent, type CreateRequest } from './host';
+import { paneViews, ViewMemory, type SavedView } from './view-state';
+import { createMap, newNoteId, readContent, writeContent } from './host';
 
 const key = Symbol.for('trilium-willow.spike');
 interface View {
@@ -31,7 +31,16 @@ if (!diagnostics.transfers) diagnostics.transfers = new Set();
 if (!diagnostics.unloadRegistered) {
   diagnostics.unloadRegistered = true;
   window.addEventListener('beforeunload', event => {
-    if ([...diagnostics.sessions.values()].some(s => s.dirty || s.saving || s.editing || s.incoming !== undefined)) {
+    if ([...diagnostics.sessions.values()].some(s => s.dirty || s.saving || s.editing || s.recovering || s.incoming !== undefined)) {
+      // Match Trilium's save-before-close contract: finish labels and start the
+      // writes, but keep this close/reload blocked until they are acknowledged.
+      for (const [id, view] of diagnostics.active) {
+        if (diagnostics.writers.get(view.noteId) === id) void view.flush().catch(() => {});
+      }
+      for (const session of diagnostics.sessions.values()) {
+        if (session.dirty && !session.editing && !session.saving && !session.recovering)
+          void session.flush().catch(() => {});
+      }
       event.preventDefault(); event.returnValue = '';
     }
   });
@@ -102,6 +111,7 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
   const host = useRef<HTMLDivElement | null>(null);
   const editor = useRef<MindMapEditor | null>(null);
   const memory = useRef<ViewMemory | undefined>(undefined);
+  const releaseView = useRef<(() => void) | undefined>(undefined);
   const mountedReadonly = useRef<boolean | undefined>(undefined);
   const view = useRef<SavedView | undefined>(undefined);
   const displayed = useRef<string | undefined>(undefined);
@@ -117,10 +127,8 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
   const [error, setError] = useState('');
   const [invalid, setInvalid] = useState(false);
   const [source, setSource] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const busyRef = useRef(false);
-  const [recovered, setRecovered] = useState<string>();
-  const recovery = useRef<CreateRequest | undefined>(undefined);
+  const busy = session.recovering;
+  const recovered = session.recovered;
   const readonly = useEffectiveReadOnly(note, noteContext);
   const readonlyRef = useRef(readonly);
   readonlyRef.current = readonly || !ownsEdit;
@@ -142,15 +150,16 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
   }
   useTriliumEvent('beforeNoteSwitch', async ({ noteContext: target }) => {
     if (target.ntxId === noteContext?.ntxId) {
-      if (busyRef.current) throw new Error('Wait for map recovery to finish.');
+      if (session.recovering) throw new Error('Wait for map recovery to finish.');
       await flush();
       if (host.current && noteContext) retainPreview(host.current, noteContext, styles);
     }
   });
   useTriliumEvent('beforeNoteContextRemove', async ({ ntxIds }) => {
     if (ntxIds.includes(noteContext?.ntxId)) {
-      if (busyRef.current) throw new Error('Wait for map recovery to finish.');
+      if (session.recovering) throw new Error('Wait for map recovery to finish.');
       await flush();
+      if (noteContext) paneViews.forgetContext(noteContext.ntxId);
     }
   });
 
@@ -158,6 +167,7 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
     if (!editor.current) return;
     if (host.current) host.current.dataset.ready = 'false';
     mountedReadonly.current = undefined;
+    releaseView.current?.(); releaseView.current = undefined;
     view.current = memory.current?.destroy(); memory.current = undefined;
     editor.current.destroy(); editor.current = null;
     diagnostics.destroyed++;
@@ -186,7 +196,12 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
         diagnostics.mounted++;
         diagnostics.active.set(instanceId.current, { noteId: note.noteId, host: host.current, editor: editor.current,
           flush, grant: writable => { readonlyRef.current = readonly || !writable; setOwnsEdit(writable); } });
-        memory.current = new ViewMemory(editor.current, host.current.querySelector('.mindmap')!, note.noteId, view.current);
+        memory.current = new ViewMemory(editor.current, host.current.querySelector('.mindmap')!, note.noteId,
+          view.current ?? (noteContext && paneViews.get(noteContext.ntxId, note.noteId)));
+        if (noteContext) {
+          const instanceMemory = memory.current;
+          releaseView.current = paneViews.attach(noteContext.ntxId, note.noteId, () => instanceMemory.snapshot());
+        }
         editor.current.on('documentchange', ({ document, reason }) => {
           if (applying.current || reason === 'replacement') return;
           displayed.current = serializeDocument(document);
@@ -308,7 +323,7 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
   });
 
   async function takeEditing() {
-    if (diagnostics.transfers.has(note.noteId)) return;
+    if (session.recovering || diagnostics.transfers.has(note.noteId)) return;
     diagnostics.transfers.add(note.noteId);
     try {
       const previous = diagnostics.active.get(diagnostics.writers.get(note.noteId) ?? '');
@@ -323,30 +338,25 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
   }
 
   async function resolve(keep: boolean) {
-    if (busyRef.current || readonlyRef.current) return;
-    if (!keep && !await showConfirmDialog('Discard your local changes and load the saved original?')) return;
-    busyRef.current = true; setBusy(true); setError('');
+    if (session.recovering || readonlyRef.current) return;
+    setError('');
     try {
-      commitEdit(); await session.settle();
-      if (keep) {
-        if (recovery.current?.content !== session.local) recovery.current = undefined;
-        recovery.current ??= { sourceId: note.noteId, parentId: parentId(note, noteContext), noteId: newNoteId(),
-          title: `${note.title} (recovered)`, content: session.local! };
-        const id = await createMap(recovery.current);
-        setRecovered(id);
-        if (session.local !== recovery.current.content) throw new Error('The draft changed during recovery. Keep both again to preserve the latest edits.');
-      }
-      await session.useIncoming();
-      recovery.current = undefined;
+      commitEdit();
+      await session.useIncoming(keep ? async content => {
+        if (session.recoveryRequest?.content !== content) session.recoveryRequest = undefined;
+        session.recoveryRequest ??= { sourceId: note.noteId, parentId: parentId(note, noteContext), noteId: newNoteId(),
+          title: `${note.title} (recovered)`, content };
+        session.recovered = await createMap(session.recoveryRequest);
+        session.notify();
+      } : undefined, keep ? undefined : () => showConfirmDialog('Discard your local changes and load the saved original?'));
     } catch (e) { setError(`Recovery did not finish. Your local draft is retained; retry is available. ${String(e)}`); }
-    finally { busyRef.current = false; setBusy(false); }
   }
   const conflict = session.incoming !== undefined;
   const interaction = () => memory.current?.interaction();
   return h('section', { class: 'willow-spike', 'data-note-id': note.noteId, 'data-willow-context': noteContext?.ntxId },
     h('style', null, styles),
     !ownsEdit && !readonly && h('div', { class: 'willow-notice' },
-      'This map is being edited in another pane. ', h('button', { onClick: takeEditing }, 'Edit here')),
+      'This map is being edited in another pane. ', h('button', { disabled: busy, onClick: takeEditing }, 'Edit here')),
     (error || conflict || session.error) && h('div', { class: 'willow-spike-error', role: 'alert' },
       conflict ? 'Another version arrived. Keep both saves your local work as a sibling map, then loads the saved original.' : error || session.error,
       conflict && error && h('p', null, error),

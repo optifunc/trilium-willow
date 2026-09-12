@@ -1,12 +1,18 @@
-import type { MindMapEditor, Viewport } from '@mindmap/widget';
+import type { MindMapEditor, MindMapNode, Selection, Viewport } from '@mindmap/widget';
 
-export interface SavedView { version: 1; centerX: number; centerY: number; zoom: number; }
+export interface SavedView { version: 1; centerX: number; centerY: number; zoom: number; selection?: Selection; }
 export const defaultView: SavedView = { version: 1, centerX: 0, centerY: 0, zoom: 1 };
 export function parseView(raw: string | null): SavedView | undefined {
   try {
     const v = JSON.parse(raw ?? 'null');
     if (v?.version === 1 && [v.centerX, v.centerY, v.zoom].every(Number.isFinite)
-      && v.zoom >= .25 && v.zoom <= 4) return v;
+      && v.zoom >= .25 && v.zoom <= 4) {
+      const view: SavedView = { version: 1, centerX: v.centerX, centerY: v.centerY, zoom: v.zoom };
+      if (Array.isArray(v.selection?.ids) && v.selection.ids.every((id: unknown) => typeof id === 'string')
+        && (v.selection.activeId === undefined || typeof v.selection.activeId === 'string'))
+        view.selection = { ids: [...v.selection.ids], activeId: v.selection.activeId };
+      return view;
+    }
   } catch { /* Old or unavailable local state uses the default view. */ }
 }
 export function captureView(view: Viewport, width: number, height: number): SavedView {
@@ -24,11 +30,19 @@ export class ViewMemory {
   private timer?: ReturnType<typeof setTimeout>;
   private observer: ResizeObserver;
   private unsubscribe: () => void;
+  private unsubscribeSelection: () => void;
   constructor(private editor: MindMapEditor, private element: HTMLElement, private noteId: string,
     initial?: SavedView) {
     let saved;
     try { saved = parseView(localStorage.getItem(viewKey(noteId))); } catch { /* Storage may be unavailable. */ }
     this.view = initial ?? saved ?? { ...defaultView };
+    this.restoreSelection(this.view.selection);
+    this.unsubscribeSelection = editor.on('selectionchange', ({ origin }) => {
+      if (origin !== 'user') return;
+      this.interacted = true;
+      clearTimeout(this.timer);
+      this.timer = setTimeout(() => this.persist(), 250);
+    });
     this.unsubscribe = editor.on('viewportchange', () => {
       if (this.restoring || !this.width || !this.height) return;
       this.view = captureView(editor.getViewport(), this.width, this.height);
@@ -42,6 +56,22 @@ export class ViewMemory {
     this.resize();
   }
   interaction() { this.interacted = true; }
+  restoreSelection(selection?: Selection) {
+    // Filter before calling the widget, whose public API rejects unknown IDs.
+    // setSelection does not reveal nodes or alter the remembered viewport.
+    const root = this.editor.getDocument().root;
+    const visible = new Set<string>();
+    const stack: MindMapNode[] = [root];
+    while (stack.length) {
+      const node = stack.pop()!;
+      visible.add(node.id);
+      if (!node.collapsed) stack.push(...node.children);
+    }
+    const ids = [...new Set(selection?.ids)].filter(id => visible.has(id));
+    if (!ids.length) ids.push(root.id);
+    const activeId = selection?.activeId && ids.includes(selection.activeId) ? selection.activeId : ids[0];
+    this.editor.setSelection(ids, activeId);
+  }
   private resize() {
     const { clientWidth: width, clientHeight: height } = this.element;
     if (!width || !height || (width === this.width && height === this.height)) return;
@@ -53,7 +83,7 @@ export class ViewMemory {
   }
   snapshot() {
     if (this.width && this.height) this.view = captureView(this.editor.getViewport(), this.width, this.height);
-    return { ...this.view };
+    return { ...this.view, selection: this.editor.getSelection() };
   }
   private persist() {
     if (!this.interacted) return;
@@ -65,6 +95,7 @@ export class ViewMemory {
     this.persist();
     this.observer.disconnect();
     this.unsubscribe();
+    this.unsubscribeSelection();
     return this.snapshot();
   }
 }

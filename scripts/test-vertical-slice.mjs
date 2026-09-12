@@ -30,6 +30,8 @@ async function edit(id, text) {
   await pane(id).locator('.mindmap textarea').fill(text);
 }
 async function view(id, contextId) {
+  await page.waitForFunction(({id,contextId})=>[...globalThis[Symbol.for('trilium-willow.spike')].active.values()]
+    .some(v=>v.noteId===id&&v.host.isConnected&&v.host.clientWidth>0&&(!contextId||v.host.parentElement.dataset.willowContext===contextId)),{id,contextId});
   return page.evaluate(({id,contextId})=>{
     const v=[...globalThis[Symbol.for('trilium-willow.spike')].active.values()].find(v=>v.noteId===id&&v.host.isConnected&&v.host.clientWidth>0&&(!contextId||v.host.parentElement.dataset.willowContext===contextId));
     const el=v.host.querySelector('.mindmap'), p=v.editor.getViewport();

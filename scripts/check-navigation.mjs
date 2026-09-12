@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 
 // Intercept the request boundary because Electron's custom local protocol does
 // not pass through Playwright's HTTP routing. All hooks are restored in finally.
-async function delayBundles(page,bundle,holdFirst=false) {
+export async function delayBundles(page,bundle,holdFirst=false) {
   await page.evaluate(({bundle,holdFirst})=>{
     const prototype=XMLHttpRequest.prototype,open=prototype.open,send=prototype.send,urls=new WeakMap();
     let release;const gate=new Promise(r=>release=r);
@@ -18,7 +18,7 @@ async function delayBundles(page,bundle,holdFirst=false) {
     };
   },{bundle,holdFirst});
 }
-async function restoreBundles(page){await page.evaluate(()=>{globalThis.willowBundleDelay?.restore();delete globalThis.willowBundleDelay;});}
+export async function restoreBundles(page){await page.evaluate(()=>{globalThis.willowBundleDelay?.restore();delete globalThis.willowBundleDelay;});}
 
 export async function checkNavigation(page, notes) {
   const tree = title => page.locator('.fancytree-title').getByText(title,{exact:true});

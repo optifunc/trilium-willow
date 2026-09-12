@@ -6,6 +6,7 @@ import { originEntity, showConfirmDialog } from 'trilium:api';
 import type { Note, NoteContext } from 'trilium:preact';
 import { parseDocument, serializeDocument, initializeTemplate } from './document';
 import { clearPreview, retainPreview } from './presentation';
+import { treeFocus } from './tree-focus';
 import { SaveSession } from './save-session';
 import { ViewMemory, type SavedView } from './view-state';
 import { createMap, newNoteId, readContent, writeContent, type CreateRequest } from './host';
@@ -171,9 +172,13 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
       applying.current = true;
       const map = parseDocument(initializeTemplate(content, note.noteId));
       if (editor.current) {
+        const selection = editor.current.getSelection();
         let replacementError: string | undefined;
         const unsubscribe = editor.current.on('error', ({ message }) => { replacementError = message; });
-        try { editor.current.setDocument(map); } finally { unsubscribe(); }
+        try {
+          editor.current.setDocument(map);
+          memory.current?.restoreSelection(selection);
+        } finally { unsubscribe(); }
         if (replacementError) throw new Error(replacementError);
       } else {
         editor.current = new MindMapEditor(host.current, { document: map, readonly: readonlyRef.current });
@@ -223,6 +228,11 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
 
   useLayoutEffect(() => {
     disposed.current = false;
+    const unregisterFocus = treeFocus.register({
+      noteId: note.noteId,
+      active: () => !!noteContext?.isActive() && noteContext.note?.noteId === note.noteId,
+      element: () => host.current?.querySelector<HTMLElement>('.mindmap') ?? null,
+    });
     if (!diagnostics.writers.has(note.noteId)) {
       diagnostics.writers.set(note.noteId, instanceId.current);
       readonlyRef.current = readonly; session.writable = !readonly;
@@ -257,7 +267,7 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
     const unsubscribe = session.subscribe(sync);
     sync();
     return () => {
-      resize.disconnect(); unsubscribe();
+      unregisterFocus(); resize.disconnect(); unsubscribe();
       try { commitEdit(true); void session.flush().catch(() => {}); }
       finally {
         disposed.current = true; destroy();

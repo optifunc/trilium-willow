@@ -1,5 +1,38 @@
 # Progress
 
+## 2026-09-12 — Local selection memory and tree-click focus
+
+Committed the preceding hardening/contrast work as `5a4b288` before this step.
+
+- Extended local view state with selected node IDs and the active node. Older
+  position/zoom records remain valid. Multiple selected nodes survive switching,
+  reload, and widget remounts without changing the viewport. Filter deleted or
+  hidden IDs before calling the widget, falling back to the root if none survive.
+  Incoming content refreshes also preserve the surviving selection.
+- A plain click on a native tree title/icon focuses that map in the active pane
+  when ready, including clicks on the already-open note. Arrow keys then navigate
+  the map. Newer pointer, key, or focus activity cancels pending focus; delayed
+  loading respects a newer title click. Native creation/title focus is unchanged.
+  One shared listener remains available between Render Note bundle executions.
+- View state remains local per document/profile and independent between open
+  panes. Selection IDs contain no labels or document text, do not mark the map
+  dirty, and do not trigger content autosave. The `mr` submodule is unchanged.
+
+Build/typecheck and 25 unit tests passed. Seven new real-input groups passed in
+both browser and isolated desktop: click/arrow navigation, multi-selection and
+view restoration, already-open note focus, stale/hidden IDs, incoming updates,
+delayed title-focus protection, and unchanged document content. Desktop creation,
+clipboard, reload, view restoration, and navigation regressions also passed.
+The 10 browser lifecycle regressions, 8 acceptance groups, and delayed-response
+navigation checks passed. A separate cold-start check verified focus on the first
+Willow click after reloading on a normal note, before the bundle had loaded.
+
+Deployed bundle: `a5808570463076b233960f6cbd52061b62935ac481accf18a9eab6d64f6bab3b`.
+Evidence: [browser](../.test/trilium/evidence/selection-focus.json) and
+[desktop](../.test/trilium/evidence/spike/desktop.json). The shared scenarios are in
+[`scripts/check-selection-focus.mjs`](../scripts/check-selection-focus.mjs);
+run `node scripts/test-selection-focus.mjs` or `pnpm spike:test:desktop`.
+
 ## 2026-09-12 — Restore light-mode selection contrast
 
 Restored the widget's original `#d2d2d2` selection background in light mode;

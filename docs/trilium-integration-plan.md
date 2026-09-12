@@ -134,7 +134,7 @@ inert preview of the old canvas until the new one is ready to paint. Remove the
 preview on a non-Willow destination, error, pane removal, or a five-second timeout.
 No live editor is retained after its pane is removed, and first opening never fits.
 
-## Remembered position and zoom
+## Remembered position, zoom, and selection
 
 Implemented in the usable vertical slice: remember the view per document locally
 in each browser or desktop profile. Restore it on note switching, reopening, and
@@ -144,6 +144,11 @@ save-conflict handling.
 
 - Store the map coordinates at the viewport centre and the zoom factor, rather
   than raw pixel offsets, so restoration accommodates different pane sizes.
+- Store selected node IDs and the active node alongside the view, without labels
+  or document text. Keep existing v1 position/zoom records compatible. Restore
+  only visible surviving IDs, using the root when none remain, without moving
+  the viewport or expanding branches. Preserve selection on incoming content
+  refreshes and widget remounts too.
 - With no saved view, centre the root at **100% zoom**. Do not automatically fit
   the map on first opening. Keep **Fit map** as an explicit user action.
 - Keep simultaneous split panes independent. Preserve each pane's view through
@@ -151,8 +156,16 @@ save-conflict handling.
   view as the document's local default for a newly opened pane.
 - Debounce local storage writes and capture the final view before teardown.
   Validate stored values; missing or invalid state uses the centred 100% default.
-- Use the widget's existing `viewportchange`, `getViewport()`, `setZoom()`, and
-  `panTo()` APIs in the adapter. No widget change is currently expected.
+- Use the widget's existing viewport and selection events/getters/setters in the
+  adapter. No widget change is required.
+
+A plain left click on a Willow title/icon in Trilium's tree requests keyboard
+focus for that map in the active pane once it is ready. Clicking the already-open
+note does the same. Newer pointer, keyboard, or focus activity cancels a pending
+request; do not steal focus from native title editing or other controls. Native
+creation/title focus remains under Trilium's control. The adapter uses the v0.105
+Fancytree row identity and scopes the focus request to the clicked note and active
+context. Modifier clicks and context menus do not request map focus.
 
 Verify first opening, note switching, reload, pane resizing, independent splits,
 and editing-ownership transfers in browser and desktop. A synced **Save as opening

@@ -1,4 +1,5 @@
 import { checkNavigation } from './check-navigation.mjs';
+import { checkSelectionFocus } from './check-selection-focus.mjs';
 import { createFromMenu, waitSaved, measureSwitch } from './test-ui.mjs';
 import { chromium } from 'playwright';
 import { readFile, writeFile } from 'node:fs/promises';
@@ -76,6 +77,9 @@ try {
     return JSON.parse(blob.content).document.root.text==='Map A edited in isolated desktop';
   },notes.A);
   await waitSaved(pane);
+  assert.deepEqual(await page.evaluate(()=>[...globalThis[Symbol.for('trilium-willow.spike')].sessions]
+    .filter(([,s])=>s.dirty||s.saving||s.editing||s.incoming!==undefined)
+    .map(([id,s])=>({id,state:s.state,editing:s.editing}))),[],'Desktop reload has pending map edits');
   await page.reload();
   await pane.locator('.mindmap-label').getByText('Map A edited in isolated desktop',{exact:true}).waitFor();
   const title=`Desktop acceptance ${Date.now()}`;
@@ -111,10 +115,11 @@ try {
   await createdPane.locator('.mindmap').waitFor();sameView(await view(),remembered);
   await page.reload();await createdPane.locator('.mindmap').waitFor();sameView(await view(),remembered);
   const navigation=await checkNavigation(page,notes);
+  const selectionFocus=await checkSelectionFocus(page,notes);
   await page.screenshot({path:fileURLToPath(new URL('evidence/spike/desktop.png',testRoot)),fullPage:true});
   const report={testedAt:new Date().toISOString(),bundleSha256:notes.bundleSha256,userData,
     environment:await page.evaluate(()=>({version:glob.triliumVersion,electron:glob.isElectron,url:location.href})),
-    createdNoteId:id,switching,navigation,
+    createdNoteId:id,switching,navigation,selectionFocus,
     passed:['isolated desktop data/profile','same shared bundle mounted on desktop','real label editing and save','reload persistence',
       'native template menu keeps title and root independent and centres at 100%','native desktop clipboard copy/paste','desktop pan/zoom survives note switching and renderer reload']};
   await writeFile(new URL('evidence/spike/desktop.json',testRoot),JSON.stringify(report,null,2)+'\n');

@@ -8,3 +8,10 @@ it.each([null, '{', '{}', '{"version":1,"centerX":0,"centerY":0,"zoom":0}',
   '{"version":1,"centerX":"0","centerY":0,"zoom":1}'])('ignores unusable saved views: %s', value => {
   expect(parseView(value)).toBeUndefined();
 });
+it('accepts old view state and ignores malformed selection without losing its viewport', () => {
+  const view = { version: 1, centerX: 80, centerY: -20, zoom: 1.2 };
+  expect(parseView(JSON.stringify(view))).toEqual(view);
+  expect(parseView(JSON.stringify({ ...view, selection: { ids: [123] } }))).toEqual(view);
+  expect(parseView(JSON.stringify({ ...view, selection: { ids: ['a', 'b'], activeId: 'b', text: 'not view state' } })))
+    .toEqual({ ...view, selection: { ids: ['a', 'b'], activeId: 'b' } });
+});

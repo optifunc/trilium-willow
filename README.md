@@ -21,9 +21,14 @@ Maps autosave committed changes. Fit the map with **Cmd/Ctrl+Shift+0**.
 When a map is open twice, the viewer offers **Edit here** to transfer editing.
 There is no permanent add-on toolbar.
 
-New maps open with the root centred at 100% zoom. Position and zoom are remembered
-locally per document and browser/desktop profile; split panes keep independent
-views. Panning does not modify note content.
+New maps open with the root centred at 100% zoom. Position, zoom, selected nodes,
+and the active node are remembered locally per document and browser/desktop
+profile; split panes keep independent views. These changes do not modify note
+content. Saved selections ignore deleted or hidden nodes, falling back to the root.
+
+Click a Willow note in the left tree to focus its map, then use arrow keys to
+navigate the selection. A newer click or focus change while the map loads takes
+precedence, so editing the native note title retains focus.
 
 Trilium’s note-header indicator reports map saving state. **Retry save**
 retains the draft after a failure. For a detected external change, **Keep both**

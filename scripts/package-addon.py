@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+"""Build Trilium's native format-v2 subtree ZIP, without a running Trilium."""
+import hashlib
+import json
+from pathlib import Path
+import zipfile
+
+ROOT = Path(__file__).resolve().parent.parent
+DIST = ROOT / 'dist'
+version = json.loads((ROOT / 'package.json').read_text())['version']
+bundle = (DIST / 'willow-spike.js').read_bytes()
+instructions = (ROOT / 'docs' / 'installation.html').read_bytes()
+
+
+def attribute(kind, name, value='', inherit=False):
+    return dict(type=kind, name=name, value=value, isInheritable=inherit)
+
+
+def note(id, title, filename, kind, mime, attributes=None):
+    return dict(noteId=id, title=title, dataFileName=filename, type=kind, mime=mime,
+                isClone=False, isExpanded=True, attributes=attributes or [], attachments=[])
+
+
+editor = note('willowEditor', 'Willow shared editor', 'editor.jsx', 'code', 'text/jsx',
+              [attribute('label', 'willowVersion', version)])
+template = note('willowTemplate', 'Willow Mind Map', 'template.json', 'render', 'application/json', [
+    attribute('label', 'template'), attribute('label', 'willowMindMap', inherit=True),
+    attribute('label', 'iconClass', 'bx bx-git-branch', True),
+    attribute('relation', 'renderNote', 'willowEditor', True)])
+example = note('willowExample', 'Example mind map', 'example.json', 'render', 'application/json', [
+    attribute('label', 'willowMindMap'), attribute('relation', 'renderNote', 'willowEditor')])
+folder = note('willowAddon', 'Willow Mind Map add-on', 'Willow.html', 'text', 'text/html',
+              [attribute('label', 'willowAddon', version)])
+folder.update(dirFileName='Willow', children=[editor, template, example])
+
+
+def document(root, **extra):
+    return json.dumps(dict(format='trilium-willow-mindmap', version=1,
+                           document=dict(root=root), **extra)).encode()
+
+
+entries = {
+    '!!!meta.json': json.dumps(dict(formatVersion=2, appVersion='0.105.0', files=[folder]), indent=2).encode(),
+    'Willow.html': instructions,
+    'Willow/editor.jsx': bundle,
+    'Willow/template.json': document(dict(id='willow-template-root', text='Mind map', children=[]), initializeFromTitle=True),
+    'Willow/example.json': document(dict(id='example-root', text='Willow', children=[
+        dict(id='example-ideas', text='Ideas', side='left', children=[]),
+        dict(id='example-start', text='Select a node, then F2 to edit', side='right', children=[]),
+        dict(id='example-child', text='Tab adds a child', side='right', children=[])])),
+}
+archive = DIST / f'trilium-willow-{version}.zip'
+with zipfile.ZipFile(archive, 'w') as out:
+    for name, data in entries.items():
+        info = zipfile.ZipInfo(name, (2020, 1, 1, 0, 0, 0))
+        info.compress_type = zipfile.ZIP_DEFLATED
+        info.external_attr = 0o100644 << 16
+        out.writestr(info, data)
+(DIST / 'willow-editor.jsx').write_bytes(bundle)
+(DIST / 'installation.html').write_bytes(instructions)
+manifest = dict(version=version, trilium='0.105.0', documentVersion=1,
+                files={p.name: hashlib.sha256(p.read_bytes()).hexdigest()
+                       for p in [archive, DIST / 'willow-editor.jsx', DIST / 'installation.html']})
+(DIST / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+print(f'{archive.relative_to(ROOT)} ({archive.stat().st_size:,} bytes)')

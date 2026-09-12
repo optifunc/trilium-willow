@@ -2,13 +2,33 @@
 
 An experimental stock-Trilium adapter for the mind-map editor in [`mr`](mr/README.md).
 The usable adapter is tested on Trilium v0.105.0 in Chrome and an isolated macOS
-desktop build. The first persistence/host-hardening pass is complete; packaging is next.
+desktop build. An installable experimental package is available locally; the
+distribution lifecycle is tested on both clients.
 
 Each map is a Render Note containing versioned JSON. All maps reference one shared
 JSX code note containing the bundled editor. No server modification or widget
 submodule change is required.
 
-## Try the adapter
+## Install
+
+Build the package with `pnpm package` (requires Python 3 as well as the development
+dependencies). Import `dist/trilium-willow-0.1.0.zip` using Trilium's native Import
+action. Open the imported **Willow Mind Map** template and **Example mind map**,
+and click **Enable render note** on each. Keep your own maps outside the imported
+add-on subtree.
+
+The ZIP includes the shared editor/CSS, template, example, and
+[installation, update, removal and recovery instructions](docs/installation.html).
+`dist/willow-editor.jsx` is the update file: replace the code in the existing
+shared editor note, preserving its ID, then reload clients after saving. Importing
+another ZIP creates a separate installation; it does not upgrade existing maps.
+`dist/manifest.json` records artifact hashes and the tested Trilium version.
+
+Without the add-on, maps retain their JSON and open in Trilium's Render Note setup
+screen. **Note source** still exposes the document. After reinstalling, reconnect
+old maps as described in the installation instructions.
+
+## Try the development instance
 
 The test instance is at http://127.0.0.1:37841/. Right-click a note in the tree,
 choose **Insert note after** or **Insert child note**, then **Willow Mind Map**
@@ -77,6 +97,7 @@ explained in [the environment report](docs/test-trilium.md). Logs go to
 ```sh
 pnpm install --frozen-lockfile
 pnpm build
+pnpm package
 pnpm typecheck
 pnpm test
 ```
@@ -92,6 +113,7 @@ pnpm test:trilium
 pnpm test:hardening
 pnpm spike:test:desktop
 pnpm test:desktop:lifecycle
+pnpm test:distribution
 node scripts/test-restart.mjs
 ```
 
@@ -109,6 +131,14 @@ test SQLite dependency are described in [the progress log](docs/progress.md).
 Desktop lifecycle tests use a separate `.test/trilium/lifecycle-data` database and
 `lifecycle-profile`, native window close/reopen, and a loopback sync proxy. They
 cover delayed/failed close-time writes and actual desktop/server conflicts.
+
+Distribution tests create fresh server and desktop databases under
+`.test/trilium/distribution/`, import the built ZIP directly in each client, and
+verify activation, creation, a compatible shared-code replacement, removal/source
+recovery, and reinstall. They use server ports 37848/37849 and desktop CDP 39227,
+and stop their processes afterward. These test databases contain no preinstalled
+Willow notes. The upgrade check covers format-v1-compatible code replacement;
+there is no older published Willow package or document migration in this release.
 
 [Integration plan](docs/trilium-integration-plan.md) ·
 [Progress, evidence and limitations](docs/progress.md)

@@ -1,5 +1,70 @@
 # Progress
 
+## 2026-09-12 — Distribution
+
+Committed the review fixes and desktop lifecycle coverage as `0913388`, then
+completed the distribution step. The first experimental package is version
+**0.1.0**, tested against stock Trilium **v0.105.0** in Chrome and macOS desktop.
+
+`pnpm package` builds the editor and creates a reproducible native format-v2 ZIP
+using Python's standard library; no running Trilium or packaging dependency is
+required. The subtree includes the shared JSX editor and inline CSS, native
+template, example map, and installation/update/removal instructions. Outputs:
+
+- `dist/trilium-willow-0.1.0.zip` — importable add-on (35,164 bytes).
+- `dist/willow-editor.jsx` — complete code for updating the existing shared note.
+- `dist/installation.html` and `dist/manifest.json` — instructions and hashes.
+
+Safe import renames executable relations to `disabled:renderNote` while preserving
+their remapped internal targets. Open the template and example and use Trilium's
+**Enable render note** control on each. No global startup script or separate
+server is installed. User maps belong outside the package subtree.
+
+Updating replaces the existing shared editor's code and preserves its note ID;
+after saving, reload clients. Importing another ZIP creates another installation
+and does not redirect existing maps. The first-release upgrade test uses a
+compatible replacement fixture (the current bundle with a previous-release
+comment), then installs the shipped editor bytes through Trilium's normal note
+save endpoint. This establishes ID/content preservation and template continuity;
+it does not establish historical release migration or a future document-format
+change. The manual code-editor paste workflow is documented, while the test
+performs the content replacement through the authenticated API.
+
+### Verification
+
+`pnpm package`, typecheck, and all **31 unit tests passed**. `pnpm test:distribution`
+passed five groups independently in a fresh browser database and a fresh native
+desktop database, using the exact same ZIP:
+
+1. Safe import remaps relations; native activation opens the bundled example.
+2. The native template menu creates a map outside the package; an edited label
+   survives autosave and reload.
+3. Replacing the shared editor preserves the exact existing JSON; the original
+   template still creates new maps with independent root IDs.
+4. Deleting the package leaves user JSON intact. Trilium shows its Render Note
+   setup screen, and its native **Note source** view exposes the saved document.
+5. Reimporting creates new editor IDs; reconnecting an old map with `renderNote`
+   and `willowMindMap` restores the editor without changing the JSON.
+
+The desktop fixture is initialized empty by the stock server, then the ZIP is
+imported directly through the native renderer. It does not clone an installed
+browser database. Import tests wait for Trilium's asynchronous import-completion
+navigation before selecting template/example notes. Test processes are stopped
+afterward; their SIGTERM cleanup adds no new window-close evidence.
+
+Evidence: [distribution results](../.test/trilium/evidence/distribution.json), with
+source-view screenshots and process logs in the reported run directory. The
+primary test installation and `mr` submodule are unchanged. Editor SHA-256 remains
+`3b7d67e61e2b47603fcbf782d45e5ac26551ccbf1bbe020bb3390e2d6e6787cc`;
+package SHA-256 is
+`5ba1981d7d871b13caad997eade4783447c023bbc12504a871fd3982da9a4720`.
+
+The package remains experimental and local; no release has been published.
+Other Trilium versions, Windows, and Linux desktop builds remain unverified.
+The previously accepted native-sync and memory-only-draft limits still apply.
+Internal links, migration from other map formats, and dedicated exports remain
+deferred.
+
 ## 2026-09-12 — Review fixes and desktop lifecycle gates
 
 Addressed all four review findings. Earlier completion summaries overstated

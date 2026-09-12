@@ -349,9 +349,16 @@ whole-document convergence of competing acknowledged versions.
    Two accepted limits remain: native offline sync can replace an already saved
    competing version, and a single-map archive omits the external editor relation.
    See the [hardening results](progress.md) for exact evidence and scope.
-4. **Distribution.** Produce the installable subtree, test a clean installation,
-   upgrade, and removal, and document supported versions and limitations. Verify
-   that old user maps survive an add-on update and remain recoverable without it.
+4. **Distribution — implemented.** `pnpm package` creates a native format-v2 ZIP
+   containing the shared JSX/CSS, template, example, and installation instructions,
+   plus a standalone editor update file and SHA-256 manifest. Fresh browser and
+   macOS desktop tests exercise safe-import activation, template creation outside
+   the subtree, compatible shared-code replacement preserving IDs and JSON,
+   removal with native source recovery, and reinstall/reconnection. Updates retain
+   the existing editor note ID; importing another ZIP creates another installation.
+   This first experimental release tests compatible replacement, not migration
+   from a historical published release or across document formats. The supported
+   evidence remains Trilium v0.105.0; other versions/platforms are unverified.
 5. **Optional follow-ups.** Internal note links, native-format import, SVG/PNG
    previews, embedded read-only maps, print/share output, and better search
    indexing. The widget's HTML/SVG renderer is not itself a complete SVG exporter.

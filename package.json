@@ -1,11 +1,13 @@
 {
   "name": "trilium-willow",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.28.1",
   "scripts": {
     "build": "pnpm --dir mr build && vite build",
+    "package": "pnpm build && python3 scripts/package-addon.py",
+    "test:distribution": "node scripts/test-distribution.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "spike:deploy": "node scripts/deploy-spike.mjs",

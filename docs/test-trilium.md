@@ -1,5 +1,17 @@
 # Local Trilium test server
 
+For package installation checks, run `pnpm package` then `pnpm test:distribution`.
+The latter creates independent empty server and desktop databases under
+`.test/trilium/distribution/run-*`, using ports 37848/37849 and desktop CDP 39227.
+It imports the same ZIP through each client's native importer, activates the
+template/example with the native control, and tests creation, code replacement,
+removal/source recovery, and reinstall. The desktop database is initialized empty
+by the stock server before native launch; no installed Willow notes are copied.
+The primary test database is untouched. Logs and source-view screenshots stay in
+the run directory; results are in `.test/trilium/evidence/distribution.json`.
+Processes stop at the end. SIGTERM is cleanup, not lifecycle evidence; dedicated
+native window-close evidence remains in `pnpm test:desktop:lifecycle`.
+
 Provisioned and verified on 2026-09-12. This completes the server/browser setup
 checkpoint. The subsequent [mind-map adapter](progress.md), including creation,
 recovery, and local view persistence, is installed in this test server.

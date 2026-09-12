@@ -1,0 +1,61 @@
+name: Publish
+run-name: Publish ${{ inputs.version }} · ${{ github.run_number }}.${{ github.run_attempt }}
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version (MAJOR.MINOR.PATCH, without v or build suffix)
+        required: true
+        type: string
+permissions:
+  contents: write
+concurrency:
+  group: willow-publish
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
+      RELEASE_BRANCH: ${{ github.event.repository.default_branch }}
+    steps:
+      - name: Require the default branch
+        env:
+          SELECTED_REF: ${{ github.ref }}
+        run: test "$SELECTED_REF" = "refs/heads/$RELEASE_BRANCH"
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Prepare version and reject an existing tag or stale dispatch
+        run: |
+          python3 scripts/ci-version.py publish
+          WILLOW_TAG="v$RELEASE_VERSION" bash scripts/publish-git.sh check
+      - name: Commit the base version locally
+        run: bash scripts/publish-git.sh commit
+      - uses: ./.github/actions/build-distribution
+        with:
+          widget-token: ${{ secrets.MR_READ_TOKEN }}
+      - name: Upload tested distribution for this run
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: trilium-willow-${{ env.WILLOW_VERSION }}
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            dist/trilium-willow-*.zip
+            dist/willow-editor.jsx
+            dist/installation.html
+            dist/manifest.json
+      - name: Push tested commit and immutable tag together
+        run: bash scripts/publish-git.sh push
+      - name: Create draft with all assets, then publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$WILLOW_TAG" --verify-tag --draft \
+            --title "Willow $RELEASE_VERSION" --generate-notes \
+            "dist/trilium-willow-$WILLOW_VERSION.zip" \
+            dist/willow-editor.jsx dist/installation.html dist/manifest.json
+          gh release edit "$WILLOW_TAG" --verify-tag --draft=false

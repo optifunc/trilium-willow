@@ -2,12 +2,16 @@
 """Build Trilium's native format-v2 subtree ZIP, without a running Trilium."""
 import hashlib
 import json
+import os
 from pathlib import Path
+import subprocess
 import zipfile
+from build_version import validate_version
 
 ROOT = Path(__file__).resolve().parent.parent
 DIST = ROOT / 'dist'
-version = json.loads((ROOT / 'package.json').read_text())['version']
+base_version = json.loads((ROOT / 'package.json').read_text())['version']
+version = validate_version(os.environ.get('WILLOW_VERSION', base_version))
 bundle = (DIST / 'willow-spike.js').read_bytes()
 instructions = (ROOT / 'docs' / 'installation.html').read_bytes()
 
@@ -58,7 +62,22 @@ with zipfile.ZipFile(archive, 'w') as out:
         out.writestr(info, data)
 (DIST / 'willow-editor.jsx').write_bytes(bundle)
 (DIST / 'installation.html').write_bytes(instructions)
-manifest = dict(version=version, trilium='0.105.0', documentVersion=1,
+
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT, text=True).strip()
+
+
+source = dict(commit=git('rev-parse', 'HEAD'), mrCommit=git('-C', 'mr', 'rev-parse', 'HEAD'),
+              dirty=bool(git('status', '--porcelain')))
+workflow = None
+if os.environ.get('GITHUB_ACTIONS') == 'true':
+    workflow = dict(name=os.environ['GITHUB_WORKFLOW'], repository=os.environ['GITHUB_REPOSITORY'],
+                    runId=os.environ['GITHUB_RUN_ID'], runNumber=os.environ['GITHUB_RUN_NUMBER'],
+                    attempt=os.environ['GITHUB_RUN_ATTEMPT'],
+                    url=f"{os.environ['GITHUB_SERVER_URL']}/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}/attempts/{os.environ['GITHUB_RUN_ATTEMPT']}")
+manifest = dict(version=version, baseVersion=base_version, source=source, workflow=workflow,
+                trilium='0.105.0', documentVersion=1,
                 files={p.name: hashlib.sha256(p.read_bytes()).hexdigest()
                        for p in [archive, DIST / 'willow-editor.jsx', DIST / 'installation.html']})
 (DIST / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')

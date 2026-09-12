@@ -8,6 +8,7 @@
     "build": "pnpm --dir mr build && vite build",
     "package": "pnpm build && python3 scripts/package-addon.py",
     "test:distribution": "node scripts/test-distribution.mjs",
+    "test:packaging": "python3 -m unittest discover -s tests -p '*_test.py'",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "spike:deploy": "node scripts/deploy-spike.mjs",

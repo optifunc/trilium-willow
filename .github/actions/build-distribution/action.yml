@@ -1,0 +1,52 @@
+name: Build distribution
+description: Build and check the same distribution for manual builds and releases
+inputs:
+  widget-token:
+    description: Token with read-only Contents access to the private optifunc/mr repository
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Resolve the pinned widget commit
+      id: widget
+      shell: bash
+      env:
+        WIDGET_TOKEN: ${{ inputs.widget-token }}
+      run: |
+        if test -z "$WIDGET_TOKEN"; then
+          echo 'Set the MR_READ_TOKEN Actions secret with read-only Contents access to optifunc/mr.' >&2
+          exit 1
+        fi
+        echo "sha=$(git rev-parse HEAD:mr)" >> "$GITHUB_OUTPUT"
+    - name: Check out the private widget at its pinned commit
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      with:
+        repository: optifunc/mr
+        ref: ${{ steps.widget.outputs.sha }}
+        token: ${{ inputs.widget-token }}
+        path: mr
+        submodules: recursive
+        persist-credentials: false
+    - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+      with:
+        node-version: '24'
+        package-manager-cache: false
+    - name: Install pinned pnpm and locked dependencies
+      shell: bash
+      env:
+        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+      run: |
+        npm install --global "$(node -p 'require("./package.json").packageManager')"
+        pnpm install --frozen-lockfile
+    - name: Build distribution
+      shell: bash
+      run: pnpm package
+    - name: Validate types and tests
+      shell: bash
+      run: |
+        pnpm typecheck
+        pnpm test
+        pnpm test:packaging
+    - name: Check that the build left tracked source unchanged
+      shell: bash
+      run: git diff --exit-code HEAD

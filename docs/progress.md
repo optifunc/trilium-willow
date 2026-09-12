@@ -1,5 +1,44 @@
 # Progress
 
+## 2026-09-12 — Manual GitHub Actions
+
+Committed distribution as `1a3edbc`, then implemented manual **Build** and
+**Publish** workflows with a shared composite build action. Build derives
+`<base>-dev.<run>.<attempt>` without touching the committed version. Publish
+validates a plain base version, commits it locally when changed, packages
+`<base>+build.<run>.<attempt>`, and pushes the tested commit with tag `v<base>`
+atomically before creating/uploading/publishing a GitHub Release. Existing tags
+are rejected; no force push or asset replacement is performed.
+
+Packaging accepts `WILLOW_VERSION` and includes the base/full version, actual Git
+HEAD, actual widget commit, dirty state, and workflow provenance in its manifest.
+Installed labels and ZIP filenames use the full version. Both workflows upload
+the ZIP, editor update file, installation instructions, and manifest.
+
+Verified that `optifunc/mr` is private, so the shared action checks it out at the
+root repository's gitlink commit using an explicit **`MR_READ_TOKEN`** secret.
+That secret must be configured with read-only Contents access to `mr` before a
+workflow can run. Publication uses the current repository's `GITHUB_TOKEN` with
+explicit Contents write permissions. The current default branch is unprotected.
+No repository settings or secrets were changed.
+
+### Verification
+
+- `pnpm package`, typecheck, and **31 adapter unit tests passed**.
+- **Six packaging/publication tests passed**: dispatch/retry uniqueness, input
+  rejection, Build/Publish mutation behavior, archive metadata/checksums and
+  repeatability, exact version-commit/tag publication and duplicate rejection,
+  and a concurrent branch change preventing the entire atomic push. All Git
+  publication tests use temporary local bare remotes.
+- `actionlint` v1.7.12 and shell syntax validation passed. Official actions are
+  pinned to resolved commit SHAs.
+
+These are local validations; neither workflow has run on GitHub and no tag or
+release has been published. The browser/desktop integration suites remain local
+gates; CI runs build, typecheck, adapter tests, and packaging/publication tests.
+See [workflow setup and recovery](github-actions.md), including recovery from a
+release-upload failure using the original tested run artifact after tagging.
+
 ## 2026-09-12 — Distribution
 
 Committed the review fixes and desktop lifecycle coverage as `0913388`, then

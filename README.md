@@ -11,8 +11,9 @@ submodule change is required.
 
 ## Install
 
-Build the package with `pnpm package` (requires Python 3 as well as the development
-dependencies). Import `dist/trilium-willow-0.1.0.zip` using Trilium's native Import
+Download a distribution from GitHub Releases or a manual Build workflow artifact,
+or build locally with `pnpm package` (requires Python 3 and the development
+dependencies). Import the enclosed `trilium-willow-<version>.zip` using Trilium's native Import
 action. Open the imported **Willow Mind Map** template and **Example mind map**,
 and click **Enable render note** on each. Keep your own maps outside the imported
 add-on subtree.
@@ -22,7 +23,8 @@ The ZIP includes the shared editor/CSS, template, example, and
 `dist/willow-editor.jsx` is the update file: replace the code in the existing
 shared editor note, preserving its ID, then reload clients after saving. Importing
 another ZIP creates a separate installation; it does not upgrade existing maps.
-`dist/manifest.json` records artifact hashes and the tested Trilium version.
+`dist/manifest.json` records versions, source commits, workflow details, artifact
+hashes, and the tested Trilium version.
 
 Without the add-on, maps retain their JSON and open in Trilium's Render Note setup
 screen. **Note source** still exposes the document. After reinstalling, reconnect
@@ -92,6 +94,18 @@ automated desktop tests. The downloaded test app, initialized server database,
 explained in [the environment report](docs/test-trilium.md). Logs go to
 `.test/trilium/manual-desktop.log`.
 
+## GitHub Actions
+
+**Build** produces a downloadable artifact with a unique version such as
+`0.2.0-dev.42.1`, without changing `package.json`. **Publish** accepts a base version,
+commits it when changed, builds/tests, tags the tested commit, and creates a GitHub
+Release with all distribution files. Its package version includes a build number,
+for example `0.3.0+build.7.1`, while its release tag is `v0.3.0`.
+
+Both are manual. Because `mr` is private, configure the **`MR_READ_TOKEN`** Actions
+secret with read-only Contents access to `optifunc/mr` before running them.
+See [workflow setup, usage, and failure recovery](docs/github-actions.md).
+
 ## Development
 
 ```sh
@@ -100,6 +114,7 @@ pnpm build
 pnpm package
 pnpm typecheck
 pnpm test
+pnpm test:packaging
 ```
 
 The build produces `dist/willow-spike.js` for a Trilium Code note with JSX MIME

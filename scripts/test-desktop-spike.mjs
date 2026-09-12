@@ -1,3 +1,4 @@
+import { createFromMenu, waitSaved, measureSwitch } from './test-ui.mjs';
 import { chromium } from 'playwright';
 import { readFile, writeFile } from 'node:fs/promises';
 import { openSync, closeSync } from 'node:fs';
@@ -61,7 +62,7 @@ try {
   await page.locator('.fancytree-title').getByText('Willow Map A',{exact:true}).click();
   const pane=page.locator(`.willow-spike[data-note-id="${notes.A}"]:visible`).last();
   await pane.locator('.mindmap').waitFor();
-  const transfer=pane.getByRole('button',{name:'Edit in this pane',exact:true});
+  const transfer=pane.getByRole('button',{name:'Edit here',exact:true});
   if(await transfer.isVisible()) await transfer.click();
   await pane.locator('.mindmap[aria-readonly="false"]').waitFor();
   await pane.locator('[data-node-id="root-A"] .mindmap-label').click();
@@ -73,16 +74,11 @@ try {
     const blob=await response.json();
     return JSON.parse(blob.content).document.root.text==='Map A edited in isolated desktop';
   },notes.A);
-  await pane.getByRole('status').getByText('Saved',{exact:true}).waitFor();
+  await waitSaved(pane);
   await page.reload();
   await pane.locator('.mindmap-label').getByText('Map A edited in isolated desktop',{exact:true}).waitFor();
-  await page.locator('.fancytree-title').getByText('Create a Willow mind map',{exact:true}).click();
   const title=`Desktop acceptance ${Date.now()}`;
-  await page.getByRole('textbox',{name:'Map title',exact:true}).fill(title);
-  await page.getByRole('button',{name:'Create map',exact:true}).click();
-  const created=page.getByRole('link',{name:'Open new map',exact:true});await created.waitFor();
-  const id=(await created.getAttribute('href')).split('/').at(-1);
-  await created.click();
+  const {id}=await createFromMenu(page,'Willow Map A','after',title);
   const createdPane=page.locator(`.willow-spike[data-note-id="${id}"]:visible`).last();
   await createdPane.locator('.mindmap-root-node .mindmap-label').getByText(title,{exact:true}).waitFor();
   async function view() {
@@ -100,15 +96,19 @@ try {
   await page.waitForFunction(id=>localStorage.getItem(`trilium-willow:view:v1:${id}`),id);
   const remembered=await view();assert.ok(remembered.zoom>1);
   await page.locator('.fancytree-title').getByText('Willow Map B',{exact:true}).click();
-  await page.locator('.fancytree-title').getByText(title,{exact:true}).click();
+  await page.locator(`.willow-spike[data-note-id="${notes.B}"] .willow-spike-host[data-ready="true"]`).waitFor();
+  const switching=await measureSwitch(page,title,id);
+  assert.equal(switching.mounts,1);
+  assert.ok(switching.frames.length>1);
+  for(const frame of switching.frames)assert.deepEqual(frame,switching.frames[0]);
   await createdPane.locator('.mindmap').waitFor();sameView(await view(),remembered);
   await page.reload();await createdPane.locator('.mindmap').waitFor();sameView(await view(),remembered);
   await page.screenshot({path:fileURLToPath(new URL('evidence/spike/desktop.png',testRoot)),fullPage:true});
   const report={testedAt:new Date().toISOString(),bundleSha256:notes.bundleSha256,userData,
     environment:await page.evaluate(()=>({version:glob.triliumVersion,electron:glob.isElectron,url:location.href})),
-    createdNoteId:id,
+    createdNoteId:id,switching,
     passed:['isolated desktop data/profile','same shared bundle mounted on desktop','real label editing and save','reload persistence',
-      'creation UI initializes title and centres at 100%','desktop pan/zoom survives note switching and renderer reload']};
+      'native template menu initializes title and centres at 100%','desktop pan/zoom survives note switching and renderer reload']};
   await writeFile(new URL('evidence/spike/desktop.json',testRoot),JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify(report,null,2));
 } finally {

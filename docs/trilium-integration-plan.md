@@ -1,6 +1,6 @@
 # Trilium mind-map add-on: options and proposed plan
 
-Date: 2026-09-12. Status: usable vertical slice implemented; persistence hardening and distribution pending.
+Date: 2026-09-12. Status: usable vertical slice and native creation UI implemented; persistence hardening and distribution pending.
 
 Environment checkpoint: the isolated v0.105.0 server is running under
 `.test/trilium`, and browser setup, editing, independent-session readback, and
@@ -38,9 +38,9 @@ and cleanup, with adapter workarounds documented in the progress log. Broader pe
 and conflict hardening remains pending. The usable version retains the host's note
 loading and lifecycle events, but replaces `useEditorSpacedUpdate` with a per-note
 save coordinator using the normal note-data endpoint. This gives conflict handling
-control over queued writes and retries. Creation uses the normal note-creation
-endpoint with content and attributes in one transaction; backend scripting remains
-disabled in the test installation.
+control over queued writes and retries. Creation uses Trilium’s native template menu and note-creation endpoint; recovery
+copies use the same endpoint with explicit content and attributes. Backend scripting
+remains disabled in the test installation.
 
 Current Trilium already has a `mindMap` note type using Mind Elixir. Its format
 is different from `mr`'s document format. The add-on should use its own identity
@@ -99,7 +99,32 @@ problems. Use it only if the one-note spike reveals a concrete limitation.
 Keep selection, pan, and zoom out of persisted document history in v1. Collapsed
 and checkbox states remain document fields because that is `mr`'s current contract.
 Initialize the root label from the note title at creation; keep later edits
-independent unless explicit title synchronization is requested.
+independent unless explicit title synchronization is requested. Native creation
+starts with “New note” and focuses the title field. A marked template seed gets
+a unique root ID on first editable opening and follows the first title change.
+That change, or a map-content edit, removes the initialization marker.
+
+### Native creation and controls
+
+Use a Render Note template named **Willow Mind Map**, marked `#template`, with
+inheritable `~renderNote`, `#willowMindMap`, and icon attributes. Stock Trilium
+lists it under Templates in both **Insert note after** and **Insert child note**.
+The host chooses the parent and sibling position and handles creation/title focus.
+No context-menu patch or startup script is needed. Opening the template itself
+shows instructions; documents created from it open the editor.
+
+There is no permanent toolbar, creation form, Save button, Fit button, or duplicate
+Saved indicator. Autosave reports through Trilium’s note-header badge, including
+failures; a title-save acknowledgement must not hide pending map work. Fit remains
+available through **Cmd/Ctrl+Shift+0**. Show only contextual controls: **Retry save**,
+**Keep both**, **Use incoming**, invalid-source actions, and **Edit here** in a
+second pane viewing the same map.
+
+Bind each Render Note wrapper to its invoking `originEntity`, and rebuild the
+editor only when the effective read-only mode actually changes. Measure the pane
+before mounting, restore the view, and reveal the canvas after fonts and layout
+are ready. This removes repeated map flashes without fitting on first opening;
+Trilium may still show an empty pane while it loads the bundle.
 
 ## Remembered position and zoom
 
@@ -235,14 +260,14 @@ Proposed source layout after implementation is authorized:
 mr/                     Existing widget submodule
 src/document/           Format validation and future migrations
 src/trilium/            Preact wrapper, persistence and lifecycle bridge
-src/creation/           New-map template/launcher support
+src/creation/           Native new-map template support
 scripts/                Build and import-package generation
 tests/                  Adapter logic and actual Trilium browser scenarios
 docs/                   Plan, installation and compatibility evidence
 ```
 
 Deliver a self-contained importable note subtree containing the shared code,
-styles, creation helper, template, and example map. No CDN dependency or separate
+styles, template, and example map. No CDN dependency or separate
 application server. Document Trilium's normal activation of imported executable
 content. Keep user documents outside the add-on subtree so updates and removal do
 not replace map data. Test relation preservation and bundle upgrades explicitly.
@@ -269,7 +294,7 @@ desktop/server synchronization, including delayed and offline conflicts.
    version from evidence. This checkpoint decides whether to retain the preferred
    approach or use the JSON-note fallback.
 2. **Usable vertical slice — implemented.** Implement the versioned format, shared wrapper,
-   template or launcher, autosave feedback, error recovery, and local position/zoom
+   native template menus, host autosave feedback, error recovery, and local position/zoom
    persistence as specified above. Acceptance: create
    a map, edit/restructure/check/collapse, navigate away, reopen and restart Trilium,
    and recover exactly the committed document without cross-note writes. Restore

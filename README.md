@@ -10,21 +10,22 @@ submodule change is required.
 
 ## Try the adapter
 
-The test instance is at http://127.0.0.1:37841/. Open **Willow integration spike →
-Willow Map A**, **Willow Map B**, or **Create a Willow mind map**. The creation
-page adds a sibling map and initializes its root from the entered title. Existing
-maps also offer **New map**. The test password and server instructions are
-in [the environment report](docs/test-trilium.md).
+The test instance is at http://127.0.0.1:37841/. Right-click a note in the tree,
+choose **Insert note after** or **Insert child note**, then **Willow Mind Map**
+under Templates. Enter the title in Trilium's normal title field; the map root
+uses that initial title. Later title and map edits are independent. The test
+password and server instructions are in [the environment report](docs/test-trilium.md).
 
 Edit a selected node with F2, commit with Enter, and insert a child with Tab.
-Maps autosave committed changes. Use **Fit map** in a narrow pane. When a map is
-open twice, **Edit in this pane** transfers editing to its viewer.
+Maps autosave committed changes. Fit the map with **Cmd/Ctrl+Shift+0**.
+When a map is open twice, the viewer offers **Edit here** to transfer editing.
+There is no permanent add-on toolbar.
 
 New maps open with the root centred at 100% zoom. Position and zoom are remembered
 locally per document and browser/desktop profile; split panes keep independent
 views. Panning does not modify note content.
 
-The toolbar distinguishes unsaved, saving, saved, and failed saves. **Retry save**
+Trilium’s note-header indicator reports map saving state. **Retry save**
 retains the draft after a failure. For a detected external change, **Keep both**
 saves local work as a sibling recovery map before loading the saved original;
 **Use incoming** asks before discarding local work. Drafts stay in memory through

@@ -1,3 +1,4 @@
+import { createFromMenu, fit, waitSaved, nativePane, measureSwitch } from './test-ui.mjs';
 import assert from 'node:assert/strict';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { connect, request, testRoot } from './test-client.mjs';
@@ -20,10 +21,10 @@ async function untilDocument(id, predicate) {
 }
 async function saved(id, text) {
   await untilDocument(id,document=>document.root.text===text);
-  await pane(id).getByRole('status').getByText('Saved',{exact:true}).waitFor();
+  await waitSaved(pane(id));
 }
 async function edit(id, text) {
-  await pane(id).getByRole('button',{name:'Fit map',exact:true}).click();
+  await fit(page,pane(id));
   await pane(id).locator('.mindmap-root-node .mindmap-label').click();
   await page.keyboard.press('F2');
   await pane(id).locator('.mindmap textarea').fill(text);
@@ -37,25 +38,29 @@ async function view(id, contextId) {
 }
 function closeView(a,b) { for(const key of ['zoom','centerX','centerY']) assert.ok(Math.abs(a[key]-b[key])<.02,`${key}: ${JSON.stringify({a,b})}`); }
 let id;
+const switches=[];
 try {
   await page.evaluate(async()=>{
     const m=glob.appContext.tabManager, main=m.getActiveMainContext().ntxId;
     for(const c of [...m.noteContexts]) if(c.ntxId!==main)await m.removeNoteContext(c.ntxId);
     await m.activateNoteContext(main);
   });
-  await page.locator('.fancytree-title').getByText('Create a Willow mind map',{exact:true}).click();
   const title=`Willow acceptance ${Date.now()}`;
-  await page.getByRole('textbox',{name:'Map title',exact:true}).fill(title);
-  await page.getByRole('button',{name:'Create map',exact:true}).click();
-  const link=page.getByRole('link',{name:'Open new map',exact:true});
-  await link.waitFor();
-  id=(await link.getAttribute('href')).split('/').at(-1);
-  await link.click();
+  const created=await createFromMenu(page,'Willow Map A','after',title);
+  id=created.id;
+  assert.equal(created.branch.parentNoteId,notes.folder);
   await pane(id).locator('.mindmap').waitFor();
   closeView(await view(id),{zoom:1,centerX:0,centerY:0});
   assert.equal(JSON.parse(await raw(id)).document.root.text,title);
   assert.equal((await request(page,'GET',`notes/${id}`)).type,'render');
-  passed.push('creation UI makes a separate Render Note, initializes its root title, and opens centred at 100%');
+  assert.equal(JSON.parse(await raw(id)).document.root.id,`root-${id}`);
+  assert.equal(await pane(id).locator('button').count(),0);
+  const child=await createFromMenu(page,title,'child',`${title} child`);
+  assert.equal(child.branch.parentNoteId,id);
+  assert.equal(JSON.parse(await raw(child.id)).document.root.id,`root-${child.id}`);
+  await page.locator('.fancytree-title').getByText(title,{exact:true}).click();
+  await pane(id).locator('.mindmap').waitFor();
+  passed.push('native after/child menus create Render Notes with unique root IDs, title initialization and 100% centre; no permanent toolbar');
 
   await pane(id).locator('.mindmap-root-node .mindmap-label').click({button:'right'});
   await pane(id).getByRole('menuitem',{name:/^Add child/}).click();
@@ -88,6 +93,16 @@ try {
   await page.reload();await pane(id).locator('.mindmap').waitFor();closeView(await view(id),remembered);
   assert.equal(await raw(id),original);
   passed.push('pan/zoom survives note switches and reload without changing note content');
+  for(let i=0;i<3;i++) {
+    await page.locator('.fancytree-title').getByText('Willow Map B',{exact:true}).click();
+    await pane(notes.B).locator('.willow-spike-host[data-ready="true"]').waitFor();
+    const result=await measureSwitch(page,title,id);
+    assert.equal(result.mounts,1,JSON.stringify(result));
+    assert.ok(result.frames.length>1);
+    for(const frame of result.frames) assert.deepEqual(frame,result.frames[0]);
+    switches.push(result);
+  }
+  passed.push('three note switches each mount once and keep the root position stable from its first visible frame');
 
   const beforeSize=await view(id);
   await page.setViewportSize({width:1180,height:820});
@@ -99,10 +114,10 @@ try {
   await views.nth(1).locator('.mindmap').waitFor();
   const left=await views.nth(0).getAttribute('data-willow-context'), right=await views.nth(1).getAttribute('data-willow-context');
   const leftBefore=await view(id,left);
-  await views.nth(1).getByRole('button',{name:'Fit map',exact:true}).click();await page.waitForTimeout(300);
+  await fit(page,views.nth(1));await page.waitForTimeout(300);
   closeView(await view(id,left),leftBefore);
   const rightBefore=await view(id,right);
-  const transfer=views.getByRole('button',{name:'Edit in this pane',exact:true});
+  const transfer=views.getByRole('button',{name:'Edit here',exact:true});
   await transfer.click();await page.waitForTimeout(200);
   closeView(await view(id,left),leftBefore);closeView(await view(id,right),rightBefore);
   passed.push('resizing and editing transfer preserve the centre; split panes keep independent views');
@@ -112,17 +127,23 @@ try {
     await m.activateNoteContext(main);
   });
   await page.locator('.fancytree-title').getByText(title,{exact:true}).click();
-  const take=pane(id).getByRole('button',{name:'Edit in this pane',exact:true});if(await take.isVisible())await take.click();
+  const take=pane(id).getByRole('button',{name:'Edit here',exact:true});if(await take.isVisible())await take.click();
 
   const saveUrl=`**/api/notes/${id}/data`;
   await page.route(saveUrl,route=>route.fulfill({status:503,body:'Temporary test failure'}));
   await edit(id,'Draft retained after failed save');await page.keyboard.press('Enter');
   await pane(id).getByRole('button',{name:'Retry save',exact:true}).waitFor();
+  await nativePane(pane(id)).locator('.save-status-badge.error').waitFor();
   assert.equal(await raw(id),original);
+  await nativePane(pane(id)).locator('input.note-title:visible').fill(`${title} renamed`);
+  await pane(id).locator('.mindmap').focus();
+  await page.waitForTimeout(800);
+  assert.equal((await request(page,'GET',`notes/${id}`)).title,`${title} renamed`);
+  await nativePane(pane(id)).locator('.save-status-badge.error:visible').waitFor();
   await page.unroute(saveUrl);
   await pane(id).getByRole('button',{name:'Retry save',exact:true}).click();
   await saved(id,'Draft retained after failed save');
-  passed.push('failed save reports failure, retains the draft, and Retry persists it');
+  passed.push('failed save retains the draft and native error badge through title saving; Retry persists it');
 
   await edit(id,'Local work recovered including unfinished text');
   const incoming=JSON.parse(await raw(id));incoming.document.root.text='Incoming version retained';
@@ -155,7 +176,7 @@ try {
   assert.equal(JSON.parse(await raw(recoveryId)).document.root.text,'Local work recovered including unfinished text');
   await page.screenshot({path:new URL('browser.png',dir).pathname,fullPage:true});
   assert.deepEqual(errors,[]);
-  const report={testedAt:new Date().toISOString(),bundleSha256:notes.bundleSha256,id,recoveryId,passed,errors};
+  const report={testedAt:new Date().toISOString(),bundleSha256:notes.bundleSha256,id,recoveryId,switches,passed,errors};
   await writeFile(new URL('browser.json',dir),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report,null,2));
 } catch(error) {
   await page.screenshot({path:new URL('failure.png',dir).pathname,fullPage:true});

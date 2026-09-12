@@ -1,6 +1,63 @@
 # Progress
 
-## 2026-09-12 — Usable vertical slice
+## 2026-09-12 — Native creation, minimal controls, stable switching
+
+The previous vertical slice was committed as `9442163` before this work.
+The updated adapter is deployed to the isolated stock v0.105.0 test server.
+
+- Right-click a tree note → **Insert note after** or **Insert child note** →
+  **Willow Mind Map**, under Templates. Trilium supplies the native creation and
+  title-editing flow. The old launcher/form and its creation-session model are removed.
+- The template provides versioned JSON and inherited editor/icon attributes.
+  New documents receive a unique root ID. The first native title edit initializes
+  the root; that edit or a map edit ends title following. Existing maps keep their content.
+- No permanent toolbar, Save/Fit/New map buttons, or duplicate Saved indicator.
+  Autosave uses the native note-header badge. Retry/recovery and second-pane
+  **Edit here** controls appear only when relevant. Fit uses Cmd/Ctrl+Shift+0.
+- Wrappers are pinned to their invoking Render Note via `originEntity`, avoiding
+  intermediate mounts for the next note. Editing-ownership initialization no longer
+  rebuilds an editor whose effective mode is already correct. Pane sizing and view
+  restoration precede revealing the canvas after fonts/layout are ready.
+- First opening still centres the root at **100%**. Remembered views and split-pane
+  independence remain intact; the `mr` submodule is unchanged.
+
+### Verification
+
+Tested bundle SHA-256:
+
+```text
+bb67c96bd8a83b4de0f6e5c4251eb166426e154e83ccd3480145bafb649141aa
+```
+
+Build/typecheck and **23 unit tests** passed. All **10 browser lifecycle regressions**
+passed, alongside **8 browser acceptance groups** covering both native insertion
+menus, unique IDs/title initialization, absence of permanent controls, editing,
+view restoration, native failure feedback/retry (including a concurrent title save),
+and both conflict-resolution paths.
+There were no browser page errors.
+
+Three measured browser switches each mounted **one** editor, compared with the
+previous four-mount observation. Every sampled visible frame retained the same root
+position and width. The actual isolated desktop app passed the same bundle,
+native template creation, label autosave, view restoration, and a measured switch
+with one mount and stable visible frames. This addresses the reproduced map flicker;
+normal host loading time can still leave a brief empty pane.
+
+The original and recovery documents survived restarting the isolated server, and
+the browser restored its local view. Browser and desktop screenshots were inspected.
+
+Evidence (ignored test artifacts, overwritten by subsequent runs):
+[browser acceptance and frame samples](../.test/trilium/evidence/vertical-slice/browser.json),
+[lifecycle regressions](../.test/trilium/evidence/spike/results.json),
+[desktop acceptance and frame samples](../.test/trilium/evidence/spike/desktop.json),
+[restart](../.test/trilium/evidence/vertical-slice/restart.json).
+Reproduce with the commands in [README](../README.md).
+
+Packaging and the broader persistence/host-hardening step remain pending. The
+existing conflict limitation remains: preflight checks detect some competing edits
+but do not provide an atomic cross-client lock.
+
+## 2026-09-12 — Usable vertical slice (historical)
 
 The next step is implemented on stock Trilium v0.105.0. Open
 [Create a Willow mind map](http://127.0.0.1:37841/#root/wF38pKBoqN7i/Il9TKy0bqe3H)
@@ -28,7 +85,7 @@ submodule remains unchanged.
   A keyed widget container survives insertion/removal of status and recovery UI.
 
 Implementation: [`save-session.ts`](../src/save-session.ts),
-[`create-session.ts`](../src/create-session.ts), [`view-state.ts`](../src/view-state.ts),
+the former creation session (removed with native templates), [`view-state.ts`](../src/view-state.ts),
 [`host.ts`](../src/host.ts), and the wrapper in [`spike.ts`](../src/spike.ts).
 Creation uses the standard note endpoint; backend scripting remains disabled.
 The test environment and all evidence remain under ignored `.test/trilium`.

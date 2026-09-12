@@ -2,11 +2,10 @@ import { MindMapEditor } from '@mindmap/widget';
 import widgetStyles from '@mindmap/widget/styles.css?inline';
 import { h, useRef, useState, useEffect, useLayoutEffect, useNoteContext,
   useNoteBlob, useEffectiveReadOnly, useTriliumEvent } from 'trilium:preact';
-import { showConfirmDialog } from 'trilium:api';
+import { originEntity, showConfirmDialog } from 'trilium:api';
 import type { Note, NoteContext } from 'trilium:preact';
-import { parseDocument, serializeDocument } from './document';
+import { parseDocument, serializeDocument, initializeTemplate, finishInitialTitle } from './document';
 import { SaveSession } from './save-session';
-import { CreationSession } from './create-session';
 import { ViewMemory, type SavedView } from './view-state';
 import { createMap, newNoteId, readContent, writeContent, type CreateRequest } from './host';
 
@@ -19,7 +18,6 @@ interface Diagnostics {
   mounted: number; destroyed: number; active: Map<string, View>;
   writers: Map<string, string>; sessions: Map<string, SaveSession>; transfers: Set<string>;
   unloadRegistered?: boolean;
-  creations?: Map<string, CreationSession>;
 }
 const shared = globalThis as typeof globalThis & { [key]?: Diagnostics };
 const diagnostics: Diagnostics = shared[key] ??= {
@@ -28,7 +26,6 @@ const diagnostics: Diagnostics = shared[key] ??= {
 // These remain in memory across pane removal; no map drafts go into local storage.
 if (!diagnostics.sessions) diagnostics.sessions = new Map();
 if (!diagnostics.transfers) diagnostics.transfers = new Set();
-diagnostics.creations ??= new Map();
 if (!diagnostics.unloadRegistered) {
   diagnostics.unloadRegistered = true;
   window.addEventListener('beforeunload', event => {
@@ -40,9 +37,9 @@ if (!diagnostics.unloadRegistered) {
 
 const styles = `${widgetStyles}
 .willow-spike { display:flex; flex-direction:column; min-height:160px; height:var(--willow-pane-height,420px); }
-.willow-spike-bar { display:flex; flex-wrap:wrap; gap:12px; align-items:center; padding:8px; }
 .willow-spike-host { flex:1; min-height:0; position:relative; }
-.willow-spike-error, .willow-create { padding:12px; color:var(--main-text-color); }
+.willow-spike-error, .willow-notice { padding:12px; color:var(--main-text-color); }
+.willow-spike-host:not([data-ready="true"]) { visibility:hidden; }
 .willow-source { width:100%; min-height:120px; }
 .willow-spike .mindmap { --mindmap-background:var(--main-background-color,#fff); --mindmap-text-color:var(--main-text-color,#111); }
 `;
@@ -62,6 +59,8 @@ export default function WillowSpike() {
   return h('div', { ref: boundary, class: 'willow-spike-boundary render-note-scope' }, attached && h(NotePane, null));
 }
 
+function documentFontsReady() { return document.fonts.ready; }
+
 function parentId(note: Note, context?: NoteContext) {
   const path = context?.notePath?.split('/');
   const parent = path?.at(-2);
@@ -71,43 +70,23 @@ function parentId(note: Note, context?: NoteContext) {
   return id;
 }
 
-function NewMapForm({ note, noteContext }: { note: Note; noteContext?: NoteContext }) {
-  const model = useRef(diagnostics.creations!.get(note.noteId) ?? new CreationSession(createMap)).current;
-  diagnostics.creations!.set(note.noteId, model);
-  const [, redraw] = useState(0);
-  useLayoutEffect(() => model.subscribe(() => redraw(n => n + 1)), []);
-  const readonly = useEffectiveReadOnly(note, noteContext);
-  async function create(event: Event) {
-    event.preventDefault();
-    const title = String(new FormData(event.currentTarget as HTMLFormElement).get('mapTitle') ?? model.request?.title ?? '').trim();
-    if (!readonly) await model.submit(note.noteId, parentId(note, noteContext), title);
-  }
-  return h('form', { class: 'willow-create', onSubmit: create },
-    h('style', null, styles),
-    h('h3', null, 'Create a mind map'),
-    h('p', null, 'The new map will appear beside this note.'),
-    h('label', null, 'Map title ', h('input', { name: 'mapTitle', defaultValue: model.title, required: true,
-      'aria-label': 'Map title', disabled: model.busy || !!model.request,
-      onInput: (event: Event) => {
-        model.title = (event.target as HTMLInputElement).value;
-        event.stopPropagation();
-      } })),
-    h('button', { type: 'submit', disabled: model.busy || readonly }, model.busy ? 'Creating…' : model.error ? 'Retry creation' : 'Create map'),
-    model.created && h('p', { role: 'status' }, 'Created. ', h('a', { href: `#root/${parentId(note, noteContext)}/${model.created}` }, 'Open new map')),
-    model.error && h('p', { role: 'alert' }, model.error));
-}
-
 function NotePane() {
-  const { note, noteContext } = useNoteContext();
-  if (!note || note.type !== 'render') return null;
-  const props = { key: `${noteContext?.ntxId}:${note.noteId}`, note, noteContext };
-  return note.hasLabel('willowLauncher') ? h(NewMapForm, props) : h(MapPane, props);
+  const { noteContext } = useNoteContext();
+  // Render Note roots can receive navigation events before Trilium removes them.
+  // Pin this root to the document that invoked its bundle, not the hook's lagging note.
+  const note = originEntity;
+  if (!noteContext || noteContext.note?.noteId !== note.noteId || note.type !== 'render') return null;
+  if (note.hasOwnedLabel('template')) return h('p', { class: 'willow-notice' },
+    'Create a map from the note tree: Insert note after or Insert child note → Willow Mind Map.');
+  return h(MapPane, { key: `${noteContext.ntxId}:${note.noteId}`, note, noteContext });
 }
 
 function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext }) {
   const host = useRef<HTMLDivElement | null>(null);
   const editor = useRef<MindMapEditor | null>(null);
   const memory = useRef<ViewMemory | undefined>(undefined);
+  const mountedReadonly = useRef<boolean | undefined>(undefined);
+  const revealFrame = useRef(0);
   const view = useRef<SavedView | undefined>(undefined);
   const displayed = useRef<string | undefined>(undefined);
   const applying = useRef(false);
@@ -122,7 +101,6 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
   const [error, setError] = useState('');
   const [invalid, setInvalid] = useState(false);
   const [source, setSource] = useState(false);
-  const [creating, setCreating] = useState(false);
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false);
   const [recovered, setRecovered] = useState<string>();
@@ -155,6 +133,9 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
 
   function destroy() {
     if (!editor.current) return;
+    cancelAnimationFrame(revealFrame.current);
+    if (host.current) host.current.dataset.ready = 'false';
+    mountedReadonly.current = undefined;
     view.current = memory.current?.destroy(); memory.current = undefined;
     editor.current.destroy(); editor.current = null;
     diagnostics.destroyed++;
@@ -164,7 +145,7 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
     if (!host.current || disposed.current) return;
     try {
       applying.current = true;
-      const document = parseDocument(content);
+      const document = parseDocument(initializeTemplate(content, note.noteId, note.title));
       if (editor.current) {
         let replacementError: string | undefined;
         const unsubscribe = editor.current.on('error', ({ message }) => { replacementError = message; });
@@ -172,6 +153,7 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
         if (replacementError) throw new Error(replacementError);
       } else {
         editor.current = new MindMapEditor(host.current, { document, readonly: readonlyRef.current });
+        mountedReadonly.current = readonlyRef.current;
         diagnostics.mounted++;
         diagnostics.active.set(instanceId.current, { noteId: note.noteId, host: host.current, editor: editor.current,
           flush, grant: writable => { readonlyRef.current = readonly || !writable; setOwnsEdit(writable); } });
@@ -185,6 +167,15 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
         editor.current.on('editcommit', () => { session.editing = false; });
         editor.current.on('editcancel', () => { session.editing = false; });
         editor.current.on('error', ({ message }) => setError(message));
+        const instance = editor.current;
+        void documentFontsReady().then(() => {
+          if (disposed.current || editor.current !== instance) return;
+          revealFrame.current = requestAnimationFrame(() => {
+            if (disposed.current || editor.current !== instance || !host.current?.isConnected) return;
+            instance.refreshLayout();
+            host.current.dataset.ready = 'true';
+          });
+        });
       }
       displayed.current = content;
       setInvalid(false); setError('');
@@ -195,9 +186,17 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
   }
   function sync() {
     if (disposed.current) return;
+    const owns = diagnostics.writers.get(note.noteId) === instanceId.current;
+    if (owns && !readonlyRef.current && session.local !== undefined && note.getRelationValue('template')
+      && !session.editing && session.incoming === undefined) {
+      try {
+        const content = finishInitialTitle(initializeTemplate(session.local, note.noteId, note.title), note.title);
+        if (content !== session.local) { session.change(content); return; }
+      } catch (e) { setInvalid(true); setError(String(e)); }
+    }
     if (session.local !== undefined && session.local !== displayed.current) install(session.local);
-    if (diagnostics.writers.get(note.noteId) === instanceId.current)
-      noteContext?.setContextData('saveState', { state: session.state === 'conflict' ? 'error' : session.state });
+    if (noteContext?.note?.noteId === note.noteId && session.state !== 'loading')
+      noteContext.setContextData('saveState', { state: session.state === 'conflict' ? 'error' : session.state });
     redraw(n => n + 1);
   }
 
@@ -208,8 +207,6 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
       readonlyRef.current = readonly; session.writable = !readonly;
       setOwnsEdit(true);
     }
-    const unsubscribe = session.subscribe(sync);
-    sync();
     const section = host.current!.parentElement!;
     const container = section.closest('.scrolling-container');
     const size = () => {
@@ -218,6 +215,8 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
     const resize = new ResizeObserver(size);
     if (container) resize.observe(container);
     size();
+    const unsubscribe = session.subscribe(sync);
+    sync();
     return () => {
       resize.disconnect(); unsubscribe();
       try { commitEdit(); void session.flush().catch(() => {}); }
@@ -231,11 +230,23 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
   useEffect(() => {
     if (blob?.content !== undefined) session.receive(blob.content);
   }, [blob]);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (diagnostics.writers.get(note.noteId) === instanceId.current) session.writable = !readonly;
-    if (!editor.current || session.local === undefined) return;
+    if (!editor.current || session.local === undefined || mountedReadonly.current === readonlyRef.current) return;
     commitEdit(); destroy(); install(session.local);
   }, [readonly, ownsEdit]);
+
+  useTriliumEvent('entitiesReloaded', ({ loadResults }) => {
+    if (loadResults.isNoteReloaded(note.noteId)) sync();
+  });
+  useTriliumEvent('contextDataChanged', ({ noteContext: target, key, value }) => {
+    // The native title saver shares this badge. Its acknowledgement must not
+    // hide a pending or failed map-content save.
+    if (target === noteContext && target.note?.noteId === note.noteId && key === 'saveState'
+      && value?.state === 'saved' && session.state !== 'saved' && session.state !== 'loading') {
+      target.setContextData('saveState', { state: session.state === 'conflict' ? 'error' : session.state });
+    }
+  });
 
   async function takeEditing() {
     if (diagnostics.transfers.has(note.noteId)) return;
@@ -271,23 +282,18 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
     } catch (e) { setError(`Recovery did not finish. Your local draft is retained; retry is available. ${String(e)}`); }
     finally { busyRef.current = false; setBusy(false); }
   }
-  const stateText = { loading: 'Loading…', saved: 'Saved', unsaved: 'Unsaved', saving: 'Saving…', error: 'Save failed', conflict: 'External change — saving paused' }[session.state];
   const conflict = session.incoming !== undefined;
   const interaction = () => memory.current?.interaction();
   return h('section', { class: 'willow-spike', 'data-note-id': note.noteId, 'data-willow-context': noteContext?.ntxId },
     h('style', null, styles),
-    h('div', { class: 'willow-spike-bar' },
-      h('button', { onClick: () => { interaction(); editor.current?.fit(); } }, 'Fit map'),
-      h('button', { disabled: busy || conflict || readonlyRef.current, onClick: async () => {
-        try { await flush(); setError(''); } catch (e) { setError(String(e)); }
-      } }, session.state === 'error' ? 'Retry save' : 'Save'),
-      !ownsEdit && !readonly && h('button', { onClick: takeEditing }, 'Edit in this pane'),
-      !readonly && h('button', { onClick: () => setCreating(!creating) }, 'New map'),
-      h('span', { role: 'status' }, invalid ? 'Cannot load' : readonlyRef.current ? 'Read-only' : stateText)),
-    creating && h(NewMapForm, { note, noteContext }),
+    !ownsEdit && !readonly && h('div', { class: 'willow-notice' },
+      'This map is being edited in another pane. ', h('button', { onClick: takeEditing }, 'Edit here')),
     (error || conflict || session.error) && h('div', { class: 'willow-spike-error', role: 'alert' },
       conflict ? 'Another version arrived. Keep both saves your local work as a sibling map, then loads the saved original.' : error || session.error,
       conflict && error && h('p', null, error),
+      session.state === 'error' && !conflict && !readonlyRef.current && h('button', { disabled: busy, onClick: async () => {
+        try { await flush(); setError(''); } catch (e) { setError(String(e)); }
+      } }, 'Retry save'),
       (conflict || session.state === 'error') && !readonlyRef.current && h('div', null,
         h('button', { disabled: busy, onClick: () => resolve(true) }, busy ? 'Recovering…' : 'Keep both'),
         h('button', { disabled: busy, onClick: () => resolve(false) }, 'Use incoming')),

@@ -1,7 +1,7 @@
 // Narrow, version-specific contract used by the v0.105.0 adapter. These imports are
 // supplied by Trilium, never bundled from a second Preact installation.
 declare module 'trilium:preact' {
-  export interface Note { noteId: string; title: string; type: string; getContent(): Promise<string>; hasLabel(name: string): boolean; getParentNoteIds(): string[]; }
+  export interface Note { noteId: string; title: string; type: string; getContent(): Promise<string>; hasLabel(name: string): boolean; hasOwnedLabel(name: string): boolean; getRelationValue(name: string): string | null; getParentNoteIds(): string[]; }
   export interface NoteContext { ntxId: string; note?: Note; notePath?: string; isActive(): boolean; setContextData(key: string, value: unknown): void; }
   export interface ParentComponent {
     componentId: string;
@@ -20,5 +20,6 @@ declare module 'trilium:preact' {
   export function useTriliumEvent(event: string, handler: (data: any) => unknown): void;
 }
 declare module 'trilium:api' {
+  export const originEntity: import('trilium:preact').Note;
   export function showConfirmDialog(message: string): Promise<boolean>;
 }

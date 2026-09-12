@@ -1,3 +1,4 @@
+import { fit } from './test-ui.mjs';
 import assert from 'node:assert/strict';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { connect, request, testRoot } from './test-client.mjs';
@@ -14,7 +15,7 @@ const tree = name => page.locator('.fancytree-title').getByText(`Willow Map ${na
 async function open(name) {
   await tree(name).click();
   await pane(name).locator('.mindmap').waitFor();
-  const transfer = pane(name).getByRole('button', { name: 'Edit in this pane', exact: true });
+  const transfer = pane(name).getByRole('button', { name: 'Edit here', exact: true });
   if (await transfer.isVisible()) await transfer.click();
   await pane(name).locator('.mindmap[aria-readonly="false"]').waitFor();
 }
@@ -116,12 +117,12 @@ try {
   await views.nth(1).locator('.mindmap').waitFor();
   assert.equal(await views.locator('.mindmap[aria-readonly="false"]').count(),1);
   assert.equal(await views.locator('.mindmap[aria-readonly="true"]').count(),1);
-  const viewerId=await views.filter({has:page.getByRole('button',{name:'Edit in this pane',exact:true})}).getAttribute('data-willow-context');
+  const viewerId=await views.filter({has:page.getByRole('button',{name:'Edit here',exact:true})}).getAttribute('data-willow-context');
   const viewer=page.locator(`.willow-spike[data-willow-context="${viewerId}"]`);
-  await viewer.getByRole('button',{name:'Edit in this pane',exact:true}).click();
+  await viewer.getByRole('button',{name:'Edit here',exact:true}).click();
   await viewer.locator('.mindmap[aria-readonly="false"]').waitFor();
   assert.equal(await views.locator('.mindmap[aria-readonly="false"]').count(),1);
-  for(const view of await views.all()) await view.getByRole('button',{name:'Fit map',exact:true}).click();
+  for(const view of await views.all()) await fit(page,view);
   await checkLifetime();
   await page.screenshot({path:new URL('two-panes.png',dir).pathname,fullPage:true});
   passed.push('two views of one map mount separately; one writer with explicit ownership transfer');
@@ -143,7 +144,8 @@ try {
     await tree('B').click();
     await pane('B').getByRole('alert').waitFor();
     assert.equal(await pane('B').locator('.mindmap').count(),0);
-    await pane('B').getByRole('button',{name:'Save',exact:true}).click();
+    await pane('B').getByRole('button',{name:'View original source',exact:true}).click();
+    assert.equal(await pane('B').getByRole('textbox',{name:'Original note source'}).inputValue(),content);
     assert.equal((await request(page,'GET',`notes/${notes.B}/blob`)).content,content);
     await page.locator('.fancytree-title').getByText('Willow integration spike',{exact:true}).click();
   }

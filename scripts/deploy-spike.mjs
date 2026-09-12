@@ -25,12 +25,20 @@ try {
   if (!notes.bundle) notes.bundle = await create(notes.folder, 'Willow shared editor', 'code', 'text/jsx', bundle);
   else await request(page, 'PUT', `notes/${notes.bundle}/data`, { content: bundle });
   await writeFile(file, JSON.stringify(notes, null, 2));
-  if (!notes.launcher) {
-    notes.launcher = await create(notes.folder, 'Create a Willow mind map', 'render', 'application/json', '{}');
-    await writeFile(file, JSON.stringify(notes, null, 2));
-  }
-  await request(page, 'PUT', `notes/${notes.launcher}/set-attribute`, { type: 'relation', name: 'renderNote', value: notes.bundle });
-  await request(page, 'PUT', `notes/${notes.launcher}/set-attribute`, { type: 'label', name: 'willowLauncher', value: '' });
+  const seed = JSON.stringify({ format: 'trilium-willow-mindmap', version: 1, initializeFromTitle: true,
+    document: { root: { id: 'willow-template-root', text: 'Mind map', children: [] } } });
+  // Replace the disposable spike launcher with Trilium's native template entry.
+  notes.template ??= notes.launcher ?? await create(notes.folder, 'Willow Mind Map', 'render', 'application/json', seed);
+  delete notes.launcher;
+  await writeFile(file, JSON.stringify(notes, null, 2));
+  await request(page, 'PUT', `notes/${notes.template}/title`, { title: 'Willow Mind Map' });
+  await request(page, 'PUT', `notes/${notes.template}/data`, { content: seed });
+  await request(page, 'PUT', `notes/${notes.template}/attributes`, [
+    { type: 'label', name: 'template', value: '', isInheritable: false },
+    { type: 'label', name: 'willowMindMap', value: '', isInheritable: true },
+    { type: 'label', name: 'iconClass', value: 'bx bx-git-branch', isInheritable: true },
+    { type: 'relation', name: 'renderNote', value: notes.bundle, isInheritable: true },
+  ]);
   for (const name of ['A', 'B']) {
     if (!notes[name]) notes[name] = await create(notes.folder, `Willow Map ${name}`, 'render', 'application/json', JSON.stringify({
       format: 'trilium-willow-mindmap', version: 1, document: { root: { id: `root-${name}`, text: `Map ${name}`, children: [

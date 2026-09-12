@@ -1,11 +1,12 @@
 # Trilium mind-map add-on: options and proposed plan
 
-Date: 2026-09-12. Status: proposal; implementation has not started.
+Date: 2026-09-12. Status: first integration spike complete; full add-on pending.
 
 Environment checkpoint: the isolated v0.105.0 server is running under
 `.test/trilium`, and browser setup, editing, independent-session readback, and
 server-restart persistence passed. See [test-server report](test-trilium.md).
-The adapter/lifecycle spike itself has not yet been implemented.
+The adapter/lifecycle spike now passes on stock v0.105.0 in Chrome and an isolated
+macOS desktop renderer. See [findings, evidence, and limits](progress.md).
 
 User preference: an add-on for stock Trilium, running the latest version.
 Confirmed scope: desktop and browser; standalone documents. Internal note links,
@@ -32,8 +33,9 @@ The v0.105.0 frontend scripting API exposes `useNoteContext`,
 `useEditorSpacedUpdate`, and `useEffectiveReadOnly` through `trilium:preact`.
 The saving hook loads note content, writes through Trilium's note-data endpoint,
 reports save state, and flushes on note switches and context removal. This is a
-promising integration path, not yet a tested add-on. Render Note context delivery,
-refresh/unmount cleanup, and event ordering still require an actual-app spike.
+tested integration path. The spike verified note context, saving, refresh, splits,
+and cleanup, with adapter workarounds documented in the progress log. Broader persistence
+and conflict hardening remains pending.
 
 Current Trilium already has a `mindMap` note type using Mind Elixir. Its format
 is different from `mr`'s document format. The add-on should use its own identity
@@ -158,7 +160,8 @@ artifact and a presentation path stock Trilium can render without our code.
 ## Proposed conflict policy
 
 This is single-user editing with recovery for detected conflicts, not concurrent
-collaborative editing. The following is proposed behavior, not implemented evidence.
+collaborative editing. The following is the accepted target behavior; only the
+subset recorded in the progress log is implemented and verified so far.
 
 | Situation | Proposed behavior |
 | --- | --- |
@@ -217,8 +220,8 @@ not replace map data. Test relation preservation and bundle upgrades explicitly.
 Development can use a disposable locally hosted Trilium driven by Playwright via
 terminal tools, with screenshots inspected using image tools. No dedicated browser
 connector is exposed in this session; Node, pnpm, Chrome, and cached Playwright
-browser binaries are present, while this checkout's dependencies still need setup.
-Do not treat this availability check as a successful browser or Trilium test.
+browser binaries are present. Dependencies are installed and the browser/desktop
+spike tests are recorded in the progress log.
 
 Use the same add-on artifact on browser and desktop, with no Electron/Node-specific
 APIs in the adapter. Transfer by importing the bundle or syncing its notes along
@@ -253,17 +256,17 @@ desktop/server synchronization, including delayed and offline conflicts.
 
 Use focused unit tests for serialization and save coordination and real browser
 tests inside Trilium for lifecycle and gestures. Existing widget test results do
-not establish host integration correctness. No runtime checks were run for this
-planning task.
+not establish host integration correctness. Actual-app spike results are recorded
+separately in the progress log.
 
-## Confirmed scope and remaining decision
+## Confirmed scope
 
 - Desktop and browser are required. User reports “latest”; confirm exact builds
   against the v0.105.0 stable baseline during prototype setup.
 - Standalone documents are accepted.
 - Internal note links, existing-map migration, and dedicated map export are deferred.
-- Conflict handling above is a proposal: confirm whether recovery for detected
-  conflicts is sufficient or guaranteed concurrent-version retention is required.
+- Recovery for detected conflicts is accepted. Guaranteed preservation of all
+  concurrent versions is outside the current scope.
 
 ## Sources
 

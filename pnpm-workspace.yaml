@@ -1,0 +1,4 @@
+packages:
+  - mr
+onlyBuiltDependencies:
+  - esbuild

@@ -1,7 +1,8 @@
 # Local Trilium test server
 
 Provisioned and verified on 2026-09-12. This completes the server/browser setup
-checkpoint; the mind-map adapter has not been installed or implemented.
+checkpoint. The subsequent [mind-map integration spike](progress.md) is also
+implemented and installed in this test server.
 
 ## Access and isolation
 
@@ -88,6 +89,7 @@ Passed using actual pointer/keyboard/form input:
 Evidence: [JSON report](../.test/trilium/evidence/browser-smoke.json) and
 [screenshot after restart](../.test/trilium/evidence/07-after-server-restart.png).
 
-The next integration checkpoint is mounting `mr` in a shared Render Note bundle
-and checking map persistence and lifecycle. Desktop add-on behavior, sync,
-clipboard, and conflicts have not been tested by this setup checkpoint.
+The subsequent integration spike mounted `mr` in a shared Render Note bundle and
+verified map persistence and lifecycle in the browser, plus desktop mount/edit/
+reload in a separate test app. See the [progress log](progress.md) for the tested scope and remaining
+sync, clipboard, and conflict work.

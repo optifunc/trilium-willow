@@ -48,12 +48,12 @@ try {
     await m.activateNoteContext(main);
   });
   const title=`Willow acceptance ${Date.now()}`;
-  const created=await createFromMenu(page,'Willow Map A','after',title);
+  const created=await createFromMenu(page,(await request(page,'GET',`notes/${notes.A}`)).title,'after',title);
   id=created.id;
   assert.equal(created.branch.parentNoteId,notes.folder);
   await pane(id).locator('.mindmap').waitFor();
   closeView(await view(id),{zoom:1,centerX:0,centerY:0});
-  assert.equal(JSON.parse(await raw(id)).document.root.text,'Mind map');
+  assert.equal(JSON.parse(await raw(id)).document.root.text,title);
   assert.equal((await request(page,'GET',`notes/${id}`)).type,'render');
   await pane(id).locator(`[data-node-id="root-${id}"]`).waitFor();
   assert.equal(await pane(id).locator('button').count(),0);
@@ -62,7 +62,7 @@ try {
   await child.pane.locator(`[data-node-id="root-${child.id}"]`).waitFor();
   await page.locator('.fancytree-title').getByText(title,{exact:true}).click();
   await pane(id).locator('.mindmap').waitFor();
-  passed.push('native after/child menus create Render Notes with unique root IDs, independent title typing and 100% centre; no permanent toolbar');
+  passed.push('native after/child menus create Render Notes with unique root IDs, synchronized title typing and 100% centre; no permanent toolbar');
 
   await pane(id).locator('.mindmap-root-node .mindmap-label').click({button:'right'});
   await pane(id).getByRole('menuitem',{name:/^Add child/}).click();
@@ -89,14 +89,14 @@ try {
   await page.waitForFunction(id=>localStorage.getItem(`trilium-willow:view:v1:${id}`),id);
   const remembered=await view(id);
   assert.ok(remembered.zoom>1);assert.ok(Math.abs(remembered.centerX)>1);
-  await page.locator('.fancytree-title').getByText('Willow Map B',{exact:true}).click();
+  await page.locator('.fancytree-title').getByText((await request(page,'GET',`notes/${notes.B}`)).title,{exact:true}).click();
   await page.locator('.fancytree-title').getByText(title,{exact:true}).click();
   await pane(id).locator('.mindmap').waitFor();closeView(await view(id),remembered);
   await page.reload();await pane(id).locator('.mindmap').waitFor();closeView(await view(id),remembered);
   assert.equal(await raw(id),original);
   passed.push('pan/zoom survives note switches and reload without changing note content');
   for(let i=0;i<3;i++) {
-    await page.locator('.fancytree-title').getByText('Willow Map B',{exact:true}).click();
+    await page.locator('.fancytree-title').getByText((await request(page,'GET',`notes/${notes.B}`)).title,{exact:true}).click();
     await pane(notes.B).locator('.willow-spike-host[data-ready="true"]').waitFor();
     const result=await measureSwitch(page,title,id);
     assert.equal(result.mounts,1,JSON.stringify(result));
@@ -143,9 +143,11 @@ try {
   assert.equal((await request(page,'GET',`notes/${id}`)).title,`${title} renamed`);
   await nativePane(pane(id)).locator('.save-status-badge.error:visible').waitFor();
   await page.unroute(saveUrl);
-  await pane(id).getByRole('button',{name:'Retry save',exact:true}).click();
-  await saved(id,'Draft retained after failed save');
-  passed.push('failed save retains the draft and native error badge through title saving; Retry persists it');
+  await pane(id).getByRole('button',{name:'Keep both',exact:true}).click();
+  await saved(id,`${title} renamed`);
+  const copied=await page.evaluate(id=>globalThis[Symbol.for('trilium-willow.spike')].sessions.get(id).recovered,id);
+  assert.equal(JSON.parse(await raw(copied)).document.root.text,'Draft retained after failed save');
+  passed.push('failed save plus a title rename retains both versions through explicit recovery');
 
   await edit(id,'Local work recovered including unfinished text');
   const incoming=JSON.parse(await raw(id));incoming.document.root.text='Incoming version retained';
@@ -157,9 +159,9 @@ try {
   await pane(id).getByRole('alert').getByText(/Recovery did not finish/).waitFor();
   await page.unroute(`**/api/notes/${notes.folder}/children?target=into`);
   await pane(id).getByRole('button',{name:'Keep both',exact:true}).click();
+  await saved(id,'Incoming version retained');
   const recovered=pane(id).getByRole('link',{name:'Open recovery copy',exact:true});await recovered.waitFor();
   const recoveryId=(await recovered.getAttribute('href')).split('/').at(-1);
-  await saved(id,'Incoming version retained');
   assert.equal(JSON.parse(await raw(recoveryId)).document.root.text,'Local work recovered including unfinished text');
   passed.push('detected conflict retains unfinished text; failed Keep both is retryable; recovery copy and incoming original both survive');
 

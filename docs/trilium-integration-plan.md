@@ -98,12 +98,26 @@ problems. Use it only if the one-note spike reveals a concrete limitation.
 
 Keep selection, pan, and zoom out of persisted document history in v1. Collapsed
 and checkbox states remain document fields because that is `mr`'s current contract.
-New maps start with the root label **Mind map**. Trilium's note title and the
-root label are independent, including the first rename after creation. Template
-IDs are materialized per document in the editor and persisted with the first map
-edit. Merely opening a map does not write note content; doing so can cause the
-host's note reload to reset its title field during typing. Old title-following
-metadata is ignored, preserving existing root labels.
+The root text and native note title stay synchronized in both directions. On
+first writable opening, the existing note title wins if they differ; preserve
+children, IDs and other fields. Validate the full map before making this change.
+Template root IDs are materialized per document on the first save.
+
+Native title typing is applied to the root after leaving the title field. Pause
+pending initial alignment saves during typing: content acknowledgements can reset
+Trilium's title input. Committed root edits and undo/redo rename the note through
+the shared save session. Child edits do not rename it. Root-origin saves remain
+pending until both the content and title requests succeed; failures are retryable.
+Detected concurrent title changes preserve the draft and require explicit recovery.
+Content-conflict recovery keeps the chosen incoming root and synchronizes its title;
+title-conflict recovery applies the incoming title. Recovery copies use their copied
+root as the title, so reopening them preserves that root exactly.
+
+Stock Trilium provides separate content and title writes, with no atomic combined
+update or compare-and-swap. Preflight checks detect observed conflicts but cannot
+eliminate the last read/write race. A process exit between those writes may leave
+a mismatch; the agreed title-wins rule applies at the next fresh opening. Existing
+session drafts remain available for retry/recovery while that session is alive.
 
 ### Native creation and controls
 

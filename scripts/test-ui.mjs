@@ -4,6 +4,11 @@ export function nativePane(pane) {
 }
 
 export async function waitSaved(pane) {
+  const id = await pane.getAttribute('data-note-id');
+  await pane.page().waitForFunction(id => {
+    const session = globalThis[Symbol.for('trilium-willow.spike')]?.sessions.get(id);
+    return session?.state === 'saved' && !session.dirty && !session.saving;
+  }, id);
   await nativePane(pane).locator('.save-status-badge.saved:visible').waitFor();
 }
 
@@ -54,7 +59,7 @@ export async function createFromMenu(page, referenceTitle, placement, title) {
   if (await input.inputValue() !== title || await pane.locator('.mindmap textarea').count())
     throw new Error('Title typing changed focus or started a map edit');
   await pane.locator('.mindmap').focus();
-  await pane.locator('.mindmap-root-node .mindmap-label').getByText('Mind map',{exact:true}).waitFor();
+  await pane.locator('.mindmap-root-node .mindmap-label').getByText(title,{exact:true}).waitFor();
   for (let attempt = 0; ; attempt++) {
     const saved = await page.evaluate(async ({id,title}) => {
       const options = {cache:'no-store',headers:await glob.getHeaders()};
@@ -62,7 +67,7 @@ export async function createFromMenu(page, referenceTitle, placement, title) {
         fetch(`/api/notes/${id}/blob`,options).then(r=>r.json()),
         fetch(`/api/notes/${id}`,options).then(r=>r.json()),
       ]);
-      return JSON.parse(blob.content).document.root.text === 'Mind map' && note.title === title;
+      return JSON.parse(blob.content).document.root.text === title && note.title === title;
     }, {id,title});
     if (saved) break;
     if (attempt === 80) throw new Error('Created map title did not persist');

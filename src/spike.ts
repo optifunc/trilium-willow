@@ -7,9 +7,9 @@ import type { Note, NoteContext } from 'trilium:preact';
 import { parseDocument, serializeDocument, initializeTemplate } from './document';
 import { clearPreview, retainPreview } from './presentation';
 import { treeFocus } from './tree-focus';
-import { SaveSession } from './save-session';
+import { TitleSession } from './title-session';
 import { paneViews, ViewMemory, type SavedView } from './view-state';
-import { createMap, newNoteId, readContent, writeContent } from './host';
+import { createMap, newNoteId, readContent, writeContent, readTitle, writeTitle } from './host';
 
 const key = Symbol.for('trilium-willow.spike');
 interface View {
@@ -18,7 +18,7 @@ interface View {
 }
 interface Diagnostics {
   mounted: number; destroyed: number; active: Map<string, View>;
-  writers: Map<string, string>; sessions: Map<string, SaveSession>; transfers: Set<string>;
+  writers: Map<string, string>; sessions: Map<string, TitleSession>; transfers: Set<string>;
   unloadRegistered?: boolean;
 }
 const shared = globalThis as typeof globalThis & { [key]?: Diagnostics };
@@ -119,8 +119,9 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
   const disposed = useRef(false);
   const composing = useRef(false);
   const instanceId = useRef(crypto.randomUUID());
-  const session = useRef(diagnostics.sessions.get(note.noteId) ?? new SaveSession(
-    () => readContent(note.noteId), content => writeContent(note.noteId, content))).current;
+  const session = useRef(diagnostics.sessions.get(note.noteId) ?? new TitleSession(note.noteId, note.title,
+    () => readContent(note.noteId), content => writeContent(note.noteId, content),
+    () => readTitle(note.noteId), title => writeTitle(note.noteId, title))).current;
   diagnostics.sessions.set(note.noteId, session);
   const [ownsEdit, setOwnsEdit] = useState(() => !diagnostics.writers.has(note.noteId));
   const [, redraw] = useState(0);
@@ -145,6 +146,9 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
       textarea.dispatchEvent(new FocusEvent('blur'));
   }
   async function flush() {
+    const input = document.activeElement;
+    if (input instanceof HTMLInputElement && input.matches('.note-title')
+      && host.current?.closest('.note-split')?.contains(input)) input.blur();
     commitEdit();
     await session.flush();
   }
@@ -224,7 +228,9 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
       }
       displayed.current = content;
       setInvalid(false); setError('');
+      session.validate();
     } catch (e) {
+      session.invalidate();
       destroy(); displayed.current = content;
       setInvalid(true); setError(String(e));
       if (noteContext) clearPreview(noteContext.ntxId);
@@ -232,9 +238,7 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
   }
   function sync() {
     if (disposed.current) return;
-    // Materialize template IDs in the editor; persist them on the first map edit.
-    // Writing merely on opening reloads Trilium's note object and can reset the
-    // native title field while the user is still typing into it.
+    // The shared title session aligns a validated map on its first writable open.
     if (session.local !== undefined && session.local !== displayed.current) install(session.local);
     if (noteContext?.note?.noteId === note.noteId && session.state !== 'loading')
       noteContext.setContextData('saveState', { state: session.state === 'conflict' ? 'error' : session.state });
@@ -257,6 +261,17 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
       setOwnsEdit(false);
     }
     const section = host.current!.parentElement!;
+    const split = section.closest('.note-split');
+    const titleFocus = (event: Event) => {
+      if (noteContext?.note?.noteId !== note.noteId) return;
+      const input = event.target;
+      if (input instanceof HTMLInputElement && input.matches('.note-title'))
+        session.editTitle(event.type === 'focusin', input.value);
+    };
+    split?.addEventListener('focusin', titleFocus);
+    split?.addEventListener('focusout', titleFocus);
+    if (split?.contains(document.activeElement) && document.activeElement?.matches('input.note-title')) session.editTitle(true);
+    session.receiveTitle(note.title);
     const container = section.closest('.scrolling-container');
     const size = () => {
       if (container && container.clientHeight > 0) section.style.setProperty('--willow-pane-height', `${Math.max(160, container.clientHeight - 8)}px`);
@@ -282,6 +297,8 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
     const unsubscribe = session.subscribe(sync);
     sync();
     return () => {
+      split?.removeEventListener('focusin', titleFocus);
+      split?.removeEventListener('focusout', titleFocus);
       unregisterFocus(); resize.disconnect(); unsubscribe();
       try { commitEdit(true); void session.flush().catch(() => {}); }
       finally {
@@ -306,12 +323,16 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
   }, [blob]);
   useLayoutEffect(() => {
     if (diagnostics.writers.get(note.noteId) === instanceId.current) session.writable = !readonly;
+    session.align();
     if (!editor.current || session.local === undefined || mountedReadonly.current === readonlyRef.current) return;
     commitEdit(); destroy(); install(session.local);
   }, [readonly, ownsEdit]);
 
   useTriliumEvent('entitiesReloaded', ({ loadResults }) => {
-    if (loadResults.isNoteReloaded(note.noteId)) sync();
+    if (loadResults.isNoteReloaded(note.noteId)) {
+      session.receiveTitle(note.title);
+      sync();
+    }
   });
   useTriliumEvent('contextDataChanged', ({ noteContext: target, key, value }) => {
     // The native title saver shares this badge. Its acknowledgement must not
@@ -345,7 +366,7 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
       await session.useIncoming(keep ? async content => {
         if (session.recoveryRequest?.content !== content) session.recoveryRequest = undefined;
         session.recoveryRequest ??= { sourceId: note.noteId, parentId: parentId(note, noteContext), noteId: newNoteId(),
-          title: `${note.title} (recovered)`, content };
+          title: parseDocument(initializeTemplate(content, note.noteId)).root.text, content };
         session.recovered = await createMap(session.recoveryRequest);
         session.notify();
       } : undefined, keep ? undefined : () => showConfirmDialog('Discard your local changes and load the saved original?'));

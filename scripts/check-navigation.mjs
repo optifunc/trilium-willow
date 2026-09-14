@@ -21,9 +21,10 @@ export async function delayBundles(page,bundle,holdFirst=false) {
 export async function restoreBundles(page){await page.evaluate(()=>{globalThis.willowBundleDelay?.restore();delete globalThis.willowBundleDelay;});}
 
 export async function checkNavigation(page, notes) {
+  const [titleA,titleB]=await page.evaluate(async ids=>Promise.all(ids.map(async id=>(await(await fetch(`/api/notes/${id}`,{headers:await glob.getHeaders()})).json()).title)),[notes.A,notes.B]);
   const tree = title => page.locator('.fancytree-title').getByText(title,{exact:true});
   const pane = id => page.locator(`.willow-spike[data-note-id="${id}"]:visible`).last();
-  await tree('Willow Map A').click();
+  await tree(titleA).click();
   await pane(notes.A).locator('[data-ready="true"]').waitFor();
   const geometry = () => pane(notes.A).locator('.mindmap-node').evaluateAll(es => es.map(e => ({
     text:e.textContent,width:e.style.width,height:e.style.height,left:e.style.left,top:e.style.top,
@@ -34,7 +35,7 @@ export async function checkNavigation(page, notes) {
     await tree('Willow browser control smoke test').click();
     await page.locator('.note-detail-editable-text:visible').waitFor();
     assert.equal(await page.locator('.willow-transition').count(),0);
-    await tree('Willow Map A').click();
+    await tree(titleA).click();
     await pane(notes.A).locator('[data-ready="true"]').waitFor();
     await page.waitForTimeout(100);
     assert.deepEqual(await geometry(),baseline,'Normal-note transition corrupted map layout');
@@ -43,7 +44,7 @@ export async function checkNavigation(page, notes) {
   // Make the host's bundle-loading gap long enough to observe reliably.
   await delayBundles(page,notes.bundle);
   try {
-    for (const [title,id] of [['Willow Map B',notes.B],['Willow Map A',notes.A]]) {
+    for (const [title,id] of [[titleB,notes.B],[titleA,notes.A]]) {
       await page.evaluate(() => {
         const container = [...document.querySelectorAll('.willow-spike')].find(e=>e.checkVisibility()).closest('.scrolling-container');
         globalThis.willowPaintFrames = [];
@@ -69,13 +70,13 @@ export async function checkNavigation(page, notes) {
   } finally {await restoreBundles(page);}
   // The native Render component caches its last note while a text note is open.
   // Leave B in that cache so returning to A must issue a new bundle request.
-  await tree('Willow Map B').click();await pane(notes.B).locator('[data-ready=true]').waitFor();
+  await tree(titleB).click();await pane(notes.B).locator('[data-ready=true]').waitFor();
   await tree('Willow browser control smoke test').click();
   await page.locator('.note-detail-editable-text:visible').waitFor();
   await delayBundles(page,notes.bundle,true);
   try {
-    await tree('Willow Map A').click();await page.waitForFunction(()=>globalThis.willowBundleDelay.arrived,undefined,{timeout:10000});
-    await tree('Willow Map B').click();await pane(notes.B).locator('[data-ready=true]').waitFor();
+    await tree(titleA).click();await page.waitForFunction(()=>globalThis.willowBundleDelay.arrived,undefined,{timeout:10000});
+    await tree(titleB).click();await pane(notes.B).locator('[data-ready=true]').waitFor();
     await pane(notes.B).locator('.mindmap-root-node .mindmap-label').click();await page.keyboard.press('F2');
     await pane(notes.B).locator('.mindmap textarea').fill('Draft survives stale bundle completion');
     await page.evaluate(()=>globalThis.willowBundleDelay.release());await page.waitForTimeout(350);

@@ -1,0 +1,143 @@
+{
+  "title/browser.json": {
+    "testedAt": "2026-09-14T14:09:48.782Z",
+    "bundleSha256": "52294bf9d2b12fa6c18ccb81f8f730a48729a4dc692dc6a729d08116dd16e721",
+    "environment": {
+      "version": "0.105.0",
+      "platform": "MacIntel",
+      "electron": false
+    },
+    "desktop": false,
+    "passed": [
+      "First opening aligns root to title and preserves children",
+      "Native title typing retains focus and updates root after save",
+      "Keyboard navigation commits a focused native title and its root",
+      "Root edit and undo update native title",
+      "Root and title survive renderer reload",
+      "Failed title write retries after successful content save",
+      "Native template creation synchronizes the typed title without starting root editing"
+    ]
+  },
+  "title/desktop.json": {
+    "testedAt": "2026-09-14T14:10:01.969Z",
+    "bundleSha256": "52294bf9d2b12fa6c18ccb81f8f730a48729a4dc692dc6a729d08116dd16e721",
+    "environment": {
+      "version": "0.105.0",
+      "platform": "MacIntel",
+      "electron": true
+    },
+    "desktop": true,
+    "passed": [
+      "First opening aligns root to title and preserves children",
+      "Native title typing retains focus and updates root after save",
+      "Keyboard navigation commits a focused native title and its root",
+      "Root edit and undo update native title",
+      "Root and title survive renderer reload",
+      "Failed title write retries after successful content save",
+      "Native template creation synchronizes the typed title without starting root editing"
+    ]
+  },
+  "spike/results.json": {
+    "testedAt": "2026-09-14T14:04:14.219Z",
+    "bundleSha256": "2aef28c209a8eb6e05b9bbcc7e8f049d35c72d810a2fa8a5e2b896fe0a18d429",
+    "version": "0.105.0",
+    "passed": [
+      "shared bundle mounted; committed edit saved in the owning Render Note",
+      "widget undo/redo through real keyboard input and save echoes",
+      "provisional child committed on pointer navigation; no cross-note write",
+      "unfinished label committed on Trilium keyboard back navigation",
+      "native Render Note refresh commits editing and disposes the previous editor",
+      "repeated A/B navigation keeps editor counts and DOM consistent",
+      "two views of one map mount separately; one writer with explicit ownership transfer",
+      "tab close commits an unfinished label and disposes split editors",
+      "unsupported version and invalid map fail visibly without overwriting source",
+      "reload and reopen preserve the document; no browser page errors"
+    ],
+    "errors": []
+  },
+  "spike/desktop.json": {
+    "testedAt": "2026-09-14T14:07:53.828Z",
+    "bundleSha256": "5855f3c14051bd6ded03efd1d2e7203044f094f20d1e4a7d8e1b61a424d7df8b",
+    "environment": {
+      "version": "0.105.0",
+      "electron": true,
+      "url": "trilium-app://app/#root/wF38pKBoqN7i/ZpFhhdR2Z8Tj?ntxId=QME7Op"
+    },
+    "passed": [
+      "isolated desktop data/profile",
+      "same shared bundle mounted on desktop",
+      "real label editing and save",
+      "reload persistence",
+      "native template menu synchronizes title and root and centres at 100%",
+      "native desktop clipboard copy/paste",
+      "desktop pan/zoom survives note switching and renderer reload"
+    ],
+    "navigation": {
+      "normalNoteRoundTrips": 3,
+      "staleBundle": "current map remains editable and unfinished text persists"
+    },
+    "selectionFocus": {
+      "passed": [
+        "tree click focuses the map; the next arrow navigates its selection",
+        "multi-selection, active node, zoom and position survive switching and reload independently per document",
+        "clicking the already-open note returns keyboard focus to the map",
+        "deleted/hidden saved IDs are ignored, with root fallback and no viewport movement",
+        "incoming content refresh preserves the current selection",
+        "a title click during delayed map loading cancels focus transfer and typing stays in the title",
+        "selection and focus do not modify either document"
+      ]
+    },
+    "reviewRegressions": {
+      "passed": [
+        "refreshing either split preserves its own zoom, centre, selection and active node",
+        "delayed recovery with refresh retains the copy and newer draft; shared busy state blocks transfer and retry preserves both",
+        "delayed recovery with ownership retains the copy and newer draft; shared busy state blocks transfer and retry preserves both",
+        "a drag paused beyond the debounce persists its final position through a fresh reload"
+      ]
+    }
+  },
+  "review-regressions.json": {
+    "testedAt": "2026-09-14T14:06:47.660Z",
+    "bundleSha256": "5855f3c14051bd6ded03efd1d2e7203044f094f20d1e4a7d8e1b61a424d7df8b",
+    "passed": [
+      "refreshing either split preserves its own zoom, centre, selection and active node",
+      "delayed recovery with refresh retains the copy and newer draft; shared busy state blocks transfer and retry preserves both",
+      "delayed recovery with ownership retains the copy and newer draft; shared busy state blocks transfer and retry preserves both",
+      "a drag paused beyond the debounce persists its final position through a fresh reload"
+    ]
+  },
+  "vertical-slice/browser.json": {
+    "testedAt": "2026-09-14T14:06:38.129Z",
+    "bundleSha256": "5855f3c14051bd6ded03efd1d2e7203044f094f20d1e4a7d8e1b61a424d7df8b",
+    "passed": [
+      "native after/child menus create Render Notes with unique root IDs, synchronized title typing and 100% centre; no permanent toolbar",
+      "native widget menus restructure nodes and save checkbox/collapse state",
+      "pan/zoom survives note switches and reload without changing note content",
+      "three note switches each mount once and keep the root position stable from its first visible frame",
+      "resizing and editing transfer preserve the centre; split panes keep independent views",
+      "failed save plus a title rename retains both versions through explicit recovery",
+      "detected conflict retains unfinished text; failed Keep both is retryable; recovery copy and incoming original both survive",
+      "Use incoming requires confirmation; Cancel retains the draft, OK loads the saved original"
+    ],
+    "errors": []
+  },
+  "navigation.json": {
+    "testedAt": "2026-09-14T14:06:41.779Z",
+    "bundleSha256": "5855f3c14051bd6ded03efd1d2e7203044f094f20d1e4a7d8e1b61a424d7df8b",
+    "normalNoteRoundTrips": 3,
+    "staleBundle": "current map remains editable and unfinished text persists"
+  },
+  "selection-focus.json": {
+    "testedAt": "2026-09-14T14:06:47.162Z",
+    "bundleSha256": "5855f3c14051bd6ded03efd1d2e7203044f094f20d1e4a7d8e1b61a424d7df8b",
+    "passed": [
+      "tree click focuses the map; the next arrow navigates its selection",
+      "multi-selection, active node, zoom and position survive switching and reload independently per document",
+      "clicking the already-open note returns keyboard focus to the map",
+      "deleted/hidden saved IDs are ignored, with root fallback and no viewport movement",
+      "incoming content refresh preserves the current selection",
+      "a title click during delayed map loading cancels focus transfer and typing stays in the title",
+      "selection and focus do not modify either document"
+    ]
+  }
+}

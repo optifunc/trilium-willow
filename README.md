@@ -36,13 +36,18 @@ old maps as described in the installation instructions.
 The test instance is at http://127.0.0.1:37841/. Right-click a note in the tree,
 choose **Insert note after** or **Insert child note**, then **Willow Mind Map**
 under Templates. Enter the title in Trilium's normal title field. The map root
-starts as **Mind map** and is edited independently from the note title. The test
+follows the title; editing the root also renames the note. On first opening a
+map with different values, the Trilium title replaces the root text. Native title
+typing updates the root after leaving the title field. The test
 password and server instructions are in [the environment report](docs/test-trilium.md).
 
 Edit a selected node with F2, commit with Enter, and insert a child with Tab.
 Maps autosave committed changes. Fit the map with **Cmd/Ctrl+Shift+0**.
 When a map is open twice, the viewer offers **Edit here** to transfer editing.
-There is no permanent add-on toolbar.
+There is no permanent add-on toolbar. Links show **Cmd+click to open** on macOS
+and **Ctrl+click to open** elsewhere after one second of hovering over the node.
+Leaving hides the hint; every re-entry starts a fresh one-second delay.
+Copied outlines have no final newline.
 
 New maps open with the root centred at 100% zoom. Position, zoom, selected nodes,
 and the active node are remembered locally per document and browser/desktop

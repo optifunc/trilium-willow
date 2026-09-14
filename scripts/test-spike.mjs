@@ -11,9 +11,9 @@ const dir = new URL('evidence/spike/', testRoot);
 await mkdir(dir, { recursive: true });
 page.on('pageerror', error => errors.push(error.message));
 const pane = name => page.locator(`.willow-spike[data-note-id="${notes[name]}"]:visible`).last();
-const tree = name => page.locator('.fancytree-title').getByText(`Willow Map ${name}`, { exact: true });
+const tree = async name => page.locator('.fancytree-title').getByText((await request(page,'GET',`notes/${notes[name]}`)).title, { exact: true });
 async function open(name) {
-  await tree(name).click();
+  await (await tree(name)).click();
   await pane(name).locator('.mindmap').waitFor();
   const transfer = pane(name).getByRole('button', { name: 'Edit here', exact: true });
   if (await transfer.isVisible()) await transfer.click();
@@ -65,13 +65,14 @@ try {
     await manager.activateNoteContext(main);
   });
   await page.locator('.fancytree-title').getByText('Willow integration spike',{exact:true}).click();
+  for(const name of ['A','B']) await request(page,'PUT',`notes/${notes[name]}/title`,{title:`Map ${name}`});
   for(const name of ['A','B']) await request(page,'PUT',`notes/${notes[name]}/data`,{content:JSON.stringify({
     format:'trilium-willow-mindmap',version:1,document:{root:{id:`root-${name}`,text:`Map ${name}`,children:[
       {id:`left-${name}`,text:'Ideas',side:'left',children:[]},
       {id:`right-${name}`,text:'Next steps',side:'right',checked:false,children:[]},
     ]}},
   })});
-  await page.reload();
+  await page.reload();await page.waitForFunction(()=>typeof globalThis.glob?.getHeaders==='function');
   await open('A');
   await editRoot('A','Map A saved through the widget');
   await page.keyboard.press('Enter');
@@ -109,7 +110,7 @@ try {
   await checkLifetime();
   passed.push('repeated A/B navigation keeps editor counts and DOM consistent');
 
-  await tree('A').click({button:'right'});
+  await (await tree('A')).click({button:'right'});
   await page.getByText('Open in a new split',{exact:false}).click();
   await page.waitForFunction(id=>[...document.querySelectorAll(`.willow-spike[data-note-id="${id}"]`)]
     .filter(e=>e.getBoundingClientRect().width>0).length===2,notes.A);
@@ -141,7 +142,7 @@ try {
   for(const content of [JSON.stringify({format:'trilium-willow-mindmap',version:2,document:{root:{}}}),
     JSON.stringify({format:'trilium-willow-mindmap',version:1,document:{root:{id:'bad',text:42,children:[]}}})]) {
     await request(page,'PUT',`notes/${notes.B}/data`,{content});
-    await tree('B').click();
+    await (await tree('B')).click();
     await pane('B').getByRole('alert').waitFor();
     assert.equal(await pane('B').locator('.mindmap').count(),0);
     await pane('B').getByRole('button',{name:'View original source',exact:true}).click();
@@ -153,7 +154,7 @@ try {
   passed.push('unsupported version and invalid map fail visibly without overwriting source');
 
   await open('A');
-  await page.reload();
+  await page.reload();await page.waitForFunction(()=>typeof globalThis.glob?.getHeaders==='function');
   await pane('A').locator('.mindmap-label').getByText('Map A survived closing its split tab',{exact:true}).waitFor();
   const lifetime=await checkLifetime();
   await page.screenshot({path:new URL('reopened.png',dir).pathname,fullPage:true});

@@ -16,6 +16,8 @@
     "test:trilium": "node scripts/test-spike.mjs && node scripts/test-vertical-slice.mjs && node scripts/test-navigation.mjs && node scripts/test-selection-focus.mjs",
     "test:hardening": "node scripts/test-hardening.mjs && node scripts/test-host.mjs && node scripts/test-sync.mjs && node scripts/test-review-regressions.mjs",
     "test:desktop:lifecycle": "node scripts/test-desktop-lifecycle.mjs",
+    "test:title": "node scripts/test-title-sync.mjs",
+    "test:title:desktop": "node scripts/test-desktop-spike.mjs --title-sync",
     "test:zoom": "node scripts/test-zoom.mjs",
     "test:zoom:desktop": "node scripts/test-zoom.mjs --desktop",
     "dev:desktop": "node scripts/run-desktop.mjs",

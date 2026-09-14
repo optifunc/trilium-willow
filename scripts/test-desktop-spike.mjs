@@ -56,13 +56,18 @@ try {
   page.on('dialog',dialog=>dialog.accept().catch(()=>{}));
   const userData=fileURLToPath(new URL('desktop-profile',testRoot));
   await page.waitForFunction(() => globalThis.glob?.appContext, undefined, {timeout:30000});
+  if (process.argv.includes('--title-sync')) {
+    const test = spawn(process.execPath, ['scripts/test-title-sync.mjs', '--desktop'], { cwd: fileURLToPath(new URL('../', import.meta.url)), stdio: 'inherit' });
+    const code = await new Promise((resolve, reject) => { test.once('exit', resolve); test.once('error', reject); });
+    assert.equal(code, 0, 'Desktop title synchronization failed');
+  } else {
   const installedBundle=await page.evaluate(async id=>{
     const response=await fetch(`/api/notes/${id}/blob`,{cache:'no-store',headers:await glob.getHeaders()});
     return (await response.json()).content;
   },notes.bundle);
   assert.equal(createHash('sha256').update(installedBundle).digest('hex'),notes.bundleSha256);
   console.log('Desktop ready', await page.evaluate(()=>({version:glob.triliumVersion,electron:glob.isElectron,url:location.href})),userData);
-  await page.locator('.fancytree-title').getByText('Willow Map A',{exact:true}).click();
+  await page.evaluate(id=>glob.appContext.tabManager.getActiveContext().setNote(id),notes.A);
   const pane=page.locator(`.willow-spike[data-note-id="${notes.A}"]:visible`).last();
   await pane.locator('.mindmap').waitFor();
   const transfer=pane.getByRole('button',{name:'Edit here',exact:true});
@@ -84,9 +89,9 @@ try {
   await page.reload();
   await pane.locator('.mindmap-label').getByText('Map A edited in isolated desktop',{exact:true}).waitFor();
   const title=`Desktop acceptance ${Date.now()}`;
-  const {id}=await createFromMenu(page,'Willow Map A','after',title);
+  const {id}=await createFromMenu(page,'Map A edited in isolated desktop','after',title);
   const createdPane=page.locator(`.willow-spike[data-note-id="${id}"]:visible`).last();
-  await createdPane.locator('.mindmap-root-node .mindmap-label').getByText('Mind map',{exact:true}).waitFor();
+  await createdPane.locator('.mindmap-root-node .mindmap-label').getByText(title,{exact:true}).waitFor();
   async function view() {
     return page.evaluate(id=>{
       const v=[...globalThis[Symbol.for('trilium-willow.spike')].active.values()].find(v=>v.noteId===id&&v.host.isConnected&&v.host.clientWidth>0);
@@ -107,7 +112,7 @@ try {
   await createdPane.locator('.mindmap').hover({position:{x:20,y:20}});await page.mouse.wheel(120,80);
   await page.waitForFunction(id=>localStorage.getItem(`trilium-willow:view:v1:${id}`),id);
   const remembered=await view();assert.ok(remembered.zoom>1);
-  await page.locator('.fancytree-title').getByText('Willow Map B',{exact:true}).click();
+  await page.evaluate(id=>glob.appContext.tabManager.getActiveContext().setNote(id),notes.B);
   await page.locator(`.willow-spike[data-note-id="${notes.B}"] .willow-spike-host[data-ready="true"]`).waitFor();
   const switching=await measureSwitch(page,title,id);
   assert.equal(switching.mounts,1);
@@ -123,9 +128,10 @@ try {
     environment:await page.evaluate(()=>({version:glob.triliumVersion,electron:glob.isElectron,url:location.href})),
     createdNoteId:id,switching,navigation,selectionFocus,reviewRegressions,
     passed:['isolated desktop data/profile','same shared bundle mounted on desktop','real label editing and save','reload persistence',
-      'native template menu keeps title and root independent and centres at 100%','native desktop clipboard copy/paste','desktop pan/zoom survives note switching and renderer reload']};
+      'native template menu synchronizes title and root and centres at 100%','native desktop clipboard copy/paste','desktop pan/zoom survives note switching and renderer reload']};
   await writeFile(new URL('evidence/spike/desktop.json',testRoot),JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify(report,null,2));
+  }
 } finally {
   await browser?.close();
   if(processHandle.exitCode===null) processHandle.kill('SIGTERM');

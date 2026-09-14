@@ -1,5 +1,58 @@
 # Progress
 
+## 2026-09-14 — One-second link hint adjustment
+
+Reduced the hover delay to one second at the user’s request. Each re-entry still
+starts a fresh timer. Updated the timing assertions and current usage documentation.
+The rebuilt bundle is deployed to the isolated test instance.
+Build and all 30 three-engine tooltip checks passed.
+
+
+## 2026-09-14 — Repeatable two-second link hints
+
+Replaced browser-native tooltips with an editor-managed hint: each mouse entry
+into a link node starts a fresh two-second timer; exit hides/cancels it. Moving
+between the label and checkbox within that node keeps the timer. Editing,
+viewport changes, pointer presses, keyboard input and disposal cancel the hint.
+The hint stays unscaled and inside the editor, with unchanged Cmd/Ctrl wording.
+
+Build, both typechecks, 224 unit tests and 30 three-engine tooltip checks passed.
+The updated bundle is deployed to the isolated Trilium browser and verified with
+real-time repeated mouse hovering. Native desktop was not rerun for this UI-only
+follow-up. [Timing, interaction and visual evidence](../mr/docs/evidence/milestone-d/tooltip-delay/report.md).
+Changes remain uncommitted.
+
+## 2026-09-14 — Root/title synchronization, link hints and clipboard
+
+Implemented the approved behavior in the working tree based on `0309cfc` and
+widget `7c53c4b`:
+
+- Native note titles and committed root edits (including undo/redo) synchronize
+  in both directions. First writable opening takes the existing title if the
+  root differs, preserving children and IDs. Invalid maps are never aligned.
+- Title typing updates the root after leaving the field. Pending initial saves
+  pause during typing; first template loading is not treated as a remote edit.
+  These guards prevent content/title acknowledgements replacing typed characters.
+- Root-origin autosaves remain pending until both content and title requests
+  succeed. Title failures retry; detected concurrent renames use existing recovery.
+  Content recovery retains the chosen incoming root. Recovery copies use the copied
+  root as their note title, preserving it when reopened.
+- Link tooltips say **Cmd+click to open** on macOS, **Ctrl+click to open** elsewhere.
+- Copied outlines omit the final newline. Empty labels use `\e` to preserve a
+  single empty node or final empty sibling; literal backslashes remain escaped.
+
+Added `pnpm test:title` and `pnpm test:title:desktop` (isolated macOS desktop
+launch/cleanup). Updated existing fixtures to look up renamed notes and to assert
+explicit recovery when a failed root save competes with a title edit. Previous
+independent-title assertions are superseded by this approved behavior.
+
+Verification and evidence are recorded in [the follow-up report](title-sync-verification.md).
+Stock Trilium still uses separate non-atomic title/content writes: a process exit
+between them can leave a mismatch, resolved by the title-wins rule on the next
+fresh opening. This change does not add a server transaction or atomic conflict lock.
+Changes are uncommitted; next step is user review, then committing the widget and
+parent gitlink together when authorized.
+
 ## 2026-09-12 — Windows zoom isolation
 
 Reproduced keyboard and Ctrl+wheel double zoom in stock Windows Trilium 0.105.0

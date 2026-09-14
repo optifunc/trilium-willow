@@ -16,6 +16,12 @@ export async function readContent(noteId: string) {
 export async function writeContent(noteId: string, content: string) {
   await hostRequest('PUT', `notes/${noteId}/data`, { content });
 }
+export async function readTitle(noteId: string) {
+  return (await hostRequest<{ title: string }>('GET', `notes/${noteId}`)).title;
+}
+export async function writeTitle(noteId: string, title: string) {
+  await hostRequest('PUT', `notes/${noteId}/title`, { title });
+}
 
 interface NoteMetadata { noteId: string; isDeleted: boolean; isProtected: boolean; }
 interface Attribute { type: string; name: string; value: string; }

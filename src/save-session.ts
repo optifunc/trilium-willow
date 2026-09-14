@@ -21,7 +21,8 @@ export class SaveSession {
   private timer?: ReturnType<typeof setTimeout>;
   private listeners = new Set<() => void>();
 
-  constructor(private read: () => Promise<string>, private write: (content: string) => Promise<void>) {}
+  constructor(private read: () => Promise<string>, private write: (content: string) => Promise<void>,
+    private finishWrite: (content: string) => Promise<void> = async () => {}) {}
 
   get dirty() { return this.local !== undefined && this.local !== this.base; }
   get saving() { return this.pending !== undefined; }
@@ -33,6 +34,14 @@ export class SaveSession {
   }
   subscribe(callback: () => void) { this.listeners.add(callback); return () => { this.listeners.delete(callback); }; }
   notify() { for (const callback of this.listeners) callback(); }
+
+  protected conflict(content: string) {
+    this.remoteGeneration++;
+    this.incoming = content;
+    this.state = 'conflict';
+    this.cancelTimer();
+    this.notify();
+  }
 
   receive(content: string) {
     // In-flight echoes must not acknowledge a newer local draft or reset its editor.
@@ -98,6 +107,7 @@ export class SaveSession {
           this.sent = content;
           await this.write(content);
         }
+        await this.finishWrite(content);
         this.base = content;
         this.sent = undefined;
         // A notification received during the request cannot be cleared by its acknowledgement.

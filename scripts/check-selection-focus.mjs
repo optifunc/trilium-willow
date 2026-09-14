@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {waitSaved} from './test-ui.mjs';
 import {delayBundles,restoreBundles} from './check-navigation.mjs';
 
 // Shared real-input checks for HTTP and the desktop's local protocol.
@@ -18,9 +19,10 @@ export async function checkSelectionFocus(page,notes) {
   const fixtures=[];
   for(const suffix of ['A','B']) {
     const title=`Willow selection ${Date.now()} ${suffix}`;
-    const result=await api('POST',`notes/${notes.folder}/children?target=into`,{title,type:'render',mime:'application/json',content,
+    const initial=JSON.parse(content);initial.document.root.text=title;const initialContent=JSON.stringify(initial);
+    const result=await api('POST',`notes/${notes.folder}/children?target=into`,{title,type:'render',mime:'application/json',content:initialContent,
       attributes:[{type:'label',name:'willowMindMap',value:''},{type:'relation',name:'renderNote',value:notes.bundle}]});
-    fixtures.push({id:result.note.noteId,title});
+    fixtures.push({id:result.note.noteId,title,content:initialContent});
   }
   const [a,b]=fixtures;
   const tree=f=>page.locator('.fancytree-title').getByText(f.title,{exact:true});
@@ -97,6 +99,7 @@ export async function checkSelectionFocus(page,notes) {
   await api('PUT',`notes/${a.id}/data`,{content:JSON.stringify(updated)});
   await pane(a).locator('.mindmap-root-node').getByText('Incoming root label',{exact:true}).waitFor();
   assert.deepEqual((await state(a)).selection,selected);sameView(await state(a),remembered);
+  await waitSaved(pane(a));a.title='Incoming root label';
   passed.push('incoming content refresh preserves the current selection');
 
   await tree(b).click();await ready(b);
@@ -113,7 +116,7 @@ export async function checkSelectionFocus(page,notes) {
   } finally {await restoreBundles(page);}
   passed.push('a title click during delayed map loading cancels focus transfer and typing stays in the title');
   assert.equal((await api('GET',`notes/${a.id}/blob`)).content,JSON.stringify(updated));
-  assert.equal((await api('GET',`notes/${b.id}/blob`)).content,content);
+  assert.equal((await api('GET',`notes/${b.id}/blob`)).content,b.content);
   passed.push('selection and focus do not modify either document');
   // Commit the disposable title edit before the caller navigates or closes.
   await pane(a).locator('.mindmap').focus();

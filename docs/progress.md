@@ -1,5 +1,17 @@
 # Progress
 
+## 2026-09-14 — Borders at reduced Trilium UI zoom
+
+Reproduced Chromium rounding 1px editor/checkbox borders to about 0.56px at 90%
+UI zoom on macOS. Changed their painting to inset shadows, reserving the frame
+space in padding so dimensions and text alignment stay correct. High-contrast
+mode retains visible native/outline frames.
+
+Build, both typechecks, 224 unit tests and 81 browser cases passed. Native Trilium
+before/after checks covered UI zoom 100/90/80/67% with map zoom 100/200%. At 90%,
+both strokes now measure approximately one CSS pixel. The fix is deployed to the
+isolated test server; changes remain uncommitted. [Evidence and review steps](../mr/docs/evidence/milestone-d/host-zoom-borders/report.md).
+
 ## 2026-09-14 — One-second link hint adjustment
 
 Reduced the hover delay to one second at the user’s request. Each re-entry still

@@ -46,8 +46,11 @@ if (!initialized) {
   console.log('Created the manual test database from the isolated server.');
 }
 const log = openSync(path('manual-desktop.log'),'a');
+console.log('Opening Trilium for manual testing...');
 const child = spawn(executable,['--remote-debugging-port=39224','--remote-debugging-address=127.0.0.1'],{
-  cwd:fileURLToPath(root),stdio:['ignore',log,log],windowsHide:true,
+  // This is the interactive app, not a background build helper. On Windows,
+  // hiding the child can leave Electron running with no visible app window.
+  cwd:fileURLToPath(root),stdio:['ignore',log,log],windowsHide:false,
   env:{...process.env,TRILIUM_DATA_DIR:path('manual-desktop-data'),TRILIUM_ELECTRON_DATA_DIR:path('manual-desktop-profile'),
     TRILIUM_HOST:'127.0.0.1',TRILIUM_PORT:'37843',TRILIUM_ENV:'production'},
 });

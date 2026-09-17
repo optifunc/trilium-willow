@@ -1,5 +1,22 @@
 # Progress
 
+## 2026-09-17 — Widget registry and host-menu foundation
+
+Committed the design and agreed plan as `f9cfe78`, then implemented step 1 in `mr`
+as `3c920a0`.
+The widget now owns the command/shortcut registry used by keyboard handling,
+menu hints and the exported keymap reference. Added selection-dependent command
+descriptors, a reusable menu presenter and host context-menu requests that preserve
+widget targeting. Host menus can live outside an inert editor and add pane actions.
+
+Build, both typechecks, 184 widget unit tests and 46 adapter unit tests passed.
+The corrected host-menu/menu/lifecycle suite passed 99 checks in three engines;
+the isolated installed-package consumer passed in all three and renders its keymap
+directly from widget metadata. [Evidence, failure history and limitations](../mr/docs/evidence/command-registry/report.md).
+
+Next: mount the real Willow toolbar/status bar and connect its session/view state
+using these APIs (plan step 2). The bars and shortcut modal are not implemented yet.
+
 ## 2026-09-17 — Toolbar/status bar implementation planning
 
 Inspected design revision 6 against adapter `7fdfc1e` and widget `3e0d069`.
@@ -12,7 +29,8 @@ responsive behavior, hidden-UI restoration, help and production verification.
 The user agreed that the widget must be the sole source of editor commands and
 shortcuts. The plan now explicitly consolidates the widget registry and requires
 the keymap reference, menu hints and toolbar tooltips to consume its metadata.
-Next step is agreeing the plan; implementation has not begun.
+The user subsequently authorized committing the plan and starting implementation;
+see the step-1 checkpoint above.
 
 ## 2026-09-14 — Borders at reduced Trilium UI zoom
 

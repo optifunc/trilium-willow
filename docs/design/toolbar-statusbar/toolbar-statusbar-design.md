@@ -1,6 +1,6 @@
 # Willow toolbar and status bar design
 
-Status: **design exploration, revision 6**. Updated 2026-09-17. This document specifies the design for implementation; production code is unchanged. The command inventory was taken from repository commit `5ccbab5` and the locally available Trilium theme source.
+Status: **design exploration, revision 6**. Updated 2026-09-17. This document specifies the design for implementation; the [implementation plan](implementation-plan.md) tracks the authorized work. The command inventory was taken from repository commit `5ccbab5` and the locally available Trilium theme source.
 
 This is the living implementation handoff. Update appearance, behavior, command mappings, and the decision log whenever the design changes, along with the prototype and its captures. Prototype JavaScript is disposable simulation code, not a proposed editor implementation.
 

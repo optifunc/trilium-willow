@@ -1,6 +1,13 @@
 # Toolbar and status bar implementation plan
 
-Status: proposed, 2026-09-17. Planning only; production implementation has not started.
+Status: implementation authorized, 2026-09-17. Step 1 is implemented; steps 2–5
+remain pending. The design/plan baseline is committed as `f9cfe78`.
+
+Step 1 supplies the widget command/shortcut registry, exported keymap reference,
+shared host-menu presenter and context-menu integration callback. The packaged
+consumer demonstrates the metadata and menu APIs. See the
+[implementation evidence](../../../mr/docs/evidence/command-registry/report.md).
+The Willow toolbar, status bar and modal remain the next integration work.
 
 The visual and behavior contract is [design revision 6](toolbar-statusbar-design.md).
 Inspection used adapter `7fdfc1e` and widget `3e0d069`. The prototype is an appearance

@@ -6,7 +6,8 @@ import {fit,nativePane,waitSaved} from './test-ui.mjs';
 const notes = JSON.parse(await readFile(new URL('spike-notes.json',testRoot),'utf8'));
 const connected = await connect();
 const browser=connected.browser, context=await browser.newContext({storageState:await connected.context.storageState()});
-const page=await context.newPage();await page.goto(baseUrl);
+const page=await context.newPage();await page.goto(`${baseUrl}/#root/${notes.folder}/${notes.A}`);
+await page.locator(`.willow-spike[data-note-id="${notes.A}"] [data-ready=true]`).waitFor();
 const dir = new URL('evidence/hardening/',testRoot); await mkdir(dir,{recursive:true});
 const passed=[],errors=[];
 function pass(message){passed.push(message);console.log(message);}
@@ -78,6 +79,10 @@ try {
   await request(second,'POST',`revisions/${revision.revisionId}/restore`);
   await poll(async()=>await content(id)===before,'revision restoration');
   await pane(page,id).locator('.mindmap-root-node').getByText('Read-only transition draft',{exact:true}).waitFor();
+  // Revision content arrives before the coordinated root-to-title save settles.
+  // Finish that operation before the next scenario intercepts data writes.
+  await waitSaved(pane(page,id));
+  await poll(async()=>(await request(page,'GET',`notes/${id}`)).title==='Read-only transition draft','restored revision title');
   pass('native revision checkpoints restore exact JSON and refresh the editor');
 
   await page.route(url,route=>route.abort('internetdisconnected'));

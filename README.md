@@ -44,7 +44,14 @@ password and server instructions are in [the environment report](docs/test-trili
 Edit a selected node with F2, commit with Enter, and insert a child with Tab.
 Maps autosave committed changes. Fit the map with **Cmd/Ctrl+Shift+0**.
 When a map is open twice, the viewer offers **Edit here** to transfer editing.
-There is no permanent add-on toolbar. Links show **Cmd+click to open** on macOS
+The toolbar provides editing commands; **More** contains commands that do not fit.
+The status bar provides zoom, reset and Fit. Open **Keyboard shortcuts** for the
+complete reference, sourced directly from the widget. **Documentation** opens this
+installation’s bundled guide in a new tab.
+
+Choose **Hide UI** from More or the map context menu to hide both bars in this pane.
+Right-click the canvas or press Shift+F10 and choose **Show UI** to restore them.
+Notices remain visible and the map’s position is preserved. Links show **Cmd+click to open** on macOS
 and **Ctrl+click to open** elsewhere after one second of hovering over the node.
 Leaving hides the hint; every re-entry starts a fresh one-second delay.
 Copied outlines have no final newline.

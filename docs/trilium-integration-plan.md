@@ -128,10 +128,11 @@ The host chooses the parent and sibling position and handles creation/title focu
 No context-menu patch or startup script is needed. Opening the template itself
 shows instructions; documents created from it open the editor.
 
-There is no permanent toolbar, creation form, Save button, Fit button, or duplicate
-Saved indicator. Autosave reports through Trilium’s note-header badge, including
+The toolbar/status-bar design supersedes the original toolbar-free layout.
+Editing commands, More, help, zoom and Fit are pane-owned controls; there is no
+creation form, Save button or duplicate Saved indicator. Autosave reports through Trilium’s note-header badge, including
 failures; a title-save acknowledgement must not hide pending map work. Fit remains
-available through **Cmd/Ctrl+Shift+0**. Show only contextual controls: **Retry save**,
+available through **Cmd/Ctrl+Shift+0**. Persistent contextual notices still provide: **Retry save**,
 **Keep both**, **Use incoming**, invalid-source actions, and **Edit here** in a
 second pane viewing the same map.
 

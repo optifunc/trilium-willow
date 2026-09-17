@@ -1,0 +1,147 @@
+{
+  "persistence": {
+    "testedAt": "2026-09-17T19:36:52.932Z",
+    "bundleSha256": "a229b56b80a9470cb78f01cbd64347fdca1fded09530b05ec55cb27ca3b6a897",
+    "passed": [
+      "delayed writes serialize newer edits; navigation waits and never writes the destination",
+      "network loss keeps the draft and explicit retry saves it",
+      "independent clients refresh clean maps; competing unfinished work survives in a recovery copy",
+      "read-only changes preserve unfinished work, block editing, and allow retry after unlocking",
+      "native revision checkpoints restore exact JSON and refresh the editor",
+      "deletion retains a failed draft in the session; native undelete restores it and navigation/retry saves it",
+      "protected maps save inside the protected session; logout removes decrypted editors/drafts and local storage contains only view state"
+    ],
+    "errors": []
+  },
+  "host": {
+    "testedAt": "2026-09-17T19:37:33.758Z",
+    "bundleSha256": "a229b56b80a9470cb78f01cbd64347fdca1fded09530b05ec55cb27ca3b6a897",
+    "themeResults": [
+      {
+        "theme": "next-light",
+        "text": "rgb(0, 0, 0)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 21
+      },
+      {
+        "theme": "next-dark",
+        "text": "rgb(204, 204, 204)",
+        "background": "rgb(36, 36, 36)",
+        "ratio": 9.666003056839777
+      }
+    ],
+    "passed": [
+      "light and dark themes keep editing text readable",
+      "real clipboard copy/paste adds a node within Trilium",
+      "native subtree export/import preserves exact JSON; restoring the external editor relation reopens the map"
+    ],
+    "errors": []
+  },
+  "sync": {
+    "testedAt": "2026-09-17T19:39:45.535Z",
+    "bundleSha256": "a229b56b80a9470cb78f01cbd64347fdca1fded09530b05ec55cb27ca3b6a897",
+    "passed": [
+      "a separate database receives the shared bundle and a working map via native sync",
+      "an offline edit saves locally, then uploads intact and refreshes the other client",
+      "edits in the primary database sync back into the peer editor"
+    ],
+    "concurrentSync": {
+      "winner": "Acknowledged primary version",
+      "limitation": "Native sync chooses one complete document when both independent databases already acknowledged competing edits; the add-on cannot guarantee retaining both."
+    }
+  },
+  "recovery": {
+    "testedAt": "2026-09-17T19:39:32.789Z",
+    "bundleSha256": "a229b56b80a9470cb78f01cbd64347fdca1fded09530b05ec55cb27ca3b6a897",
+    "passed": [
+      "refreshing either split preserves its own zoom, centre, selection and active node",
+      "delayed recovery with refresh retains the copy and newer draft; shared busy state blocks transfer and retry preserves both",
+      "delayed recovery with ownership retains the copy and newer draft; shared busy state blocks transfer and retry preserves both",
+      "a drag paused beyond the debounce persists its final position through a fresh reload"
+    ]
+  },
+  "distribution": {
+    "testedAt": "2026-09-17T19:36:58.008Z",
+    "clients": [
+      {
+        "client": "browser",
+        "passed": [
+          "safe import remaps internal relations; native activation opens the bundled example",
+          "native template creation outside the package, editing, saving and reload work",
+          "replacing shared code preserves existing JSON and template creation with unique root IDs",
+          "removing the package leaves external map JSON intact and readable without Willow",
+          "reinstalling and reconnecting an old map restores editing without changing its JSON"
+        ],
+        "withoutEditor": "root\nMy mind maps\nKeep this user document\nbrowser after update\nKeep this user document\n+\nRender note\nDisplay custom HTML or Preact JSX inside this note\nCreate sample note with Preact\nToggle Dropdown\nLearn more\nNothing to show for this note\nMy mind maps\nKeep this user document\n\u00a0\n1 path\n\u00a0\n0 attributes\n\u00a0",
+        "ids": {
+          "editor": "A1aWeZzoW7UD",
+          "template": "3lfMCtbl6GfO",
+          "example": "5nUZCbehva8l",
+          "folder": "1LOxIsJuVu7O",
+          "id": "jeB6dEKBkB0D",
+          "reinstalled": {
+            "editor": "hP1HVs4LlP8K",
+            "template": "uX3NFjKQG5En",
+            "example": "9D6WBUntdCd9"
+          }
+        }
+      },
+      {
+        "client": "desktop",
+        "passed": [
+          "safe import remaps internal relations; native activation opens the bundled example",
+          "native template creation outside the package, editing, saving and reload work",
+          "replacing shared code preserves existing JSON and template creation with unique root IDs",
+          "removing the package leaves external map JSON intact and readable without Willow",
+          "reinstalling and reconnecting an old map restores editing without changing its JSON"
+        ],
+        "withoutEditor": "Keep this user document\n+\nroot\nMy mind maps\nKeep this user document\ndesktop after update\nRender note\nDisplay custom HTML or Preact JSX inside this note\nCreate sample note with Preact\nToggle Dropdown\nLearn more\nNothing to show for this note\nMy mind maps\nKeep this user document\n\u00a0\n1 path\n\u00a0\n0 attributes\n\u00a0",
+        "ids": {
+          "editor": "fz5uCv5vq7iU",
+          "template": "oNydXdNrwDo1",
+          "example": "k3SKMcgTfEMV",
+          "folder": "ZUdruSha82jP",
+          "id": "lJEGUpsYCzAs",
+          "reinstalled": {
+            "editor": "MjTbBPEqpi6A",
+            "template": "ykuKQKbgTHIc",
+            "example": "1q5RF7jqhIJO"
+          }
+        }
+      }
+    ],
+    "manifest": {
+      "version": "0.1.5",
+      "baseVersion": "0.1.5",
+      "source": {
+        "commit": "a2b32ef61315c1ee86b04b60ab819200ae9be31c",
+        "mrCommit": "3c920a02d9ad3a7696726b0346e8621a9cf4642c",
+        "dirty": true
+      },
+      "workflow": null,
+      "trilium": "0.105.0",
+      "documentVersion": 1,
+      "files": {
+        "trilium-willow-0.1.5.zip": "935a1becc97751f47edeea00d8ed9e4f53150d42e46a44de9a878c39b59fa9a8",
+        "willow-editor.jsx": "a229b56b80a9470cb78f01cbd64347fdca1fded09530b05ec55cb27ca3b6a897",
+        "installation.html": "3a07e0dc2d993f7564da37f3a7a9b4aa602d2c46ab01c25f12458082f29fd448"
+      }
+    }
+  },
+  "desktopLifecycle": {
+    "testedAt": "2026-09-17T19:40:17.047Z",
+    "bundleSha256": "a229b56b80a9470cb78f01cbd64347fdca1fded09530b05ec55cb27ca3b6a897",
+    "passed": [
+      "native desktop receives the shared bundle and map through real server synchronization",
+      "native window close commits an unfinished label, waits on a delayed write, and preserves the saved label when a new native window opens",
+      "native window close commits an unfinished label, waits on a failed write, and preserves the saved label when a new native window opens",
+      "delayed desktop/server sync preserves an unfinished desktop draft in a recovery copy and syncs that copy",
+      "desktop saves locally while the server is offline and uploads on reconnection",
+      "competing acknowledged offline desktop/server edits converge according to native whole-document sync"
+    ],
+    "concurrentSync": {
+      "winner": "Acknowledged competing server version",
+      "limitation": "Native sync does not guarantee retaining both already-acknowledged competing documents."
+    }
+  }
+}

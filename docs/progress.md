@@ -1,5 +1,22 @@
 # Progress
 
+## 2026-09-17 — Working Willow chrome
+
+Implemented plan steps 2–4: stable toolbar/status bar, responsive More, pane-local
+Hide UI/Show UI, 200ms tooltips, keyboard navigation, widget-sourced shortcut
+reference, state presentation and installation-specific Documentation. The widget
+registry remains the authority; no adapter keymap is maintained. Toolbar viewport
+actions persist locally, and resizing/hiding preserves the world-space center.
+
+Build/package, both typechecks, 60 adapter and 184 widget unit tests, six packaging
+tests, the ten-group chrome suite, four lifecycle groups, and Trilium navigation,
+selection, zoom, title, persistence, native sync/recovery and browser/macOS
+distribution and desktop lifecycle regression suites pass. Fixed a native bubbling-click
+race that reactivated the map after opening Documentation.
+
+[Evidence, screenshots and remaining acceptance](evidence/chrome/report.md).
+The implementation is deployed to the isolated Trilium test instance.
+
 ## 2026-09-17 — Widget registry and host-menu foundation
 
 Committed the design and agreed plan as `f9cfe78`, then implemented step 1 in `mr`

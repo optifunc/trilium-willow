@@ -56,13 +56,14 @@ try {
   assert.equal(JSON.parse(await raw(id)).document.root.text,title);
   assert.equal((await request(page,'GET',`notes/${id}`)).type,'render');
   await pane(id).locator(`[data-node-id="root-${id}"]`).waitFor();
-  assert.equal(await pane(id).locator('button').count(),0);
+  assert.equal(await pane(id).getByRole('toolbar').count(),1);
+  assert.equal(await pane(id).getByRole('button',{name:'Add child',exact:true}).isEnabled(),true);
   const child=await createFromMenu(page,title,'child',`${title} child`);
   assert.equal(child.branch.parentNoteId,id);
   await child.pane.locator(`[data-node-id="root-${child.id}"]`).waitFor();
   await page.locator('.fancytree-title').getByText(title,{exact:true}).click();
   await pane(id).locator('.mindmap').waitFor();
-  passed.push('native after/child menus create Render Notes with unique root IDs, synchronized title typing and 100% centre; no permanent toolbar');
+  passed.push('native after/child menus create Render Notes with unique root IDs, synchronized title typing and 100% centre; working command toolbar');
 
   await pane(id).locator('.mindmap-root-node .mindmap-label').click({button:'right'});
   await pane(id).getByRole('menuitem',{name:/^Add child/}).click();

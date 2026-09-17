@@ -1,13 +1,16 @@
 # Toolbar and status bar implementation plan
 
-Status: implementation authorized, 2026-09-17. Step 1 is implemented; steps 2–5
-remain pending. The design/plan baseline is committed as `f9cfe78`.
+Status: implementation authorized, 2026-09-17. Steps 1–4 are implemented; step 5
+has passed the automated browser/macOS integration checks; manual accessibility,
+remaining platform/theme coverage and user visual acceptance are still pending. The design/plan baseline is committed as `f9cfe78`.
 
 Step 1 supplies the widget command/shortcut registry, exported keymap reference,
 shared host-menu presenter and context-menu integration callback. The packaged
 consumer demonstrates the metadata and menu APIs. See the
 [implementation evidence](../../../mr/docs/evidence/command-registry/report.md).
-The Willow toolbar, status bar and modal remain the next integration work.
+The Willow toolbar, status bar, responsive menus, pane visibility and widget-sourced
+shortcut modal are now integrated. See the [adapter evidence](../../evidence/chrome/report.md)
+for checks, screenshots and remaining acceptance.
 
 The visual and behavior contract is [design revision 6](toolbar-statusbar-design.md).
 Inspection used adapter `7fdfc1e` and widget `3e0d069`. The prototype is an appearance

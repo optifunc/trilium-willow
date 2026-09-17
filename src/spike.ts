@@ -1,4 +1,7 @@
 import { MindMapEditor } from '@mindmap/widget';
+import { PaneChrome } from './chrome/pane';
+import chromeStyles from './chrome/styles.css?inline';
+import { openDocumentation } from './documentation';
 import widgetStyles from '@mindmap/widget/styles.css?inline';
 import { h, useRef, useState, useEffect, useLayoutEffect, useNoteContext,
   useNoteBlob, useEffectiveReadOnly, useTriliumEvent } from 'trilium:preact';
@@ -47,6 +50,7 @@ if (!diagnostics.unloadRegistered) {
 }
 
 const styles = `${widgetStyles}
+${chromeStyles}
 .willow-spike { display:flex; flex-direction:column; min-height:160px; height:var(--willow-pane-height,420px); }
 .willow-spike-host { flex:1; min-height:0; position:relative; }
 .willow-spike-error, .willow-notice { padding:12px; color:var(--main-text-color); }
@@ -109,6 +113,9 @@ function NotePane() {
 
 function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext }) {
   const host = useRef<HTMLDivElement | null>(null);
+  const toolbar = useRef<HTMLDivElement | null>(null);
+  const status = useRef<HTMLDivElement | null>(null);
+  const chrome = useRef<PaneChrome | undefined>(undefined);
   const editor = useRef<MindMapEditor | null>(null);
   const memory = useRef<ViewMemory | undefined>(undefined);
   const releaseView = useRef<(() => void) | undefined>(undefined);
@@ -133,6 +140,8 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
   const readonly = useEffectiveReadOnly(note, noteContext);
   const readonlyRef = useRef(readonly);
   readonlyRef.current = readonly || !ownsEdit;
+  const chromeState = useRef({ invalid, readonly, viewer: !ownsEdit });
+  chromeState.current = { invalid, readonly, viewer: !ownsEdit };
   const blob = useNoteBlob(note);
 
   function commitEdit(detached = false) {
@@ -173,6 +182,7 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
     mountedReadonly.current = undefined;
     releaseView.current?.(); releaseView.current = undefined;
     view.current = memory.current?.destroy(); memory.current = undefined;
+    chrome.current?.bindEditor();
     editor.current.destroy(); editor.current = null;
     diagnostics.destroyed++;
     diagnostics.active.delete(instanceId.current);
@@ -195,7 +205,8 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
         } finally { unsubscribe(); }
         if (replacementError) throw new Error(replacementError);
       } else {
-        editor.current = new MindMapEditor(host.current, { document: map, readonly: readonlyRef.current });
+        editor.current = new MindMapEditor(host.current, { document: map, readonly: readonlyRef.current,
+          onContextMenu: request => chrome.current?.contextMenu(request) });
         mountedReadonly.current = readonlyRef.current;
         diagnostics.mounted++;
         diagnostics.active.set(instanceId.current, { noteId: note.noteId, host: host.current, editor: editor.current,
@@ -215,12 +226,14 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
         editor.current.on('editcommit', () => { session.editing = false; });
         editor.current.on('editcancel', () => { session.editing = false; });
         editor.current.on('error', ({ message }) => setError(message));
+        chrome.current?.bindEditor(editor.current);
         const instance = editor.current;
         const reveal = () => {
             if (disposed.current || editor.current !== instance || !host.current?.isConnected
               || !host.current.clientWidth || !host.current.clientHeight) return;
             instance.refreshLayout();
             host.current.dataset.ready = 'true';
+            chrome.current?.update();
             if (noteContext) clearPreview(noteContext.ntxId);
         };
         if (document.fonts.status === 'loaded') reveal();
@@ -261,6 +274,11 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
       setOwnsEdit(false);
     }
     const section = host.current!.parentElement!;
+    chrome.current = new PaneChrome(section, host.current!, toolbar.current!, status.current!, {
+      state: () => ({ ...chromeState.current, loading: session.state === 'loading', recovering: session.recovering, editing: session.editing }),
+      composing: () => composing.current, commitEdit, interaction: () => memory.current?.interaction(),
+      documentation: () => openDocumentation(note), report: message => { if (!disposed.current) setError(message); },
+    });
     const split = section.closest('.note-split');
     const titleFocus = (event: Event) => {
       if (noteContext?.note?.noteId !== note.noteId) return;
@@ -302,7 +320,7 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
       unregisterFocus(); resize.disconnect(); unsubscribe();
       try { commitEdit(true); void session.flush().catch(() => {}); }
       finally {
-        disposed.current = true; destroy();
+        disposed.current = true; destroy(); chrome.current?.destroy(); chrome.current = undefined;
         if (diagnostics.writers.get(note.noteId) === instanceId.current) {
           diagnostics.writers.delete(note.noteId);
           // A host replacement may mount its new root before disposing this one.
@@ -318,6 +336,7 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
     };
   }, []);
 
+  useLayoutEffect(() => { chrome.current?.update(); });
   useEffect(() => {
     if (blob?.content !== undefined) session.receive(blob.content);
   }, [blob]);
@@ -374,8 +393,11 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
   }
   const conflict = session.incoming !== undefined;
   const interaction = () => memory.current?.interaction();
-  return h('section', { class: 'willow-spike', 'data-note-id': note.noteId, 'data-willow-context': noteContext?.ntxId },
+  return h('section', { class: 'willow-spike', tabIndex: -1, 'data-note-id': note.noteId, 'data-willow-context': noteContext?.ntxId },
     h('style', null, styles),
+    h('div', { key: 'toolbar', ref: toolbar }),
+    readonly && h('div', { class: 'willow-notice' }, 'This map is read-only.'),
+    session.state === 'loading' && h('div', { class: 'willow-notice' }, 'Loading map…'),
     !ownsEdit && !readonly && h('div', { class: 'willow-notice' },
       'This map is being edited in another pane. ', h('button', { disabled: busy, onClick: takeEditing }, 'Edit here')),
     (error || conflict || session.error) && h('div', { class: 'willow-spike-error', role: 'alert' },
@@ -397,5 +419,6 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
     h('div', { key: 'editor-host', ref: host, class: 'willow-spike-host', inert: busy,
       onPointerDownCapture: interaction, onWheelCapture: interaction, onKeyDownCapture: interaction,
       onCompositionStart: () => { composing.current = true; },
-      onCompositionEnd: () => { composing.current = false; } }));
+      onCompositionEnd: () => { composing.current = false; } }),
+    h('div', { key: 'status', ref: status }));
 }

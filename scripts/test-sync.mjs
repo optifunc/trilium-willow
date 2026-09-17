@@ -6,7 +6,7 @@ import {openSync,closeSync} from 'node:fs';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {connect,request,testRoot,baseUrl} from './test-client.mjs';
-import {fit} from './test-ui.mjs';
+import {fit,waitSaved} from './test-ui.mjs';
 
 const peerUrl='http://127.0.0.1:37844',proxyUrl='http://127.0.0.1:37845';
 for(const port of [37844,37845]){
@@ -38,7 +38,7 @@ async function api(p,method,path,body){return p.evaluate(async ({method,path,bod
 const pane=(p,id)=>p.locator(`.willow-spike[data-note-id="${id}"]:visible`).last();
 async function open(p,id){await p.waitForFunction(()=>globalThis.glob?.appContext?.tabManager?.getActiveContext());await p.evaluate(id=>glob.appContext.tabManager.getActiveContext().setNote(id),id);await pane(p,id).locator('[data-ready=true]').waitFor();}
 async function raw(p,id){return (await api(p,'GET',`notes/${id}/blob`)).content;}
-async function edit(p,id,text){await fit(p,pane(p,id));await pane(p,id).locator('.mindmap-root-node .mindmap-label').click();await p.keyboard.press('F2');await pane(p,id).locator('.mindmap textarea').fill(text);await p.keyboard.press('Enter');await until(async()=>JSON.parse(await raw(p,id)).document.root.text===text,`saved ${text}`);}
+async function edit(p,id,text){await fit(p,pane(p,id));await pane(p,id).locator('.mindmap-root-node .mindmap-label').click();await p.keyboard.press('F2');await pane(p,id).locator('.mindmap textarea').fill(text);await p.keyboard.press('Enter');await until(async()=>JSON.parse(await raw(p,id)).document.root.text===text,`saved ${text}`);await waitSaved(pane(p,id));}
 const passed=[];
 try {
   const data=new URL('sync-data/',testRoot);
@@ -58,17 +58,20 @@ try {
     await second.locator('input[type=password]').fill(credentials.password);await second.getByRole('button',{name:'Log in',exact:true}).click();
   }
   await second.waitForFunction(()=>globalThis.glob?.appContext?.tabManager?.getActiveContext());
-  const id=(await request(page,'POST',`notes/${notes.folder}/children?target=into`,{title:`Willow sync ${Date.now()}`,type:'render',mime:'application/json',content:JSON.stringify({format:'trilium-willow-mindmap',version:1,document:{root:{id:'sync-root',text:'Sync baseline',children:[]}}}),attributes:[{type:'relation',name:'renderNote',value:notes.bundle},{type:'label',name:'willowMindMap',value:''}]})).note.noteId;
+  const title=`Willow sync ${Date.now()}`;
+  const id=(await request(page,'POST',`notes/${notes.folder}/children?target=into`,{title,type:'render',mime:'application/json',content:JSON.stringify({format:'trilium-willow-mindmap',version:1,document:{root:{id:'sync-root',text:title,children:[]}}}),attributes:[{type:'relation',name:'renderNote',value:notes.bundle},{type:'label',name:'willowMindMap',value:''}]})).note.noteId;
   await api(second,'POST','sync/now');
   await until(async()=>await raw(second,id)===await raw(page,id),'initial note synchronization');
   assert.equal(await raw(second,notes.bundle),await raw(page,notes.bundle));await open(second,id);await open(page,id);
   passed.push('a separate database receives the shared bundle and a working map via native sync');
-  online=false;await edit(second,id,'Offline peer edit');assert.equal(JSON.parse(await raw(page,id)).document.root.text,'Sync baseline');
+  online=false;await edit(second,id,'Offline peer edit');assert.equal(JSON.parse(await raw(page,id)).document.root.text,title);
   online=true;await api(second,'POST','sync/now');await until(async()=>await raw(page,id)===await raw(second,id),'offline edit upload');
   await pane(page,id).locator('.mindmap-root-node').getByText('Offline peer edit',{exact:true}).waitFor();
+  await waitSaved(pane(page,id));
   passed.push('an offline edit saves locally, then uploads intact and refreshes the other client');
   await edit(page,id,'Primary round trip');await api(second,'POST','sync/now');await until(async()=>await raw(page,id)===await raw(second,id),'primary edit download');
   await pane(second,id).locator('.mindmap-root-node').getByText('Primary round trip',{exact:true}).waitFor();
+  await waitSaved(pane(second,id));
   passed.push('edits in the primary database sync back into the peer editor');
   online=false;await edit(second,id,'Acknowledged offline peer version');await edit(page,id,'Acknowledged primary version');
   online=true;await api(second,'POST','sync/now');await until(async()=>await raw(page,id)===await raw(second,id),'competing versions converge');

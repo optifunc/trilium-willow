@@ -7,7 +7,7 @@ import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {chromium} from 'playwright';
 import {connect,testRoot,baseUrl} from './test-client.mjs';
-import {fit} from './test-ui.mjs';
+import {fit,waitSaved} from './test-ui.mjs';
 
 const proxyUrl='http://127.0.0.1:37847';
 for(const port of [37846,37847,39226]) {
@@ -42,7 +42,7 @@ const api=(p,method,path,body)=>p.evaluate(async({method,path,body})=>{
 const raw=async(p,id)=>(await api(p,'GET',`notes/${id}/blob`)).content;
 const pane=(p,id)=>p.locator(`.willow-spike[data-note-id="${id}"]:visible`).last();
 async function open(p,id){await p.evaluate(id=>glob.appContext.tabManager.getActiveContext().setNote(id),id);await pane(p,id).locator('[data-ready=true]').waitFor();}
-async function edit(p,id,text,commit=true){await fit(p,pane(p,id));await pane(p,id).locator('.mindmap-root-node .mindmap-label').click();await p.keyboard.press('F2');await pane(p,id).locator('textarea').fill(text);if(commit){await p.keyboard.press('Enter');await until(async()=>JSON.parse(await raw(p,id)).document.root.text===text,`saved ${text}`);}}
+async function edit(p,id,text,commit=true){await fit(p,pane(p,id));await pane(p,id).locator('.mindmap-root-node .mindmap-label').click();await p.keyboard.press('F2');await pane(p,id).locator('textarea').fill(text);if(commit){await p.keyboard.press('Enter');await until(async()=>JSON.parse(await raw(p,id)).document.root.text===text,`saved ${text}`);await waitSaved(pane(p,id));}}
 async function launch() {
   const log=openSync(path('lifecycle-desktop.log'),'a');
   child=spawn(path('desktop/Trilium Notes.app/Contents/MacOS/trilium'),['--remote-debugging-port=39226','--remote-debugging-address=127.0.0.1'],{
@@ -111,7 +111,8 @@ try {
     if(mode==='fail')await pane(page,id).getByRole('button',{name:'Retry save',exact:true}).click();
     await until(async()=>JSON.parse(await raw(page,id)).document.root.text===`Unfinished before ${mode} close`,'close-triggered save');
     await page.waitForFunction(id=>{const s=globalThis[Symbol.for('trilium-willow.spike')].sessions.get(id);return !s.dirty&&!s.saving&&!s.editing;},id);
-    const closed=page.waitForEvent('close');await page.evaluate(()=>electronApi.window.closeWindow()).catch(()=>{});await closed;
+    await waitSaved(pane(page,id));
+  const closed=page.waitForEvent('close');await page.evaluate(()=>electronApi.window.closeWindow()).catch(()=>{});await closed;
     await reopenWindow();await open(page,id);
     assert.equal(JSON.parse(await raw(page,id)).document.root.text,`Unfinished before ${mode} close`);
     pass(`native window close commits an unfinished label, waits on a ${mode==='delay'?'delayed':'failed'} write, and preserves the saved label when a new native window opens`);
@@ -143,6 +144,7 @@ try {
   pass('competing acknowledged offline desktop/server edits converge according to native whole-document sync');
   const report={testedAt:new Date().toISOString(),bundleSha256:notes.bundleSha256,id,copy,passed,concurrentSync:{winner,limitation:'Native sync does not guarantee retaining both already-acknowledged competing documents.'}};
   await writeFile(path('evidence/desktop-lifecycle.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
+  await waitSaved(pane(page,id));
   const closed=page.waitForEvent('close');await page.evaluate(()=>electronApi.window.closeWindow()).catch(()=>{});await closed;
 } finally {
   online=true;await context.close();await browser.close();await desktop?.close();

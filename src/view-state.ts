@@ -64,7 +64,7 @@ export class ViewMemory {
     this.view = initial ?? saved ?? { ...defaultView };
     this.restoreSelection(this.view.selection);
     this.unsubscribeSelection = editor.on('selectionchange', ({ origin }) => {
-      if (origin !== 'user') return;
+      if (this.restoring || origin !== 'user' && !this.interacted) return;
       this.interacted = true;
       clearTimeout(this.timer);
       this.timer = setTimeout(() => this.persist(), 250);

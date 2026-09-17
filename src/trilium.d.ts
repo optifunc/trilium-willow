@@ -22,4 +22,6 @@ declare module 'trilium:preact' {
 declare module 'trilium:api' {
   export const originEntity: import('trilium:preact').Note;
   export function showConfirmDialog(message: string): Promise<boolean>;
+  export function getNote(noteId: string): Promise<import('trilium:preact').Note | null>;
+  export function openTabWithNote(notePath: string, activate?: boolean): Promise<void>;
 }

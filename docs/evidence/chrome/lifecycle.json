@@ -1,0 +1,10 @@
+{
+  "passed": [
+    "Hidden state survives read-only editor recreation; persistent notice, Show UI and viewport actions remain available",
+    "Two panes keep independent UI visibility through editing ownership transfer",
+    "Narrow reference dialog uses one column without horizontal overflow; Done works with forced colors and reduced motion",
+    "Disposing a pane with a modal open removes the dialog and its auxiliary DOM"
+  ],
+  "bundleSha256": "a229b56b80a9470cb78f01cbd64347fdca1fded09530b05ec55cb27ca3b6a897",
+  "completedAt": "2026-09-17T19:35:35.542027+00:00"
+}

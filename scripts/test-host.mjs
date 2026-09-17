@@ -11,7 +11,14 @@ const passed=[],errors=[];page.on('pageerror',e=>errors.push(e.message));
 const originalTheme=await page.evaluate(()=>glob.theme);
 let id;
 const pane=()=>page.locator(`.willow-spike[data-note-id="${id}"]:visible`).last();
-async function open(noteId){await page.evaluate(id=>glob.appContext.tabManager.getActiveContext().setNote(id),noteId);}
+async function open(noteId){
+  // Native import can reload the client after its HTTP response resolves.
+  for(let attempt=0;;attempt++){
+    await page.waitForFunction(()=>globalThis.glob?.appContext?.tabManager?.getActiveContext());
+    try { await page.evaluate(id=>glob.appContext.tabManager.getActiveContext().setNote(id),noteId); return; }
+    catch(error){if(attempt===2||!String(error).includes('Execution context was destroyed'))throw error;}
+  }
+}
 function luminance(color){const values=color.match(/[\d.]+/g).slice(0,3).map(Number).map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4);return .2126*values[0]+.7152*values[1]+.0722*values[2];}
 function contrast(a,b){const x=luminance(a),y=luminance(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);}
 try {

@@ -175,6 +175,14 @@ The keyboard button opens a **modal dialog**, never a command/context menu. The 
 
 ### Shared command model
 
+Implementation decision, 2026-09-17: the widget owns the authoritative command
+and shortcut registry. Keyboard handling, menu descriptors, toolbar hints and
+the Keyboard shortcuts dialog/keymap reference must consume that registry.
+The adapter must not maintain a separate shortcut table. This includes
+platform formatting, alternate bindings and the label-editing reference section,
+while preserving native textarea handling. See the
+[implementation plan](implementation-plan.md) for the registry/API work.
+
 Derive toolbar and menu descriptors from one source of truth: `{label, command, shortcut, separatorBefore, canExecute}`. Preserve current `menuItems()` semantics. Host buttons call the existing public editor API, not reducers or synthetic key events. The public API reports `origin:'api'`; the widget's built-in menu reports `origin:'user'`. Do not claim they are already identical. If user-origin reporting for host chrome becomes necessary, agree a public integration API separately.
 
 For editor commands use `canExecute(command)` at render time and again at activation. Keep pane-level Hide UI/Show UI and Documentation descriptors separate; do not pass them into `MindMapCommand`, reducers, or editor applicability checks. Use `canUndo()/canRedo()` for history. No optimistic enabledness based only on selection length. Subscribe to document, selection, edit, and viewport events and host ownership/read-only/session changes; history availability must update on document changes and edit completion/cancellation. Do not derive selection/count text; never persist `getDocument()` during provisional creation.

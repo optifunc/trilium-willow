@@ -1,5 +1,19 @@
 # Progress
 
+## 2026-09-17 — Toolbar/status bar implementation planning
+
+Inspected design revision 6 against adapter `7fdfc1e` and widget `3e0d069`.
+The local prototype browser review passed; generated light/dark, split, menu,
+dialog and recovery captures were inspected. Production code is unchanged.
+
+The [proposed implementation plan](design/toolbar-statusbar/implementation-plan.md)
+keeps chrome in the adapter, adds reusable widget menu integration, and sequences
+responsive behavior, hidden-UI restoration, help and production verification.
+The user agreed that the widget must be the sole source of editor commands and
+shortcuts. The plan now explicitly consolidates the widget registry and requires
+the keymap reference, menu hints and toolbar tooltips to consume its metadata.
+Next step is agreeing the plan; implementation has not begun.
+
 ## 2026-09-14 — Borders at reduced Trilium UI zoom
 
 Reproduced Chromium rounding 1px editor/checkbox borders to about 0.56px at 90%

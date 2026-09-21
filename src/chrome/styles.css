@@ -1,25 +1,28 @@
-.willow-spike { position:relative; min-width:0; container-type:inline-size; color:var(--main-text-color,#222); background:var(--main-background-color,#fff); }
-.willow-toolbar,.willow-statusbar { display:flex; align-items:center; flex:none; gap:4px; box-sizing:border-box; padding:4px 8px; font:12px Arial,sans-serif; }
-.willow-toolbar { height:41px; border-bottom:1px solid var(--main-border-color,#ddd); }
-.willow-statusbar { height:30px; padding:2px 8px; border-top:1px solid var(--main-border-color,#ddd); }
+.willow-spike { --willow-chrome-font:15px/1.25 var(--main-font-family,system-ui,sans-serif); position:relative; min-width:0; container-type:inline-size; color:var(--main-text-color,#222); background:var(--main-background-color,#fff); }
+.willow-toolbar,.willow-statusbar { display:flex; align-items:center; flex:none; gap:4px; box-sizing:border-box; padding:4px 8px; font:var(--willow-chrome-font); }
+.willow-toolbar { height:45px; border-bottom:1px solid var(--main-border-color,#ddd); }
+.willow-statusbar { font-size:13px; height:34px; padding:1px 8px; border-top:1px solid var(--main-border-color,#ddd); }
+.willow-spike .mindmap-menu { font:var(--willow-chrome-font); width:280px; }
+.willow-spike .mindmap-menu button { min-height:0; padding:5px 10px; align-items:center; }
 .willow-toolbar[hidden],.willow-statusbar[hidden] { display:none!important; }
 .willow-command-group,.willow-help-group,.willow-zoom-controls { display:flex; align-items:center; gap:2px; flex:none; }
-.willow-toolbar button,.willow-statusbar button { display:inline-flex; align-items:center; justify-content:center; flex:none; gap:5px; height:32px; padding:0 7px; border:0; border-radius:4px; color:inherit; background:transparent; font:inherit; white-space:nowrap; cursor:pointer; }
-.willow-toolbar .willow-icon-button { width:32px; padding:0; }
-.willow-statusbar button { height:24px; padding:0 5px; }
-.willow-statusbar .willow-icon-button { width:26px; }
+.willow-toolbar button,.willow-statusbar button { display:inline-flex; align-items:center; justify-content:center; flex:none; gap:5px; height:36px; padding:0 7px; border:0; border-radius:4px; color:inherit; background:transparent; font:inherit; white-space:nowrap; cursor:pointer; }
+.willow-toolbar .willow-icon-button { width:36px; padding:0; }
+.willow-statusbar button { height:30px; padding:0 5px; }
+.willow-statusbar .willow-icon-button { width:30px; }
 .willow-toolbar button:hover:not(:disabled),.willow-statusbar button:hover:not(:disabled) { background:var(--accented-background-color,#eee); }
 .willow-toolbar button:disabled,.willow-statusbar button:disabled { opacity:.35; cursor:default; }
 .willow-spike button:focus-visible { outline:2px solid var(--main-text-color,#333); outline-offset:-2px; }
-.willow-icon { width:20px; height:20px; flex:none; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
-.willow-toolbar [data-action="delete"] .willow-icon { width:17px; height:17px; }
+.willow-icon { width:24px; height:24px; flex:none; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+.willow-statusbar .willow-icon { width:20px; height:20px; }
+.willow-toolbar [data-action="delete"] .willow-icon { width:20px; height:20px; }
 .willow-more .willow-icon { order:1; width:12px; }
-.willow-divider { display:block; flex:none; width:1px; height:18px; margin:0 3px; background:var(--main-border-color,#ddd); }
+.willow-divider { display:block; flex:none; width:1px; height:22px; margin:0 3px; background:var(--main-border-color,#ddd); }
 .willow-spacer { flex:1; min-width:0; }
 .willow-context { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; opacity:.7; min-width:0; }
-.willow-percentage { min-width:43px; font-variant-numeric:tabular-nums!important; }
+.willow-percentage { min-width:50px; font-variant-numeric:tabular-nums!important; }
 .willow-sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; }
-.willow-tooltip { position:fixed; z-index:100000; pointer-events:none; max-width:calc(100vw - 16px); padding:5px 8px; border-radius:4px; background:#292b2e; color:#fff; font:12px/1.4 Arial,sans-serif; box-shadow:0 2px 8px #0003; }
+.willow-tooltip { position:fixed; z-index:100000; pointer-events:none; max-width:calc(100vw - 16px); padding:5px 8px; border-radius:4px; background:#292b2e; color:#fff; font:14px/1.4 var(--main-font-family,system-ui,sans-serif); box-shadow:0 2px 8px #0003; }
 .willow-tooltip[data-dark="true"] { background:#eee; color:#222; }
 .willow-shortcuts { box-sizing:border-box; width:660px; max-width:calc(100vw - 32px); max-height:calc(100vh - 32px); padding:0; border:1px solid var(--main-border-color,#ccc); border-radius:10px; background:var(--main-background-color,#fff); color:var(--main-text-color,#222); font:13px/1.4 Arial,sans-serif; box-shadow:0 16px 60px #0005; }
 .willow-shortcuts::backdrop { background:#0006; }
@@ -36,9 +39,9 @@
 .willow-shortcut-sections dd { margin:0; max-width:60%; text-align:right; }
 .willow-shortcut-sections kbd { font:11px/1.5 Arial,sans-serif; color:inherit; background:var(--accented-background-color,#eee); border:1px solid var(--main-border-color,#ddd); border-radius:3px; padding:2px 4px; box-decoration-break:clone; }
 .willow-dialog-footer { justify-content:flex-end; border-top:1px solid var(--main-border-color,#ddd); }
-@container (max-width:650px) { .willow-toolbar [data-group="2"],.willow-help-group { display:none; } }
-@container (max-width:420px) { .willow-toolbar [data-action="insertChild"] .willow-icon,.willow-toolbar [data-action="insertAfter"] .willow-icon,.willow-statusbar [data-action="fit"] .willow-button-label { display:none; } .willow-toolbar { padding-inline:4px; gap:2px; } .willow-toolbar button { padding-inline:5px; } .willow-divider { margin-inline:2px; } }
-@container (max-width:360px) { .willow-toolbar [data-group="0"],.willow-toolbar .willow-divider[data-group="1"] { display:none; } }
-@container (max-width:279px) { .willow-toolbar [data-action="insertChild"] .willow-icon,.willow-toolbar [data-action="insertAfter"] .willow-icon { display:block; } .willow-toolbar [data-action="insertChild"] .willow-button-label,.willow-toolbar [data-action="insertAfter"] .willow-button-label { display:none; } }
+@container (max-width:800px) { .willow-toolbar [data-group="2"],.willow-help-group { display:none; } }
+@container (max-width:520px) { .willow-toolbar [data-action="insertChild"] .willow-icon,.willow-toolbar [data-action="insertAfter"] .willow-icon,.willow-statusbar [data-action="fit"] .willow-button-label { display:none; } .willow-toolbar { padding-inline:4px; gap:2px; } .willow-toolbar button { padding-inline:5px; } .willow-divider { margin-inline:2px; } }
+@container (max-width:440px) { .willow-toolbar [data-group="0"],.willow-toolbar .willow-divider[data-group="1"] { display:none; } }
+@container (max-width:319px) { .willow-toolbar [data-action="insertChild"] .willow-icon,.willow-toolbar [data-action="insertAfter"] .willow-icon { display:block; } .willow-toolbar [data-action="insertChild"] .willow-button-label,.willow-toolbar [data-action="insertAfter"] .willow-button-label { display:none; } }
 @media (max-width:600px) { .willow-shortcut-sections { grid-template-columns:minmax(0,1fr); gap:18px; } }
 @media (forced-colors:active) { .willow-toolbar button:disabled,.willow-statusbar button:disabled { color:GrayText; opacity:1; } .willow-tooltip { border:1px solid CanvasText; background:Canvas; color:CanvasText; } }

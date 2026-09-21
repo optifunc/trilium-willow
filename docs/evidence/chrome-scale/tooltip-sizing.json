@@ -1,0 +1,22 @@
+{
+  "testedAt": "2026-09-21T15:33:40.841Z",
+  "bundleSha256": "999328dd2acea7bafc815628c0d6d23244ebcd14926141aa67b038352aefa639",
+  "results": [
+    {
+      "action": "insertChild",
+      "text": "Add child (Tab)",
+      "fontSize": "14px",
+      "fontFamily": "Inter, sans-serif",
+      "lineHeight": "19.6px",
+      "withinViewport": true
+    },
+    {
+      "action": "plus",
+      "text": "Zoom in",
+      "fontSize": "14px",
+      "fontFamily": "Inter, sans-serif",
+      "lineHeight": "19.6px",
+      "withinViewport": true
+    }
+  ]
+}

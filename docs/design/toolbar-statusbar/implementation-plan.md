@@ -19,7 +19,7 @@ ported into production.
 
 ## Inspection findings
 
-- The design covers the main product decisions: 41px toolbar, 30px status bar,
+- The design covers the main product decisions: 45px toolbar, 34px status bar,
   responsive More menu, original SVG icons, 200ms tooltips, shortcut dialog,
   Documentation, and pane-local Hide UI/Show UI. Normal status text is empty;
   saving remains in the native Trilium header.
@@ -160,19 +160,19 @@ identity between pointerdown, blur-driven rendering and click.
 
 ### 3. Add responsive More and Hide UI/Show UI
 
-Use pane container queries at 650, 420, 360 and 280px. Drive More composition from
+Use pane container queries at 800, 520, 440 and 320px. Drive More composition from
 the same width bands and command descriptors; normalize separators after filtering.
 Close menus when actual pane bounds change. Keep More available for host actions
 when editor commands are unavailable.
 
 Keep `uiHidden` in the mounted pane, independent of editor recreation and other
-panes. Hide both bars and release 71px while retaining notices, view and selection.
+panes. Hide both bars and release 79px while retaining notices, view and selection.
 Restore through node/blank context menus and keyboard context-menu keys, including
 loading/invalid/recovery. Move focus to a valid canvas/pane target when hiding the
 invoker and announce the visibility change.
 
 Checkpoint: widths 1134, 440 and 320px work in both themes; boundary widths and
-the <280px fallback preserve actions without overflow. Hidden UI remains
+the <320px fallback preserve actions without overflow. Hidden UI remains
 recoverable in every host state, and two panes retain independent settings.
 
 ### 4. Complete help, accessibility and state presentation

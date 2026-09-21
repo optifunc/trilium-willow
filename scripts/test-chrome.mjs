@@ -51,8 +51,8 @@ try {
     {type:'relation',name:'renderNote',value:notes.bundle,isInheritable:false}
   ]);
   await open(id); await pane().locator('.willow-spike-host[data-ready="true"]').waitFor(); await resize(1134);
-  assert.equal(await pane().locator('.willow-toolbar').evaluate(e=>e.offsetHeight),41);
-  assert.equal(await pane().locator('.willow-statusbar').evaluate(e=>e.offsetHeight),30);
+  assert.equal(await pane().locator('.willow-toolbar').evaluate(e=>e.offsetHeight),45);
+  assert.equal(await pane().locator('.willow-statusbar').evaluate(e=>e.offsetHeight),34);
   assert.equal(await pane().locator('.willow-context').textContent(),'');
   // First interaction is a chrome zoom button, before any canvas pointer event.
   await button('plus').click(); assert.equal((await snapshot()).zoom,1.1);
@@ -63,7 +63,7 @@ try {
   await editor(e=>e.setZoom(.25)); await page.waitForFunction(id=>document.querySelector(`.willow-spike[data-note-id="${id}"] [data-action="minus"]`)?.disabled,id); assert.equal(await button('minus').isDisabled(),true);
   await editor(e=>e.setZoom(4)); await page.waitForFunction(id=>document.querySelector(`.willow-spike[data-note-id="${id}"] [data-action="plus"]`)?.disabled,id); assert.equal(await button('plus').isDisabled(),true);
   await button('fit').click();
-  pass('41px/30px bars; additive zoom, fitted precision, reset, clamps and first-interaction persistence');
+  pass('45px/34px bars; additive zoom, fitted precision, reset, clamps and first-interaction persistence');
   await editor(e=>e.setSelection(['outline'],'outline'));
   const add = await button('insertAfter').elementHandle();
   await button('edit').click(); await pane().locator('textarea').fill('Edited from toolbar');
@@ -85,15 +85,15 @@ try {
   pass('Composition guard blocks toolbar activation without finishing the label');
   await button('more').click(); assert.equal(await pane().getByRole('menu').count(),1);
   await button('more').click(); assert.equal(await pane().getByRole('menu').count(),0);
-  for(const width of [1134,651,650,440,421,420,361,360,320,280,279,240]) {
+  for(const width of [1134,801,800,651,650,521,520,441,440,361,360,321,320,319,280,240]) {
     await resize(width);
     assert.equal(await pane().locator('.willow-toolbar').evaluate(e=>e.scrollWidth<=e.clientWidth),true,`overflow ${width}`);
     const visible = await pane().locator('.willow-toolbar button').evaluateAll(items=>items.filter(e=>e.checkVisibility()).map(e=>e.dataset.action));
-    assert.equal(visible.includes('edit'),width>650);assert.equal(visible.includes('undo'),width>360);
+    assert.equal(visible.includes('edit'),width>800);assert.equal(visible.includes('undo'),width>440);
     await button('more').click();
     const labels=await pane().locator('.mindmap-menu-label').allTextContents();
-    assert.equal(labels.includes('Edit'),width<=650);assert.equal(labels.includes('Undo'),width<=360);
-    assert.equal(labels.includes('Keyboard shortcuts'),width<=650);
+    assert.equal(labels.includes('Edit'),width<=800);assert.equal(labels.includes('Undo'),width<=440);
+    assert.equal(labels.includes('Keyboard shortcuts'),width<=800);
     assert.equal(labels.includes('Add child'),false);
     assert.equal(await pane().getByRole('menu').evaluate(e=>!!e.firstElementChild?.matches('[role="separator"]')||!!e.lastElementChild?.matches('[role="separator"]')),false);
     if(width===320)await capture('light-320-more');

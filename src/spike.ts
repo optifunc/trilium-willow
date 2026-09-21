@@ -292,7 +292,7 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
     session.receiveTitle(note.title);
     const container = section.closest('.scrolling-container');
     const size = () => {
-      if (container && container.clientHeight > 0) section.style.setProperty('--willow-pane-height', `${Math.max(160, container.clientHeight - 8)}px`);
+      if (container && container.clientHeight > 0) section.style.setProperty('--willow-pane-height', `${Math.max(160, container.clientHeight)}px`);
     };
     let visible = false;
     const resize = new ResizeObserver(() => {

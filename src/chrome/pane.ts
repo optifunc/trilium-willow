@@ -242,12 +242,12 @@ export class PaneChrome {
   private openMore(button: HTMLElement) {
     const width = this.root.clientWidth;
     const entries: MenuEntry[] = overflowActions(this.editor?.getNodeMenuItems() ?? getNodeMenuDescriptors(), width);
-    if (width <= 360) {
+    if (width <= 440) {
       const commands = this.editor?.getCommands() ?? getCommandDescriptors();
       for (const id of ['undo', 'redo']) entries.push({ ...commands.find(item => item.id === id)!, separatorBefore: id === 'undo' });
     }
     entries.push(this.visibilityItem());
-    if (width <= 650) entries.push(
+    if (width <= 800) entries.push(
       { label: 'Keyboard shortcuts', separatorBefore: true, canExecute: () => true, action: () => this.help(button) },
       { label: 'Documentation', canExecute: () => true, action: () => this.documentation() });
     const bounds = button.getBoundingClientRect(); this.openMenu(entries, bounds.left, bounds.bottom, button);

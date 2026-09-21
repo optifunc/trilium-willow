@@ -4,6 +4,24 @@ Status: **design exploration, revision 6**. Updated 2026-09-17. This document sp
 
 This is the living implementation handoff. Update appearance, behavior, command mappings, and the decision log whenever the design changes, along with the prototype and its captures. Prototype JavaScript is disposable simulation code, not a proposed editor implementation.
 
+## Approved sizing amendment — 2026-09-21
+
+The user requested larger bars, then refined them to a slightly smaller size
+and asked that More and the context menu match. This amendment supersedes the
+revision-6 dimensions below: 15px text in Trilium’s `--main-font-family`, 24px
+icons (20px Delete), 36px toolbar buttons, a 45px toolbar, and a 34px status bar
+with 30px controls. The status bar uses 13px text and 20px icons; toolbar
+and menu text stays at 15px, with 24px standard toolbar icons. Both menus share
+the toolbar’s font, with 5px vertical/10px
+horizontal item padding, centered content and natural row height (30.75px for
+one line), at 280px width capped to the pane. The pane fills the native content
+area; the former 8px bottom height deduction is removed. Hiding both bars releases 79px. Bar-button tooltips use 14px text with a 1.4 line-height
+and Trilium’s font family. Responsive thresholds are 800px for edit/help overflow, 520px for
+text-only creation controls and icon-only Fit, 440px for history overflow, and
+below 320px for icon-only creation controls. The prototype and its original
+captures remain the revision-6 reference; current implementation captures and
+verification are in [the sizing evidence](../../evidence/chrome-scale/report.md).
+
 ## Review artifacts
 
 Open [the design](design/toolbar-statusbar/index.html) directly in a browser. No build, server, account, or network access is required. The toolbar is 41px high and the status bar is 30px high. [Captured previews](design/toolbar-statusbar/previews.html) include light/dark × full/split layouts, incoming changes, More, a tooltip, and the shortcuts dialog in both themes.

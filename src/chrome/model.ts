@@ -4,7 +4,7 @@ export const toolbarGroups: readonly (readonly ActionId[])[] = [
   ['undo', 'redo'], ['insertChild', 'insertAfter', 'delete'], ['edit', 'toggleCheckbox', 'toggleCollapse'],
 ];
 export function visibleActions(width: number): Set<ActionId> {
-  return new Set(toolbarGroups.flatMap((group, index) => index === 0 && width <= 360 || index === 2 && width <= 650 ? [] : [...group]));
+  return new Set(toolbarGroups.flatMap((group, index) => index === 0 && width <= 440 || index === 2 && width <= 800 ? [] : [...group]));
 }
 export function overflowActions(items: readonly CommandDescriptor[], width: number): CommandDescriptor[] {
   const visible = visibleActions(width);

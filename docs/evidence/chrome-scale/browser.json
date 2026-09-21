@@ -1,0 +1,18 @@
+{
+  "testedAt": "2026-09-21T15:39:09.901Z",
+  "bundleSha256": "c486da8eb7a537ca79ae6d951efa20f014185a601d360446e88db7d349bff125",
+  "passed": [
+    "45px/34px bars; additive zoom, fitted precision, reset, clamps and first-interaction persistence",
+    "Pointer activation commits the active label, preserves button identity and makes insertion one undo step",
+    "Composition guard blocks toolbar activation without finishing the label",
+    "Responsive controls and More at every boundary, no horizontal overflow, second-click close and Escape focus return",
+    "Hide/show releases bars, preserves world center/zoom/selection and saved content, restores via keyboard context menu",
+    "Dialog reference matches every widget binding and alternate; modal return focus and toolbar roving keys",
+    "Tooltip appears after 200ms, anchors to its control and dismisses for menus",
+    "Recovery disables editor actions while overflow help and hidden-UI keyboard recovery remain usable",
+    "Missing documentation reports an error; renamed guide opens in a new native tab via the associated installation",
+    "Invalid original bytes remain untouched and hidden UI is recoverable without an editor"
+  ],
+  "errors": [],
+  "noteId": "SibjwqS7kxTz"
+}

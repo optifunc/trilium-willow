@@ -1,0 +1,32 @@
+{
+  "testedAt": "2026-09-21T15:40:13.450Z",
+  "bundleSha256": "c486da8eb7a537ca79ae6d951efa20f014185a601d360446e88db7d349bff125",
+  "measurements": [
+    {
+      "viewport": {
+        "width": 1600,
+        "height": 900
+      },
+      "font": "13px",
+      "icon": 20,
+      "toolbarFont": "15px",
+      "bottomGap": 0,
+      "scrollOverflow": 0,
+      "innerTop": 1.5,
+      "innerBottom": 1.5
+    },
+    {
+      "viewport": {
+        "width": 1000,
+        "height": 700
+      },
+      "font": "13px",
+      "icon": 20,
+      "toolbarFont": "15px",
+      "bottomGap": 0,
+      "scrollOverflow": 0,
+      "innerTop": 1.5,
+      "innerBottom": 1.5
+    }
+  ]
+}

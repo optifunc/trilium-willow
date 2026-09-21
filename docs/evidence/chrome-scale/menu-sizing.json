@@ -1,0 +1,730 @@
+{
+  "testedAt": "2026-09-21T15:21:41.548Z",
+  "bundleSha256": "35922174213c24f2a4b54398b806070788d13ddcc611b26c47d60c6af90cdfa4",
+  "measurements": [
+    {
+      "width": 1134,
+      "kind": "more",
+      "barFont": "15px / 18.75px Inter, sans-serif",
+      "menuFont": "15px / 18.75px Inter, sans-serif",
+      "iconWidth": 24,
+      "outer": {
+        "top": 4,
+        "bottom": 4
+      },
+      "overflow": false,
+      "rows": [
+        {
+          "label": "Add sibling before",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Insert parent",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Cut",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Copy",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Paste",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Toggle checked state",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Open link",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Hide UI",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        }
+      ]
+    },
+    {
+      "width": 1134,
+      "kind": "context",
+      "barFont": "15px / 18.75px Inter, sans-serif",
+      "menuFont": "15px / 18.75px Inter, sans-serif",
+      "iconWidth": 24,
+      "outer": {
+        "top": 4,
+        "bottom": 4
+      },
+      "overflow": false,
+      "rows": [
+        {
+          "label": "Edit",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Add child",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Add sibling before",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Add sibling after",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Insert parent",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Delete",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Cut",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Copy",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Paste",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Collapse",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Add checkbox",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Toggle checked state",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Open link",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Hide UI",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "kind": "more",
+      "barFont": "15px / 18.75px Inter, sans-serif",
+      "menuFont": "15px / 18.75px Inter, sans-serif",
+      "iconWidth": 24,
+      "outer": {
+        "top": 4,
+        "bottom": 4
+      },
+      "overflow": false,
+      "rows": [
+        {
+          "label": "Edit",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Add sibling before",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Insert parent",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Cut",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Copy",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Paste",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Collapse",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Add checkbox",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Toggle checked state",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Open link",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Undo",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Redo",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Hide UI",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Keyboard shortcuts",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Documentation",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "kind": "context",
+      "barFont": "15px / 18.75px Inter, sans-serif",
+      "menuFont": "15px / 18.75px Inter, sans-serif",
+      "iconWidth": 24,
+      "outer": {
+        "top": 4,
+        "bottom": 4
+      },
+      "overflow": false,
+      "rows": [
+        {
+          "label": "Edit",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Add child",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Add sibling before",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Add sibling after",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Insert parent",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Delete",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Cut",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Copy",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Paste",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Collapse",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Add checkbox",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Toggle checked state",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Open link",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Hide UI",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        }
+      ]
+    },
+    {
+      "width": 240,
+      "kind": "more",
+      "barFont": "15px / 18.75px Inter, sans-serif",
+      "menuFont": "15px / 18.75px Inter, sans-serif",
+      "iconWidth": 24,
+      "outer": {
+        "top": 4,
+        "bottom": 4
+      },
+      "overflow": false,
+      "rows": [
+        {
+          "label": "Edit",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Add sibling before",
+          "height": 49.5,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Insert parent",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Cut",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Copy",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Paste",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Collapse",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Add checkbox",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Toggle checked state",
+          "height": 49.5,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Open link",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Undo",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Redo",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Hide UI",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Keyboard shortcuts",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Documentation",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        }
+      ]
+    },
+    {
+      "width": 240,
+      "kind": "context",
+      "barFont": "15px / 18.75px Inter, sans-serif",
+      "menuFont": "15px / 18.75px Inter, sans-serif",
+      "iconWidth": 24,
+      "outer": {
+        "top": 4,
+        "bottom": 4
+      },
+      "overflow": false,
+      "rows": [
+        {
+          "label": "Edit",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Add child",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Add sibling before",
+          "height": 49.5,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Add sibling after",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Insert parent",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Delete",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Cut",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Copy",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Paste",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Collapse",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Add checkbox",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Toggle checked state",
+          "height": 49.5,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Open link",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        },
+        {
+          "label": "Hide UI",
+          "height": 30.75,
+          "above": 6,
+          "below": 6,
+          "paddingTop": "5px",
+          "paddingBottom": "5px"
+        }
+      ]
+    }
+  ]
+}

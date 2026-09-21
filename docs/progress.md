@@ -1,5 +1,21 @@
 # Progress
 
+## 2026-09-21 — Match the bars to Trilium UI scale
+
+Refined the initial enlargement to 15px host-family text, 24px icons, 36px toolbar
+controls, a 45px toolbar and 34px status bar. The status bar was then reduced
+to 13px text and 20px icons, retaining the toolbar/menu sizes. More and the
+context menu share the toolbar’s font, with symmetric 5px vertical item padding, centered labels
+and 280px width capped to the pane. Removing the fixed row minimum corrected
+the extra 2.5px gap below menu text. Bar-button tooltip text is now 14px in
+Trilium’s font family, verified on both toolbar and status controls. Removed the
+legacy 8px pane-height deduction responsible for the extra gap below the status bar. Responsive overflow now moves edit/help at
+800px and history at 440px; creation icons hide at 520px and labels below 320px.
+Build, typecheck, all 60 adapter unit tests and the complete chrome/lifecycle
+browser suite passed. Verified matching computed bar/menu fonts and reviewed full,
+320px, More and context-menu captures.
+[Evidence and previews](evidence/chrome-scale/report.md).
+
 ## 2026-09-17 — Working Willow chrome
 
 Implemented plan steps 2–4: stable toolbar/status bar, responsive More, pane-local

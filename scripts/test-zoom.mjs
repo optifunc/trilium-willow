@@ -68,9 +68,8 @@ try {
   await prepare(); await map.hover({ position: { x: 30, y: 30 } });
   const beforeWheel = await state();
   await page.keyboard.down(primary); await page.mouse.wheel(0, -100); await page.keyboard.up(primary); await settle();
-  // Electron scales delivered wheel deltas by the host zoom factor. Check the
-  // gesture's direction and inverse instead of assuming CDP pixels are CSS pixels.
-  assert.ok((await state()).view.zoom > beforeWheel.view.zoom); close((await state()).app, initial.app);
+  // One displayed percentage point, independent of delta magnitude or host zoom.
+  close((await state()).view.zoom, beforeWheel.view.zoom + .0143); close((await state()).app, initial.app);
   await page.keyboard.down(primary); await page.mouse.wheel(0, 100); await page.keyboard.up(primary); await settle();
   close((await state()).view.zoom, 1); close((await state()).app, initial.app);
   for (const axis of ['y', 'x']) {

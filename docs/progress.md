@@ -1,5 +1,13 @@
 # Progress
 
+## 2026-09-22 — Consistent wheel increments
+
+Modifier+wheel now changes displayed zoom by one percentage point per event on
+all platforms, independent of wheel magnitude or mode. Verified 195 widget and
+68 adapter unit tests, 63 three-engine browser cases, packaged consumption and
+Trilium zoom/persistence checks. [Evidence](evidence/wheel-step/report.md).
+Windows bindings/deltas were exercised on macOS; native Windows review is pending.
+
 ## 2026-09-22 — Larger map at displayed 100%
 
 Willow’s displayed zoom uses the unchanged widget scene at 1.43 as 100%.

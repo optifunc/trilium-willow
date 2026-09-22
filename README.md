@@ -47,7 +47,8 @@ When a map is open twice, the viewer offers **Edit here** to transfer editing.
 The toolbar provides editing commands; **More** contains commands that do not fit.
 The status bar provides zoom, reset and Fit. Willow’s 100% uses the original
 map geometry at 143% scale, keeping all proportions intact. Reset returns to
-this size; buttons step by 10 percentage points within 25–400%. Existing saved
+this size; buttons step by 10 percentage points within 25–400%. Modifier+wheel
+zooms by one percentage point per event on every platform. Existing saved
 views retain their actual size, except values below the new minimum are clamped. Open **Keyboard shortcuts** for the
 complete reference, sourced directly from the widget. **Documentation** opens this
 installation’s bundled guide in a new tab.

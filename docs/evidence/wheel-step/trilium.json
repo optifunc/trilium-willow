@@ -1,0 +1,17 @@
+{
+  "testedAt": "2026-09-22T09:24:10.557Z",
+  "desktop": false,
+  "bundleSha256": "e4cd8a3b920c5d0fe01bd0b3b2af6b0101bdaaf234fc6e1c3762cc0090c75b0c",
+  "passed": [
+    "Keyboard zoom, numpad, reset and clamp no-ops preserve app zoom",
+    "Shift+0 fits only the map",
+    "Wheel zoom in/out and vertical/horizontal pan preserve app zoom and saved map content",
+    "Map zoom survives renderer reload"
+  ],
+  "environment": {
+    "version": "0.105.0",
+    "platform": "MacIntel",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+    "electron": false
+  }
+}

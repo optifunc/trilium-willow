@@ -23,7 +23,9 @@ async function api(method, path, body) {
 }
 const state = () => page.evaluate(id => {
   const v = [...globalThis[Symbol.for('trilium-willow.spike')].active.values()].find(v => v.noteId === id && v.host.offsetWidth);
-  return { view: v.editor.getViewport(), app: globalThis.electronApi?.window.getZoomFactor() ?? devicePixelRatio, document: v.editor.getDocument() };
+  const view = v.editor.getViewport(), map = v.host.querySelector('.mindmap');
+  return { view, center: { x: (map.clientWidth / 2 - view.x) / view.zoom, y: (map.clientHeight / 2 - view.y) / view.zoom },
+    app: globalThis.electronApi?.window.getZoomFactor() ?? devicePixelRatio, document: v.editor.getDocument() };
 }, notes.A);
 async function prepare(zoom = 1) {
   await page.evaluate(({ id, zoom }) => {
@@ -51,7 +53,7 @@ try {
   if (desktop) { await page.evaluate(() => electronApi.window.setZoomFactor(1.2)); await settle(); }
   const initial = await state();
   const source = (await api('GET', `notes/${notes.A}/blob`)).content;
-  for (const [key, start, expected] of [['=', 1, 1.2], ['Shift+=', 1, 1.2], ['NumpadAdd', 1, 1.2], ['-', 1, 1 / 1.2], ['NumpadSubtract', 1, 1 / 1.2], ['0', 2, 1], ['0', 1, 1], ['=', 4, 4], ['-', .25, .25]]) {
+  for (const [key, start, expected] of [['=', 1, 1.2], ['Shift+=', 1, 1.2], ['NumpadAdd', 1, 1.2], ['-', 1, 1 / 1.2], ['NumpadSubtract', 1, 1 / 1.2], ['0', 2, 1.43], ['0', 1.43, 1.43], ['=', 5.72, 5.72], ['-', .3575, .3575]]) {
     await prepare(start); await page.keyboard.press(`${primary}+${key}`); await settle();
     const actual = await state(); close(actual.view.zoom, expected); close(actual.app, initial.app);
   }
@@ -81,12 +83,18 @@ try {
   assert.deepEqual((await state()).document, initial.document);
   assert.equal((await api('GET', `notes/${notes.A}/blob`)).content, source);
   pass('Wheel zoom in/out and vertical/horizontal pan preserve app zoom and saved map content');
-  const remembered = (await state()).view;
+  const remembered = await state();
+  await page.waitForFunction(({ id, remembered }) => {
+    const saved = JSON.parse(localStorage.getItem(`trilium-willow:view:v1:${id}`) || 'null');
+    return saved && Math.abs(saved.zoom - remembered.view.zoom) < .00001
+      && Math.abs(saved.centerX - remembered.center.x) < .00001 && Math.abs(saved.centerY - remembered.center.y) < .00001;
+  }, { id: notes.A, remembered });
   await page.reload(); await map.waitFor(); await settle();
-  const restored = (await state()).view;
+  const restored = await state();
   // Desktop app zoom is deliberately not saved by this test's direct setup call;
   // view persistence stores the world centre independently of viewport dimensions.
-  close(restored.zoom, remembered.zoom);
+  close(restored.view.zoom, remembered.view.zoom);
+  close(restored.center.x, remembered.center.x); close(restored.center.y, remembered.center.y);
   pass('Map zoom survives renderer reload');
   if (desktop) {
     const title = page.locator('.note-title:visible').first();

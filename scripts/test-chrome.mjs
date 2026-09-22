@@ -55,13 +55,15 @@ try {
   assert.equal(await pane().locator('.willow-statusbar').evaluate(e=>e.offsetHeight),34);
   assert.equal(await pane().locator('.willow-context').textContent(),'');
   // First interaction is a chrome zoom button, before any canvas pointer event.
-  await button('plus').click(); assert.equal((await snapshot()).zoom,1.1);
-  await page.waitForFunction(id=>JSON.parse(localStorage.getItem(`trilium-willow:view:v1:${id}`)||'null')?.zoom===1.1,id);
-  await editor(e=>e.setZoom(.532146)); await button('plus').click(); assert.equal((await snapshot()).zoom,.632146);
-  assert.equal(await button('percentage').innerText(),'63%');
-  await button('percentage').click(); assert.equal((await snapshot()).zoom,1);
+  assert.equal((await snapshot()).zoom,1.43);
+  assert.equal(await button('percentage').innerText(),'100%');
+  await button('plus').click(); assert.equal((await snapshot()).zoom,1.573);
+  await page.waitForFunction(id=>JSON.parse(localStorage.getItem(`trilium-willow:view:v1:${id}`)||'null')?.zoom===1.573,id);
+  await editor(e=>e.setZoom(.532146)); await button('plus').click(); assert.equal((await snapshot()).zoom,.675146);
+  assert.equal(await button('percentage').innerText(),'47%');
+  await button('percentage').click(); assert.equal((await snapshot()).zoom,1.43);
   await editor(e=>e.setZoom(.25)); await page.waitForFunction(id=>document.querySelector(`.willow-spike[data-note-id="${id}"] [data-action="minus"]`)?.disabled,id); assert.equal(await button('minus').isDisabled(),true);
-  await editor(e=>e.setZoom(4)); await page.waitForFunction(id=>document.querySelector(`.willow-spike[data-note-id="${id}"] [data-action="plus"]`)?.disabled,id); assert.equal(await button('plus').isDisabled(),true);
+  await editor(e=>e.setZoom(5.72)); await page.waitForFunction(id=>document.querySelector(`.willow-spike[data-note-id="${id}"] [data-action="plus"]`)?.disabled,id); assert.equal(await button('plus').isDisabled(),true);
   await button('fit').click();
   pass('45px/34px bars; additive zoom, fitted precision, reset, clamps and first-interaction persistence');
   await editor(e=>e.setSelection(['outline'],'outline'));

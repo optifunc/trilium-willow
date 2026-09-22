@@ -11,6 +11,7 @@ import { parseDocument, serializeDocument, initializeTemplate } from './document
 import { clearPreview, retainPreview } from './presentation';
 import { treeFocus } from './tree-focus';
 import { uiVisibility } from './ui-visibility';
+import { willowZoom } from './zoom';
 import { TitleSession } from './title-session';
 import { paneViews, ViewMemory, type SavedView } from './view-state';
 import { createMap, newNoteId, readContent, writeContent, readTitle, writeTitle } from './host';
@@ -207,7 +208,7 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
         } finally { unsubscribe(); }
         if (replacementError) throw new Error(replacementError);
       } else {
-        editor.current = new MindMapEditor(host.current, { document: map, readonly: readonlyRef.current,
+        editor.current = new MindMapEditor(host.current, { document: map, readonly: readonlyRef.current, zoom: willowZoom,
           onContextMenu: request => chrome.current?.contextMenu(request) });
         mountedReadonly.current = readonlyRef.current;
         diagnostics.mounted++;

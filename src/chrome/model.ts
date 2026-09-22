@@ -19,9 +19,6 @@ export function overflowActions(items: readonly CommandDescriptor[], width: numb
   }
   return result;
 }
-export function steppedZoom(zoom: number, direction: -1 | 1): number {
-  return Math.max(.25, Math.min(4, Number((zoom + direction * .1).toFixed(10))));
-}
 export interface PaneState {
   invalid: boolean;
   loading: boolean;

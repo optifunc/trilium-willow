@@ -1,13 +1,7 @@
 import { expect, it } from 'vitest';
 import { getNodeMenuDescriptors } from '@mindmap/widget';
-import { overflowActions, paneSummary, steppedZoom, visibleActions } from '../src/chrome/model';
+import { overflowActions, paneSummary, visibleActions } from '../src/chrome/model';
 
-it('retains fitted precision while stepping and clamps both ends', () => {
-  expect(steppedZoom(.532146, 1)).toBe(.632146);
-  expect(steppedZoom(.28, -1)).toBe(.25);
-  expect(steppedZoom(3.97, 1)).toBe(4);
-  expect(steppedZoom(steppedZoom(.532146, 1), -1)).toBe(.532146);
-});
 it.each([1134, 801, 800, 521, 520, 441, 440, 320, 319])('keeps every node action reachable at %ipx without duplicates or empty groups', width => {
   const items = getNodeMenuDescriptors();
   const overflow = overflowActions(items, width), visible = visibleActions(width);

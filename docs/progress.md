@@ -1,5 +1,16 @@
 # Progress
 
+## 2026-09-22 — Larger map at displayed 100%
+
+Willow’s displayed zoom uses the unchanged widget scene at 1.43 as 100%.
+Default/reset, additive status steps, keyboard/wheel, Fit and limits agree.
+Saved views retain actual zoom and center, clamping only legacy values below
+the new minimum. Typecheck/build, 68 adapter and 195 widget unit tests,
+33 browser zoom cases, three-engine package checks, and Trilium chrome/lifecycle
+and zoom checks passed. [Evidence and screenshot](evidence/zoom-baseline/report.md).
+Restart `pnpm dev:desktop`; use Reset zoom to see the new baseline on saved maps.
+User visual review is pending.
+
 ## 2026-09-21 — Match the bars to Trilium UI scale
 
 Refined the initial enlargement to 15px host-family text, 24px icons, 36px toolbar

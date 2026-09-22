@@ -1,7 +1,8 @@
 import { ContextMenu, formatShortcut, getCommandDescriptors, getKeymapReference, getNodeMenuDescriptors, isMacPlatform, resolveShortcut } from '@mindmap/widget';
 import type { ActionId, CommandDescriptor, ContextMenuRequest, MenuEntry, MindMapCommand, MindMapEditor } from '@mindmap/widget';
 import { icon } from './icons';
-import { overflowActions, paneSummary, steppedZoom, toolbarGroups } from './model';
+import { overflowActions, paneSummary, toolbarGroups } from './model';
+import { displayedZoom, steppedZoom, willowZoom } from '../zoom';
 import type { PaneState } from './model';
 import { shortcutsDialog } from './shortcuts';
 import { Tooltip } from './tooltip';
@@ -195,11 +196,11 @@ export class PaneChrome {
       button.disabled = !this.can(descriptor.command);
       if (this.available() && (id === 'undo' || id === 'redo')) button.disabled = !(id === 'undo' ? this.editor!.canUndo() : this.editor!.canRedo());
     }
-    const zoom = this.editor?.getViewport().zoom ?? 1;
-    this.buttons.get('minus')!.disabled = !this.available() || zoom <= .25;
-    this.buttons.get('plus')!.disabled = !this.available() || zoom >= 4;
+    const zoom = this.editor?.getViewport().zoom ?? willowZoom.default;
+    this.buttons.get('minus')!.disabled = !this.available() || zoom <= willowZoom.min;
+    this.buttons.get('plus')!.disabled = !this.available() || zoom >= willowZoom.max;
     const percent = this.buttons.get('percentage')!; percent.disabled = !this.available();
-    this.label(percent, 'Reset zoom to 100 percent', `${Math.round(zoom * 100)}%`);
+    this.label(percent, 'Reset zoom to 100 percent', `${Math.round(displayedZoom(zoom) * 100)}%`);
     const reset = descriptors.find(item => item.id === 'resetZoom')!;
     percent.dataset.tooltip = `${reset.label} (${formatShortcut(reset.bindings[0]!, this.mac)})`;
     percent.setAttribute('aria-keyshortcuts', formatShortcut(reset.bindings[0]!, this.mac, true));

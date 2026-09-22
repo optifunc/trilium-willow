@@ -1,13 +1,16 @@
 import type { MindMapEditor, MindMapNode, Selection, Viewport } from '@mindmap/widget';
+import { clampZoom, willowZoom } from './zoom';
 
 export interface SavedView { version: 1; centerX: number; centerY: number; zoom: number; selection?: Selection; }
-export const defaultView: SavedView = { version: 1, centerX: 0, centerY: 0, zoom: 1 };
+export const defaultView: SavedView = { version: 1, centerX: 0, centerY: 0, zoom: willowZoom.default };
 export function parseView(raw: string | null): SavedView | undefined {
   try {
     const v = JSON.parse(raw ?? 'null');
     if (v?.version === 1 && [v.centerX, v.centerY, v.zoom].every(Number.isFinite)
-      && v.zoom >= .25 && v.zoom <= 4) {
-      const view: SavedView = { version: 1, centerX: v.centerX, centerY: v.centerY, zoom: v.zoom };
+      && v.zoom >= .25 && v.zoom <= willowZoom.max) {
+      // Version 1 stores actual scene scale. Retain old views, clamping only
+      // the portion of the former range below Willow's new displayed 25%.
+      const view: SavedView = { version: 1, centerX: v.centerX, centerY: v.centerY, zoom: clampZoom(v.zoom) };
       if (Array.isArray(v.selection?.ids) && v.selection.ids.every((id: unknown) => typeof id === 'string')
         && (v.selection.activeId === undefined || typeof v.selection.activeId === 'string'))
         view.selection = { ids: [...v.selection.ids], activeId: v.selection.activeId };
@@ -61,7 +64,8 @@ export class ViewMemory {
     initial?: SavedView) {
     let saved;
     try { saved = parseView(localStorage.getItem(viewKey(noteId))); } catch { /* Storage may be unavailable. */ }
-    this.view = initial ?? saved ?? { ...defaultView };
+    const view = initial ?? saved ?? defaultView;
+    this.view = { ...view, zoom: clampZoom(view.zoom) };
     this.restoreSelection(this.view.selection);
     this.unsubscribeSelection = editor.on('selectionchange', ({ origin }) => {
       if (this.restoring || origin !== 'user' && !this.interacted) return;

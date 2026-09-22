@@ -149,7 +149,12 @@ Use `canUndo`/`canRedo` and command applicability rather than inferred selection
 rules. Coalesce viewport display updates. Call existing save/recovery handlers;
 do not persist documents from presentation subscriptions.
 
-Implement additive ±0.10 zoom clamped to 0.25–4, percentage reset and Fit. Explicitly
+Implement additive ±0.10 displayed zoom clamped to displayed 0.25–4,
+percentage reset and Fit. Updated 2026-09-22: Willow displays actual widget zoom
+relative to 1.43. Initial/reset scale is 1.43; actual limits are 0.3575–5.72.
+Configure these through widget zoom options so keyboard reset, wheel, API and
+Fit agree. Saved views continue storing actual scale and world center; preserve
+legacy values in range and clamp those below the new minimum. Explicitly
 mark viewport actions as interactions so they survive reopening even when the
 user has not clicked the canvas. Preserve fit precision and center on resize.
 

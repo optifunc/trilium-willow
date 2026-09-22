@@ -1,0 +1,12 @@
+{
+  "testedAt": "2026-09-21T16:08:52.131Z",
+  "bundleSha256": "9a039f32be3fd1ce0600ecc2f49f6da5562009e09f4560ca425108a5fbd3c898",
+  "passed": [
+    "Different maps and separate Willow installations share one non-inheritable root label",
+    "Visibility survives reload and reaches other windows without stealing native title focus",
+    "Reopening a map refreshes changes received while all Willow panes were closed",
+    "Failed writes leave every pane unchanged, display an error and allow retry",
+    "Deleted or invalid preferences restore visible bars; map bytes remain unchanged"
+  ],
+  "errors": []
+}

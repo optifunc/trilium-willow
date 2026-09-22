@@ -10,6 +10,7 @@ import type { Note, NoteContext } from 'trilium:preact';
 import { parseDocument, serializeDocument, initializeTemplate } from './document';
 import { clearPreview, retainPreview } from './presentation';
 import { treeFocus } from './tree-focus';
+import { uiVisibility } from './ui-visibility';
 import { TitleSession } from './title-session';
 import { paneViews, ViewMemory, type SavedView } from './view-state';
 import { createMap, newNoteId, readContent, writeContent, readTitle, writeTitle } from './host';
@@ -133,6 +134,7 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
   const [ownsEdit, setOwnsEdit] = useState(() => !diagnostics.writers.has(note.noteId));
   const [, redraw] = useState(0);
   const [error, setError] = useState('');
+  const [visibilityError, setVisibilityError] = useState('');
   const [invalid, setInvalid] = useState(false);
   const [source, setSource] = useState(false);
   const busy = session.recovering;
@@ -275,6 +277,8 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
     }
     const section = host.current!.parentElement!;
     chrome.current = new PaneChrome(section, host.current!, toolbar.current!, status.current!, {
+      visibility: uiVisibility,
+      reportVisibility: message => { if (!disposed.current) setVisibilityError(message); },
       state: () => ({ ...chromeState.current, loading: session.state === 'loading', recovering: session.recovering, editing: session.editing }),
       composing: () => composing.current, commitEdit, interaction: () => memory.current?.interaction(),
       documentation: () => openDocumentation(note), report: message => { if (!disposed.current) setError(message); },
@@ -348,6 +352,7 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
   }, [readonly, ownsEdit]);
 
   useTriliumEvent('entitiesReloaded', ({ loadResults }) => {
+    uiVisibility.reload(loadResults);
     if (loadResults.isNoteReloaded(note.noteId)) {
       session.receiveTitle(note.title);
       sync();
@@ -400,6 +405,7 @@ function MapPane({ note, noteContext }: { note: Note; noteContext?: NoteContext 
     session.state === 'loading' && h('div', { class: 'willow-notice' }, 'Loading map…'),
     !ownsEdit && !readonly && h('div', { class: 'willow-notice' },
       'This map is being edited in another pane. ', h('button', { disabled: busy, onClick: takeEditing }, 'Edit here')),
+    visibilityError && h('div', { key: 'visibility-error', class: 'willow-spike-error', role: 'alert' }, visibilityError),
     (error || conflict || session.error) && h('div', { class: 'willow-spike-error', role: 'alert' },
       conflict ? 'Another version arrived. Keep both saves your local work as a sibling map, then loads the saved original.' : error || session.error,
       conflict && error && h('p', null, error),

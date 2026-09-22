@@ -21,7 +21,7 @@ ported into production.
 
 - The design covers the main product decisions: 45px toolbar, 34px status bar,
   responsive More menu, original SVG icons, 200ms tooltips, shortcut dialog,
-  Documentation, and pane-local Hide UI/Show UI. Normal status text is empty;
+  Documentation, and Hide UI/Show UI (originally pane-local; now shared). Normal status text is empty;
   saving remains in the native Trilium header.
 - Existing editor APIs cover the content and viewport commands. Status zoom
   buttons need additive `setZoom` steps; keyboard zoom remains multiplicative.
@@ -165,15 +165,22 @@ the same width bands and command descriptors; normalize separators after filteri
 Close menus when actual pane bounds change. Keep More available for host actions
 when editor commands are unavailable.
 
-Keep `uiHidden` in the mounted pane, independent of editor recreation and other
-panes. Hide both bars and release 79px while retaining notices, view and selection.
+Persist `willowUiHidden` as a non-inheritable root-note label (decision updated
+2026-09-21). A shared adapter store owns loading, serialized writes and pane
+subscriptions. Native root-attribute events reload the preference across windows;
+Trilium sync carries it between devices. Missing/invalid values mean visible.
+Apply only confirmed writes; report failures and allow retry. Refresh when the
+first pane opens again, unsubscribe on disposal, and avoid moving focus in other
+panes. Keep this preference outside widget commands, map JSON and undo history.
+Hide both bars and release 79px while retaining notices, view and selection.
 Restore through node/blank context menus and keyboard context-menu keys, including
 loading/invalid/recovery. Move focus to a valid canvas/pane target when hiding the
 invoker and announce the visibility change.
 
 Checkpoint: widths 1134, 440 and 320px work in both themes; boundary widths and
 the <320px fallback preserve actions without overflow. Hidden UI remains
-recoverable in every host state, and two panes retain independent settings.
+recoverable in every host state, and all maps/installations share the setting
+across pane recreation and application reload.
 
 ### 4. Complete help, accessibility and state presentation
 

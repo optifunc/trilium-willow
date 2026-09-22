@@ -5,8 +5,11 @@ import { overflowActions, paneSummary, steppedZoom, toolbarGroups } from './mode
 import type { PaneState } from './model';
 import { shortcutsDialog } from './shortcuts';
 import { Tooltip } from './tooltip';
+import type { UIVisibility } from '../ui-visibility';
 
 interface Options {
+  visibility: UIVisibility;
+  reportVisibility(message: string): void;
   state(): PaneState;
   composing(): boolean;
   commitEdit(): void;
@@ -38,6 +41,7 @@ export class PaneChrome {
   private width = 0;
   private height = 0;
   private hidden = false;
+  private unsubscribeVisibility: () => void;
   private destroyed = false;
   private mac = isMacPlatform(navigator.platform);
 
@@ -98,6 +102,7 @@ export class PaneChrome {
       this.width = width; this.height = height; this.update();
     });
     this.resize.observe(root); this.width = root.clientWidth; this.height = root.clientHeight;
+    this.unsubscribeVisibility = options.visibility.subscribe(hidden => this.applyUIHidden(hidden), message => options.reportVisibility(message));
     this.update();
   }
 
@@ -261,9 +266,18 @@ export class PaneChrome {
     this.openMenu([...(this.editor?.getNodeMenuItems() ?? getNodeMenuDescriptors()), this.visibilityItem()], x, y, () => this.focusCanvas());
   }
   private setUIHidden(hidden: boolean) {
+    void this.options.visibility.set(hidden).catch(() => {
+      if (!this.destroyed) this.options.reportVisibility('Could not save the shared UI visibility preference. Check the connection and try again.');
+    });
+  }
+  private applyUIHidden(hidden: boolean) {
+    if (this.destroyed || this.hidden === hidden) return;
+    const focused = document.activeElement;
+    const restoreFocus = (hidden && (this.toolbar.contains(focused) || this.status.contains(focused)))
+      || (this.root.contains(focused) && !!focused?.closest('[role="menu"]'));
     this.closeMenu(); this.tooltip.hide(); this.hidden = hidden;
     this.toolbar.hidden = this.status.hidden = hidden;
-    this.focusCanvas();
+    if (restoreFocus) this.focusCanvas();
     this.announce(hidden ? 'Toolbar and status bar hidden. Use the context menu to show UI.' : 'Toolbar and status bar shown.');
     this.update();
   }
@@ -290,6 +304,7 @@ export class PaneChrome {
   }
   private announce(message: string) { this.live.textContent = message; }
   destroy() {
+    this.unsubscribeVisibility();
     this.destroyed = true; this.abort.abort(); this.resize.disconnect(); this.closeMenu(); this.tooltip.hide(); this.closeDialog?.();
     for (const unsubscribe of this.subscriptions) unsubscribe();
     clearTimeout(this.documentationTimer); cancelAnimationFrame(this.frame); this.toolbar.replaceChildren(); this.status.replaceChildren(); this.live.remove();

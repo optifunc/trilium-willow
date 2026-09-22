@@ -49,8 +49,10 @@ The status bar provides zoom, reset and Fit. Open **Keyboard shortcuts** for the
 complete reference, sourced directly from the widget. **Documentation** opens this
 installation’s bundled guide in a new tab.
 
-Choose **Hide UI** from More or the map context menu to hide both bars in this pane.
+Choose **Hide UI** from More or the map context menu to hide both bars in all Willow maps.
 Right-click the canvas or press Shift+F10 and choose **Show UI** to restore them.
+This preference is stored once on the Trilium root note as the non-inheritable
+`willowUiHidden` label and follows Trilium sync across devices.
 Notices remain visible and the map’s position is preserved. Links show **Cmd+click to open** on macOS
 and **Ctrl+click to open** elsewhere after one second of hovering over the node.
 Leaving hides the hint; every re-entry starts a fresh one-second delay.

@@ -89,6 +89,14 @@ This script deliberately rewrites the smoke-test note's content. Setup and note
 creation were performed interactively through Playwright before this script;
 the script is not a provisioning tool.
 
+For shared Hide UI/Show UI checks, run `pnpm build`, `pnpm spike:deploy`, then
+`pnpm test:ui-visibility` against the isolated server and Chrome session described
+below. The check covers separate installations, browser windows, reload/reopen,
+focus retention, failed saves and missing/invalid labels. It restores the original
+root preference and deletes its temporary installation. Results are written to
+`.test/trilium/evidence/ui-visibility/report.json`. `pnpm test:chrome` also checks
+shared visibility during editing ownership transfer and read-only recreation.
+
 ## Verification
 
 Passed using actual pointer/keyboard/form input:

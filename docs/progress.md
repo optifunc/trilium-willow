@@ -179,12 +179,16 @@ HEAD, actual widget commit, dirty state, and workflow provenance in its manifest
 Installed labels and ZIP filenames use the full version. Both workflows upload
 the ZIP, editor update file, installation instructions, and manifest.
 
-Verified that `optifunc/mr` is private, so the shared action checks it out at the
-root repository's gitlink commit using an explicit **`MR_READ_TOKEN`** secret.
+The shared action checks out `optifunc/mr` at the root repository's gitlink commit
+using an explicit **`MR_READ_TOKEN`** secret.
 That secret must be configured with read-only Contents access to `mr` before a
 workflow can run. Publication uses the current repository's `GITHUB_TOKEN` with
 explicit Contents write permissions. The current default branch is unprotected.
 No repository settings or secrets were changed.
+
+Documentation correction (2026-09-24): both repositories are public. The earlier
+claim that `mr` is private is stale. The token requirement remains in the current
+workflow implementation; local checkout of the public source needs no such token.
 
 ### Verification
 

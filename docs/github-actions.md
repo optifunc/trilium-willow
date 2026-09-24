@@ -10,12 +10,17 @@ installations.
 ## One-time setup
 
 The workflows must be committed and pushed to the default branch to appear in
-GitHub's Actions menu. Both this repository and `optifunc/mr` are private.
-Configure an Actions repository secret named **`MR_READ_TOKEN`** in
+GitHub's Actions menu. Both this repository and
+[`optifunc/mr`](https://github.com/optifunc/mr) are public; local source checkout
+does not require a personal access token.
+
+The current composite action still rejects an empty `widget-token` input, and
+both workflows supply it from **`MR_READ_TOKEN`**. Until that legacy requirement
+is removed from the workflows, configure an Actions repository secret with that name in
 `optifunc/trilium-willow`: a fine-grained personal access token restricted to
-`optifunc/mr` with **Contents: Read-only**. The standard workflow token only covers
-the current repository and cannot check out that private dependency. The widget
-token is used only for checkout and is not persisted in Git configuration.
+`optifunc/mr` with **Contents: Read-only**. This requirement comes from the workflow
+implementation, not repository visibility. The widget token is used only for
+checkout and is not persisted in Git configuration.
 
 Build uses read-only repository permissions. Publish requests `contents: write`
 for the version commit, tag, and GitHub Release, using the normal `GITHUB_TOKEN`.
@@ -111,6 +116,6 @@ Artifact filenames, installed version labels, and manifests receive the override
 
 References: [manual dispatch](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow),
 [workflow run/attempt context](https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#github-context),
-[private repository checkout](https://github.com/actions/checkout#checkout-multiple-repos-private),
+[multiple-repository checkout](https://github.com/actions/checkout#checkout-multiple-repos-side-by-side),
 [release creation](https://cli.github.com/manual/gh_release_create), and
 [publishing a draft](https://cli.github.com/manual/gh_release_edit).

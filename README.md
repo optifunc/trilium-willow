@@ -121,13 +121,17 @@ commits it when changed, builds/tests, tags the tested commit, and creates a Git
 Release with all distribution files. Its package version includes a build number,
 for example `0.3.0+build.7.1`, while its release tag is `v0.3.0`.
 
-Both are manual. Because `mr` is private, configure the **`MR_READ_TOKEN`** Actions
-secret with read-only Contents access to `optifunc/mr` before running them.
+Both are manual. This repository and the [`mr` editor](https://github.com/optifunc/mr)
+are public. The current workflows still explicitly require the **`MR_READ_TOKEN`**
+Actions secret with read-only Contents access to `optifunc/mr`; this is a legacy
+workflow requirement, not a restriction on downloading or building the source.
 See [workflow setup, usage, and failure recovery](docs/github-actions.md).
 
 ## Development
 
 ```sh
+git clone --recurse-submodules https://github.com/optifunc/trilium-willow.git
+cd trilium-willow
 pnpm install --frozen-lockfile
 pnpm build
 pnpm package
@@ -135,6 +139,10 @@ pnpm typecheck
 pnpm test
 pnpm test:packaging
 ```
+
+For an existing clone, run `git submodule update --init --recursive` before
+installing dependencies. The public `mr` submodule needs no special access token
+for a local checkout.
 
 The build produces `dist/willow-spike.js` for a Trilium Code note with JSX MIME
 type. It includes the widget/CSS and imports Preact from Trilium itself.

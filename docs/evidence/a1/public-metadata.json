@@ -1,0 +1,229 @@
+{
+  "checkedAt": "2026-09-25T08:04:17.142006+00:00",
+  "sources": [
+    {
+      "url": "https://api.github.com/repos/optifunc/trilium-willow",
+      "html_url": "https://github.com/optifunc/trilium-willow",
+      "private": false,
+      "description": null,
+      "topics": [],
+      "default_branch": "main",
+      "license": null,
+      "pushed_at": "2026-09-24T19:54:14Z"
+    },
+    {
+      "url": "https://api.github.com/repos/optifunc/trilium-willow/releases/latest",
+      "html_url": "https://github.com/optifunc/trilium-willow/releases/tag/v0.2.1",
+      "tag_name": "v0.2.1",
+      "published_at": "2026-09-22T09:32:08Z",
+      "draft": false,
+      "prerelease": false,
+      "assets": [
+        {
+          "name": "installation.html",
+          "size": 5089,
+          "digest": "sha256:51cacf3111cb86409c8ffd87576c2aab2ba5e10958b6122cd4dcb70d17c5d68c",
+          "browser_download_url": "https://github.com/optifunc/trilium-willow/releases/download/v0.2.1/installation.html"
+        },
+        {
+          "name": "manifest.json",
+          "size": 829,
+          "digest": "sha256:29b86faafcc39a77633700a140d09e2b4e92e680c39de0f5f808a701210acf29",
+          "browser_download_url": "https://github.com/optifunc/trilium-willow/releases/download/v0.2.1/manifest.json"
+        },
+        {
+          "name": "trilium-willow-0.2.1+build.7.1.zip",
+          "size": 48946,
+          "digest": "sha256:a884d34e14d59cdeb7e52904fab7477bf166494944596f9f83402c90874a7b5c",
+          "browser_download_url": "https://github.com/optifunc/trilium-willow/releases/download/v0.2.1/trilium-willow-0.2.1%2Bbuild.7.1.zip"
+        },
+        {
+          "name": "willow-editor.jsx",
+          "size": 178464,
+          "digest": "sha256:e4cd8a3b920c5d0fe01bd0b3b2af6b0101bdaaf234fc6e1c3762cc0090c75b0c",
+          "browser_download_url": "https://github.com/optifunc/trilium-willow/releases/download/v0.2.1/willow-editor.jsx"
+        }
+      ]
+    },
+    {
+      "url": "https://api.github.com/repos/optifunc/mr",
+      "html_url": "https://github.com/optifunc/mr",
+      "private": false,
+      "description": null,
+      "topics": [],
+      "default_branch": "main",
+      "license": null,
+      "pushed_at": "2026-09-22T09:30:50Z"
+    },
+    {
+      "url": "https://api.github.com/repos/optifunc/mr/releases/latest",
+      "status": 404
+    },
+    {
+      "url": "https://api.github.com/repos/TriliumNext/Trilium",
+      "html_url": "https://github.com/TriliumNext/Trilium",
+      "private": false,
+      "description": "Build your personal knowledge base with Trilium Notes",
+      "topics": [
+        "electron",
+        "electron-app",
+        "knowledge-base",
+        "knowledge-graph",
+        "knowledge-management",
+        "knowledge-management-graph",
+        "local-first",
+        "note-managment",
+        "note-taker",
+        "note-taking",
+        "notebook",
+        "notes",
+        "notes-app",
+        "personal-knowledge-base",
+        "personal-wiki",
+        "scriptable",
+        "self-hosted",
+        "self-hosting",
+        "wiki"
+      ],
+      "default_branch": "main",
+      "license": {
+        "key": "agpl-3.0",
+        "name": "GNU Affero General Public License v3.0",
+        "spdx_id": "AGPL-3.0",
+        "url": "https://api.github.com/licenses/agpl-3.0",
+        "node_id": "MDc6TGljZW5zZTE="
+      },
+      "pushed_at": "2026-09-25T05:23:47Z"
+    },
+    {
+      "url": "https://api.github.com/repos/TriliumNext/Trilium/releases/latest",
+      "html_url": "https://github.com/TriliumNext/Trilium/releases/tag/v0.105.0",
+      "tag_name": "v0.105.0",
+      "published_at": "2026-08-19T18:19:34Z",
+      "draft": false,
+      "prerelease": false,
+      "assets": [
+        {
+          "name": "TriliumNotes-Server-v0.105.0-linux-arm64.tar.xz",
+          "size": 91614088,
+          "digest": "sha256:db6e3598d83858280911b59b7d211165f2a0da0987b80ff4461251797bce5e89",
+          "browser_download_url": "https://github.com/TriliumNext/Trilium/releases/download/v0.105.0/TriliumNotes-Server-v0.105.0-linux-arm64.tar.xz"
+        },
+        {
+          "name": "TriliumNotes-Server-v0.105.0-linux-x64.tar.xz",
+          "size": 94170920,
+          "digest": "sha256:95324810609772b6f33cb0ad49b0f21a652e23a5875268fd0eb40ff916c1f5ef",
+          "browser_download_url": "https://github.com/TriliumNext/Trilium/releases/download/v0.105.0/TriliumNotes-Server-v0.105.0-linux-x64.tar.xz"
+        },
+        {
+          "name": "TriliumNotes-v0.105.0-linux-arm64.AppImage",
+          "size": 184920584,
+          "digest": "sha256:d9fdd14d02adb369d7ecf58eedf063d4aa03e5e8bb62625738b0defccead8baa",
+          "browser_download_url": "https://github.com/TriliumNext/Trilium/releases/download/v0.105.0/TriliumNotes-v0.105.0-linux-arm64.AppImage"
+        },
+        {
+          "name": "TriliumNotes-v0.105.0-linux-arm64.deb",
+          "size": 151711142,
+          "digest": "sha256:b33a4da2dba23b6ce10ced7d740249a69406da5975c4cde6405a8f6b965d0391",
+          "browser_download_url": "https://github.com/TriliumNext/Trilium/releases/download/v0.105.0/TriliumNotes-v0.105.0-linux-arm64.deb"
+        },
+        {
+          "name": "TriliumNotes-v0.105.0-linux-arm64.flatpak",
+          "size": 137246240,
+          "digest": "sha256:9211c3ed1843dc1b26f603b2fe248edca539c8e261fa5f28665b18e590ac4789",
+          "browser_download_url": "https://github.com/TriliumNext/Trilium/releases/download/v0.105.0/TriliumNotes-v0.105.0-linux-arm64.flatpak"
+        },
+        {
+          "name": "TriliumNotes-v0.105.0-linux-arm64.rpm",
+          "size": 159981433,
+          "digest": "sha256:f92edb95166929cf7d4b6c7db82d5c676d8e113357387fb850208d02d1adaa52",
+          "browser_download_url": "https://github.com/TriliumNext/Trilium/releases/download/v0.105.0/TriliumNotes-v0.105.0-linux-arm64.rpm"
+        },
+        {
+          "name": "TriliumNotes-v0.105.0-linux-arm64.zip",
+          "size": 196818150,
+          "digest": "sha256:88c1310cf8730672ef7533287ee86f853353fb3de7a7fa7e8bbd152ba0f9b031",
+          "browser_download_url": "https://github.com/TriliumNext/Trilium/releases/download/v0.105.0/TriliumNotes-v0.105.0-linux-arm64.zip"
+        },
+        {
+          "name": "TriliumNotes-v0.105.0-linux-x64.AppImage",
+          "size": 187214328,
+          "digest": "sha256:673535920a0eb8d9fa0d22db51fed9ca578be6837988a1fe0c62efd86d03eef1",
+          "browser_download_url": "https://github.com/TriliumNext/Trilium/releases/download/v0.105.0/TriliumNotes-v0.105.0-linux-x64.AppImage"
+        },
+        {
+          "name": "TriliumNotes-v0.105.0-linux-x64.deb",
+          "size": 154289674,
+          "digest": "sha256:1ed530c620f9c106e885b2bd8df76d310f5b5d6236425d07212068fee12a5ca4",
+          "browser_download_url": "https://github.com/TriliumNext/Trilium/releases/download/v0.105.0/TriliumNotes-v0.105.0-linux-x64.deb"
+        },
+        {
+          "name": "TriliumNotes-v0.105.0-linux-x64.flatpak",
+          "size": 143408128,
+          "digest": "sha256:3c6470f13838952d37a8d10d99d7cb9ecf7ef49ee3c5eb1bd23f4606d9bc986f",
+          "browser_download_url": "https://github.com/TriliumNext/Trilium/releases/download/v0.105.0/TriliumNotes-v0.105.0-linux-x64.flatpak"
+        },
+        {
+          "name": "TriliumNotes-v0.105.0-linux-x64.rpm",
+          "size": 167214901,
+          "digest": "sha256:398fa443e1a4a60f6703deb03aca61b2e2a36071cebad765ed9ad704c289287c",
+          "browser_download_url": "https://github.com/TriliumNext/Trilium/releases/download/v0.105.0/TriliumNotes-v0.105.0-linux-x64.rpm"
+        },
+        {
+          "name": "TriliumNotes-v0.105.0-linux-x64.zip",
+          "size": 198516882,
+          "digest": "sha256:a23113fd19d96330001d530749fc46b6feceb7872e8e36144b3294ec5913fb95",
+          "browser_download_url": "https://github.com/TriliumNext/Trilium/releases/download/v0.105.0/TriliumNotes-v0.105.0-linux-x64.zip"
+        },
+        {
+          "name": "TriliumNotes-v0.105.0-macos-arm64.dmg",
+          "size": 192311473,
+          "digest": "sha256:8c282f94c3e5c1243e3ec1f41ad4d6990a07bf6dce2f9eb8aee04f64deb35dc1",
+          "browser_download_url": "https://github.com/TriliumNext/Trilium/releases/download/v0.105.0/TriliumNotes-v0.105.0-macos-arm64.dmg"
+        },
+        {
+          "name": "TriliumNotes-v0.105.0-macos-arm64.zip",
+          "size": 191053451,
+          "digest": "sha256:441901c820214580c109b1e6ec8e4e9651863e7e0e5401f882a7bf120db43c2b",
+          "browser_download_url": "https://github.com/TriliumNext/Trilium/releases/download/v0.105.0/TriliumNotes-v0.105.0-macos-arm64.zip"
+        },
+        {
+          "name": "TriliumNotes-v0.105.0-macos-x64.dmg",
+          "size": 197408986,
+          "digest": "sha256:fbc21207bfc573da933d32f7cb6373d217cc90891756b19dff546aaa26e085e6",
+          "browser_download_url": "https://github.com/TriliumNext/Trilium/releases/download/v0.105.0/TriliumNotes-v0.105.0-macos-x64.dmg"
+        },
+        {
+          "name": "TriliumNotes-v0.105.0-macos-x64.zip",
+          "size": 196293023,
+          "digest": "sha256:58afcd020e58a9b8891e108fdd2e1cb4dbaf72ec15adc12480642eef3a048cdb",
+          "browser_download_url": "https://github.com/TriliumNext/Trilium/releases/download/v0.105.0/TriliumNotes-v0.105.0-macos-x64.zip"
+        },
+        {
+          "name": "TriliumNotes-v0.105.0-windows-arm64.exe",
+          "size": 213330680,
+          "digest": "sha256:e4d64b491e542016ccc18176673d07d94e43c19f77221cf02378aac819a1b6a3",
+          "browser_download_url": "https://github.com/TriliumNext/Trilium/releases/download/v0.105.0/TriliumNotes-v0.105.0-windows-arm64.exe"
+        },
+        {
+          "name": "TriliumNotes-v0.105.0-windows-arm64.zip",
+          "size": 219303956,
+          "digest": "sha256:2a06621de97ddd41089a58f164afbbe503cd5bb75fefc4fbf2572729f72905fa",
+          "browser_download_url": "https://github.com/TriliumNext/Trilium/releases/download/v0.105.0/TriliumNotes-v0.105.0-windows-arm64.zip"
+        },
+        {
+          "name": "TriliumNotes-v0.105.0-windows-x64.exe",
+          "size": 211299072,
+          "digest": "sha256:d24b025ffb9e7171803feed46fae9d73e8de0d229b6a5a3d7fb25a63f68cdfc5",
+          "browser_download_url": "https://github.com/TriliumNext/Trilium/releases/download/v0.105.0/TriliumNotes-v0.105.0-windows-x64.exe"
+        },
+        {
+          "name": "TriliumNotes-v0.105.0-windows-x64.zip",
+          "size": 217027006,
+          "digest": "sha256:100cf02bfa08b85d00b182396e9ac5b8f53ea6d9a5e86552d3168e77f88237c9",
+          "browser_download_url": "https://github.com/TriliumNext/Trilium/releases/download/v0.105.0/TriliumNotes-v0.105.0-windows-x64.zip"
+        }
+      ]
+    }
+  ]
+}

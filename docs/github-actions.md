@@ -14,17 +14,19 @@ GitHub's Actions menu. Both this repository and
 [`optifunc/mr`](https://github.com/optifunc/mr) are public; local source checkout
 does not require a personal access token.
 
-The current composite action still rejects an empty `widget-token` input, and
-both workflows supply it from **`MR_READ_TOKEN`**. Until that legacy requirement
-is removed from the workflows, configure an Actions repository secret with that name in
-`optifunc/trilium-willow`: a fine-grained personal access token restricted to
-`optifunc/mr` with **Contents: Read-only**. This requirement comes from the workflow
-implementation, not repository visibility. The widget token is used only for
-checkout and is not persisted in Git configuration.
+The composite action reads the widget commit from the checked-out gitlink and
+uses `actions/checkout` for public `optifunc/mr` at that exact commit. Its default
+`github.token` is sufficient for the public repository; no custom token or
+`MR_READ_TOKEN` secret is required. Widget credentials are not persisted.
+
+Widget changes, including licensing, must first be committed and available in the
+public widget repository, then pinned by a Willow gitlink update. A local dirty
+submodule is not a remotely buildable release revision.
 
 Build uses read-only repository permissions. Publish requests `contents: write`
 for the version commit, tag, and GitHub Release, using the normal `GITHUB_TOKEN`.
-The default branch was unprotected when these workflows were implemented. If
+Historically, the default branch was unprotected; current branch rules have not
+been rechecked. If
 branch or tag rules are introduced later, they must permit this publishing path;
 the workflow does not force-push or bypass those rules.
 
@@ -93,6 +95,11 @@ and overwrite the tagged release. A published release is left untouched; use a
 new version for corrected code or assets.
 
 ## Local validation
+
+From a fresh public checkout, follow [the contributor setup](testing.md).
+Validate workflow syntax with `actionlint`; this is a local check and does not
+dispatch Build or Publish. The shared composite checkout is also exercised through
+an anonymous recursive clone and the build commands below.
 
 ```sh
 pnpm package

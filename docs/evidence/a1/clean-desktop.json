@@ -1,0 +1,38 @@
+{
+  "testedAt": "2026-09-25T08:20:05.494Z",
+  "os": "macOS 26.7 (25G229), Apple M2 / ARM64",
+  "willowRevision": "b480c6e + A1 working-tree changes",
+  "widgetRevision": "c8f363d + MIT metadata/banner",
+  "environment": {
+    "trilium": "0.105.0",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) trilium/0.105.0 Chrome/150.0.7871.224 Electron/43.4.0 Safari/537.36",
+    "platform": "MacIntel"
+  },
+  "passed": [
+    "native language selection and New knowledge base → Empty from fresh data/profile",
+    "native file-picker import with Safe import enabled",
+    "native activation shows template instructions and renders the example",
+    "imported licensing note visibly contains MIT text",
+    "native template creation outside installation, keyboard child editing, save and reload"
+  ],
+  "zipSha256": "6240aed77628c0b770e246f121eb3bb176325e070cedbc90609f526056c8f87b",
+  "manifest": {
+    "version": "0.2.1",
+    "baseVersion": "0.2.1",
+    "source": {
+      "commit": "b480c6e4918afb4a66efe00a0ee98a718efea9eb",
+      "mrCommit": "c8f363d06fc92c199ee7603491977ab1368456db",
+      "dirty": true
+    },
+    "workflow": null,
+    "license": "MIT",
+    "trilium": "0.105.0",
+    "documentVersion": 1,
+    "files": {
+      "trilium-willow-0.2.1.zip": "6240aed77628c0b770e246f121eb3bb176325e070cedbc90609f526056c8f87b",
+      "willow-editor.jsx": "99a9d1ce352dcbba7e36d7c2be10167a22de711abfa104027022422852e2c8f6",
+      "installation.html": "ab092e986fbff0222b121f8715e0f8dd626fd0f1f8749f4d8ebd0d0774ea9be6"
+    }
+  },
+  "errors": []
+}

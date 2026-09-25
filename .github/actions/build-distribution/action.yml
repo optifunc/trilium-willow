@@ -1,29 +1,18 @@
 name: Build distribution
 description: Build and check the same distribution for manual builds and releases
-inputs:
-  widget-token:
-    description: Legacy workflow requirement; token with read-only Contents access to the public optifunc/mr repository
-    required: true
 runs:
   using: composite
   steps:
     - name: Resolve the pinned widget commit
       id: widget
       shell: bash
-      env:
-        WIDGET_TOKEN: ${{ inputs.widget-token }}
       run: |
-        if test -z "$WIDGET_TOKEN"; then
-          echo 'Set the MR_READ_TOKEN Actions secret with read-only Contents access to optifunc/mr.' >&2
-          exit 1
-        fi
         echo "sha=$(git rev-parse HEAD:mr)" >> "$GITHUB_OUTPUT"
     - name: Check out the public widget at its pinned commit
       uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       with:
         repository: optifunc/mr
         ref: ${{ steps.widget.outputs.sha }}
-        token: ${{ inputs.widget-token }}
         path: mr
         submodules: recursive
         persist-credentials: false

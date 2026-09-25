@@ -78,6 +78,8 @@ class Archive(RepositoryFixture):
         for name in ('package-addon.py', 'build_version.py'):
             shutil.copy(ROOT / 'scripts' / name, self.root / 'scripts' / name)
         shutil.copy(ROOT / 'docs/installation.html', self.root / 'docs/installation.html')
+        shutil.copy(ROOT / 'LICENSE', self.root / 'LICENSE')
+        shutil.copy(ROOT / 'mr/LICENSE', self.root / 'mr/LICENSE')
         (self.root / '.gitignore').write_text('dist/\n__pycache__/\nmr/\n')
         self.git(self.root / 'mr', 'init', '-b', 'main')
         self.git(self.root / 'mr', 'config', 'user.name', 'Packaging test')
@@ -100,6 +102,7 @@ class Archive(RepositoryFixture):
         self.assertEqual(first['source']['commit'], self.git(self.root, 'rev-parse', 'HEAD'))
         self.assertEqual(first['source']['mrCommit'], self.git(self.root / 'mr', 'rev-parse', 'HEAD'))
         self.assertFalse(first['source']['dirty'])
+        self.assertEqual(first['license'], 'MIT')
         self.assertEqual(first['workflow']['url'], 'https://github.com/owner/repo/actions/runs/123/attempts/2')
         for filename, digest in first['files'].items():
             self.assertEqual(hashlib.sha256((self.root / 'dist' / filename).read_bytes()).hexdigest(), digest)
@@ -107,6 +110,17 @@ class Archive(RepositoryFixture):
             folder = json.loads(archive.read('!!!meta.json'))['files'][0]
             self.assertEqual(folder['attributes'][0]['value'], first['version'])
             self.assertEqual(folder['children'][0]['attributes'][0]['value'], first['version'])
+            license_note = next(n for n in folder['children'] if n['noteId'] == 'willowLicenses')
+            self.assertEqual(license_note['dataFileName'], 'licenses.txt')
+            notices = archive.read('Willow/licenses.txt')
+            editor = archive.read('Willow/editor.jsx')
+            for license_path in [ROOT / 'LICENSE', ROOT / 'mr/LICENSE']:
+                self.assertIn(license_path.read_bytes(), notices)
+                self.assertIn(license_path.read_bytes(), editor)
+            self.assertEqual(editor, (self.root / 'dist/willow-editor.jsx').read_bytes())
+            guide = (self.root / 'dist/installation.html').read_bytes()
+            self.assertIn((ROOT / 'LICENSE').read_bytes(), guide)
+            self.assertEqual(guide, archive.read('Willow.html'))
         env['WILLOW_VERSION'] = '0.1.0-dev.42.3'
         self.assertNotEqual(package()['version'], first['version'])
         self.assertEqual(json.loads((self.root / 'package.json').read_text())['version'], '0.1.0')

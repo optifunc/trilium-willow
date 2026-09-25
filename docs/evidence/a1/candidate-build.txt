@@ -1,0 +1,62 @@
+
+> trilium-willow@0.2.1 package <willow>/.test/a1/public-checkout
+> pnpm build && python3 scripts/package-addon.py
+
+
+> trilium-willow@0.2.1 build <willow>/.test/a1/public-checkout
+> pnpm --dir mr build && vite build
+
+
+> @mindmap/widget@0.1.0 build <willow>/.test/a1/public-checkout/mr
+> vite build && tsc -p tsconfig.build.json
+
+vite v7.3.1 building client environment for production...
+transforming...
+✓ 26 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/mindmap.css   6.78 kB │ gzip:  1.81 kB
+dist/mindmap.js   93.22 kB │ gzip: 25.05 kB
+✓ built in 532ms
+vite v7.3.1 building client environment for production...
+transforming...
+✓ 19 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/willow-spike.js  178.46 kB │ gzip: 45.29 kB
+✓ built in 1.10s
+dist/trilium-willow-0.2.1.zip (51,518 bytes)
+
+> trilium-willow@0.2.1 typecheck <willow>/.test/a1/public-checkout
+> tsc --noEmit
+
+
+> trilium-willow@0.2.1 test <willow>/.test/a1/public-checkout
+> vitest run
+
+
+ RUN  v4.0.18 <willow>/.test/a1/public-checkout
+
+ ✓ tests/documentation.test.ts (3 tests) 12ms
+ ✓ tests/document.test.ts (10 tests) 13ms
+ ✓ tests/view-state.test.ts (8 tests) 7ms
+ ✓ tests/chrome.test.ts (10 tests) 13ms
+ ✓ tests/ui-visibility.test.ts (6 tests) 68ms
+ ✓ tests/title-session.test.ts (15 tests) 128ms
+ ✓ tests/zoom.test.ts (3 tests) 4ms
+ ✓ tests/save-session.test.ts (13 tests) 330ms
+
+ Test Files  8 passed (8)
+      Tests  68 passed (68)
+   Start at  10:20:12
+   Duration  816ms (transform 904ms, setup 0ms, import 1.47s, tests 574ms, environment 1ms)
+
+
+> trilium-willow@0.2.1 test:packaging <willow>/.test/a1/public-checkout
+> python3 -m unittest discover -s tests -p '*_test.py'
+
+......
+----------------------------------------------------------------------
+Ran 6 tests in 2.168s
+
+OK

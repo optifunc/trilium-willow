@@ -1,5 +1,17 @@
 # Progress
 
+## 2026-09-25 — A1 public baseline and MIT licensing
+
+Added the [dated compatibility baseline](compatibility.md),
+[reproducible fresh setup](testing.md), and [licensing/distribution audit](licensing.md).
+The current compatibility table supersedes broad historical support claims below;
+Windows is supported, confirmed by the owner’s daily use on 2026-09-25; its
+historical automated report is unavailable. Local-only artifacts are labelled as such.
+Public checkout no longer requires a custom widget token in Actions. Both projects
+and their artifacts carry the owner-selected MIT license.
+[A1 verification and limits](evidence/a1/report.md). Changes remain uncommitted;
+the widget must be published and repinned before a parent release.
+
 ## 2026-09-22 — Consistent wheel increments
 
 Modifier+wheel now changes displayed zoom by one percentage point per event on
@@ -159,7 +171,7 @@ restoring stock desktop zoom shortcuts when copying a server-created fixture.
 Build/typechecks, 194 unit tests, 24 three-engine widget cases and actual Windows
 Electron/Chrome integration checks passed. Native macOS rerun and the broader
 release matrix remain outside this focused verification. Full cause, evidence,
-runtime adaptation and reproducible commands: [Windows report](test-windows.md).
+runtime adaptation and reproducible commands: [current compatibility and missing-evidence status](compatibility.md#windows-evidence).
 
 Changes remain uncommitted in both this repository and the `mr` submodule; a
 future release must include the widget change and update the parent gitlink.
@@ -259,7 +271,7 @@ browser database. Import tests wait for Trilium's asynchronous import-completion
 navigation before selecting template/example notes. Test processes are stopped
 afterward; their SIGTERM cleanup adds no new window-close evidence.
 
-Evidence: [distribution results](../.test/trilium/evidence/distribution.json), with
+Evidence: distribution results (local-only: `.test/trilium/evidence/distribution.json`), with
 source-view screenshots and process logs in the reported run directory. The
 primary test installation and `mr` submodule are unchanged. Editor SHA-256 remains
 `3b7d67e61e2b47603fcbf782d45e5ac26551ccbf1bbe020bb3390e2d6e6787cc`;
@@ -330,9 +342,9 @@ and selection/focus checks also passed. Browser tests and desktop fixture backup
 must run sequentially: browser validation deliberately installs invalid JSON
 temporarily, which must not be captured in the desktop test snapshot.
 
-Evidence: [browser review regressions](../.test/trilium/evidence/review-regressions.json),
-[desktop regressions](../.test/trilium/evidence/spike/desktop.json), and
-[native desktop lifecycle/sync](../.test/trilium/evidence/desktop-lifecycle.json).
+Evidence: browser review regressions (local-only: `.test/trilium/evidence/review-regressions.json`),
+desktop regressions (local-only: `.test/trilium/evidence/spike/desktop.json`), and
+native desktop lifecycle/sync (local-only: `.test/trilium/evidence/desktop-lifecycle.json`).
 Run `pnpm test:trilium`, `pnpm test:hardening`, `pnpm spike:test:desktop`, and
 `pnpm test:desktop:lifecycle` sequentially after deployment.
 
@@ -371,8 +383,8 @@ navigation checks passed. A separate cold-start check verified focus on the firs
 Willow click after reloading on a normal note, before the bundle had loaded.
 
 Deployed bundle: `a5808570463076b233960f6cbd52061b62935ac481accf18a9eab6d64f6bab3b`.
-Evidence: [browser](../.test/trilium/evidence/selection-focus.json) and
-[desktop](../.test/trilium/evidence/spike/desktop.json). The shared scenarios are in
+Evidence: browser (local-only: `.test/trilium/evidence/selection-focus.json`) and
+desktop (local-only: `.test/trilium/evidence/spike/desktop.json`). The shared scenarios are in
 [`scripts/check-selection-focus.mjs`](../scripts/check-selection-focus.mjs);
 run `node scripts/test-selection-focus.mjs` or `pnpm spike:test:desktop`.
 
@@ -436,11 +448,11 @@ d86d85ffbd40e84d71348506933c1d36983bed8fb776c13065a9fe4def63893f
   at the frontend boundary so it exercises Electron's custom local protocol as
   well as HTTP. Interception is removed after each scenario.
 
-Evidence: [persistence](../.test/trilium/evidence/hardening/browser.json),
-[themes/clipboard/archive](../.test/trilium/evidence/hardening/host.json),
-[native sync](../.test/trilium/evidence/hardening/sync.json),
-[browser navigation](../.test/trilium/evidence/navigation.json), and
-[desktop](../.test/trilium/evidence/spike/desktop.json).
+Evidence: persistence (local-only: `.test/trilium/evidence/hardening/browser.json`),
+themes/clipboard/archive (local-only: `.test/trilium/evidence/hardening/host.json`),
+native sync (local-only: `.test/trilium/evidence/hardening/sync.json`),
+browser navigation (local-only: `.test/trilium/evidence/navigation.json`), and
+desktop (local-only: `.test/trilium/evidence/spike/desktop.json`).
 Reproduce with `pnpm test:trilium`, `pnpm test:hardening`, and
 `pnpm spike:test:desktop` after building/deploying the bundle.
 
@@ -505,11 +517,11 @@ animation frame. Previews disappear when their replacements are ready and do not
 remain on ordinary notes. The manual launcher was exercised both with the existing
 build and with its default build-and-open command, reusing its database.
 
-Evidence: [browser navigation frames](../.test/trilium/evidence/navigation.json),
-[browser acceptance](../.test/trilium/evidence/vertical-slice/browser.json),
-[lifecycle regressions](../.test/trilium/evidence/spike/results.json), and
-[desktop acceptance including navigation](../.test/trilium/evidence/spike/desktop.json).
-Manual-launcher evidence is in [manual-desktop.json](../.test/trilium/evidence/manual-desktop.json).
+Evidence: browser navigation frames (local-only: `.test/trilium/evidence/navigation.json`),
+browser acceptance (local-only: `.test/trilium/evidence/vertical-slice/browser.json`),
+lifecycle regressions (local-only: `.test/trilium/evidence/spike/results.json`), and
+desktop acceptance including navigation (local-only: `.test/trilium/evidence/spike/desktop.json`).
+Manual-launcher evidence is in manual-desktop.json (local-only: `.test/trilium/evidence/manual-desktop.json`).
 The `mr` submodule is unchanged. The remaining persistence/distribution work and
 cross-client conflict limitations are unchanged.
 
@@ -560,10 +572,10 @@ The original and recovery documents survived restarting the isolated server, and
 the browser restored its local view. Browser and desktop screenshots were inspected.
 
 Evidence (ignored test artifacts, overwritten by subsequent runs):
-[browser acceptance and frame samples](../.test/trilium/evidence/vertical-slice/browser.json),
-[lifecycle regressions](../.test/trilium/evidence/spike/results.json),
-[desktop acceptance and frame samples](../.test/trilium/evidence/spike/desktop.json),
-[restart](../.test/trilium/evidence/vertical-slice/restart.json).
+browser acceptance and frame samples (local-only: `.test/trilium/evidence/vertical-slice/browser.json`),
+lifecycle regressions (local-only: `.test/trilium/evidence/spike/results.json`),
+desktop acceptance and frame samples (local-only: `.test/trilium/evidence/spike/desktop.json`),
+restart (local-only: `.test/trilium/evidence/vertical-slice/restart.json`).
 Reproduce with the commands in [README](../README.md).
 
 Packaging and the broader persistence/host-hardening step remain pending. The
@@ -628,13 +640,13 @@ Tested bundle SHA-256:
   browser remounted the editor with its locally stored view state. Screenshots
   from the browser and desktop were visually inspected.
 
-Evidence: [browser acceptance](../.test/trilium/evidence/vertical-slice/browser.json),
-[browser screenshot](../.test/trilium/evidence/vertical-slice/browser.png),
-[lifecycle regressions](../.test/trilium/evidence/spike/results.json),
-[desktop acceptance](../.test/trilium/evidence/spike/desktop.json), and
-[desktop screenshot](../.test/trilium/evidence/spike/desktop.png), and
-[server restart](../.test/trilium/evidence/vertical-slice/restart.json), and
-[discard confirmation](../.test/trilium/evidence/vertical-slice/discard.json).
+Evidence: browser acceptance (local-only: `.test/trilium/evidence/vertical-slice/browser.json`),
+browser screenshot (local-only: `.test/trilium/evidence/vertical-slice/browser.png`),
+lifecycle regressions (local-only: `.test/trilium/evidence/spike/results.json`),
+desktop acceptance (local-only: `.test/trilium/evidence/spike/desktop.json`), and
+desktop screenshot (local-only: `.test/trilium/evidence/spike/desktop.png`), and
+server restart (local-only: `.test/trilium/evidence/vertical-slice/restart.json`), and
+discard confirmation (local-only: `.test/trilium/evidence/vertical-slice/discard.json`).
 The evidence paths contain the latest run; the first spike below is a historical
 record of its earlier bundle and findings.
 
@@ -689,7 +701,7 @@ the shared code. Deployment retains maps; the test suite explicitly resets them.
 1. **Unfinished edits need no `mr` change.** Native textarea blur commits through
    the documented widget path. A handler registered before Trilium's saving hook
    preserves existing labels and provisional children on note switching/closing.
-   Mouse navigation and Command+[ navigation passed. Actual OS IME is unverified.
+   Mouse navigation and Command+ navigation passed. Actual OS IME is unverified.
 2. **Split metadata belongs to Trilium.** Our initial `data-ntx-id` diagnostic
    collided with Trilium's descendant selectors, causing a new split to be
    inserted inside the map. Renaming it `data-willow-context` fixed the collision.
@@ -735,11 +747,11 @@ navigation, native refresh, repeated A/B switching, separate split instances,
 ownership transfer, tab-close cleanup, invalid-source preservation, and reopen/
 reload persistence. There were no page errors in the final run.
 
-Evidence: [browser results](../.test/trilium/evidence/spike/results.json),
-[two panes](../.test/trilium/evidence/spike/two-panes.png),
-[reopened map](../.test/trilium/evidence/spike/reopened.png),
-[desktop results](../.test/trilium/evidence/spike/desktop.json), and
-[desktop screenshot](../.test/trilium/evidence/spike/desktop.png).
+Evidence: [browser results (local-only: `.test/trilium/evidence/spike/results.json`),
+two panes (local-only: `.test/trilium/evidence/spike/two-panes.png`),
+reopened map (local-only: `.test/trilium/evidence/spike/reopened.png`),
+desktop results (local-only: `.test/trilium/evidence/spike/desktop.json`), and
+desktop screenshot (local-only: `.test/trilium/evidence/spike/desktop.png`).
 Screenshots were visually inspected. Evidence is ignored; the scripts regenerate
 it in this environment. Early exploratory failures led to the fixes above; final
 results refer to the final bundle, not those failed runs.

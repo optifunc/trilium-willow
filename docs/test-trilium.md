@@ -1,8 +1,10 @@
 # Local Trilium test server
 
-For the current Windows setup, zoom investigation, and run commands, see
-[Windows verification](test-windows.md). The original macOS setup below is
-retained as historical platform-specific documentation.
+This is a **historical, machine-specific environment report**, not a setup guide.
+For a fresh clone, use [reproducible contributor testing](testing.md). Files under
+`.test/` mentioned below are ignored local artifacts and are not supplied by cloning.
+The previously linked Windows automated report is missing. Windows is supported
+and confirmed by the owner’s daily use; see the [compatibility table](compatibility.md).
 
 For package installation checks, run `pnpm package` then `pnpm test:distribution`.
 The latter creates independent empty server and desktop databases under
@@ -26,10 +28,10 @@ recovery, and local view persistence, is installed in this test server.
 - Version: Trilium v0.105.0, build `a0908a6e1e`, database 240, sync 39.
 - Installation: `../.test/trilium/server/`
 - Database and configuration: `../.test/trilium/data/`
-- Test-only password: [credentials.json](../.test/trilium/credentials.json).
+- Test-only password: credentials.json (local-only: `.test/trilium/credentials.json`).
   The login form only requires the password, no username.
-- Log: [server.log](../.test/trilium/server.log).
-- Current server PID: [server.pid](../.test/trilium/server.pid).
+- Log: server.log (local-only: `.test/trilium/server.log`).
+- Current server PID: server.pid (local-only: `.test/trilium/server.pid`).
 - All of `.test/` is ignored by Git, including credentials, browser profile,
   downloads, dependencies, logs, screenshots, and database.
 
@@ -111,8 +113,8 @@ Passed using actual pointer/keyboard/form input:
 - No browser page errors during the final editing smoke test.
 - Final screenshot visually inspected; loopback listener and Git ignore verified.
 
-Evidence: [JSON report](../.test/trilium/evidence/browser-smoke.json) and
-[screenshot after restart](../.test/trilium/evidence/07-after-server-restart.png).
+Evidence: JSON report (local-only: `.test/trilium/evidence/browser-smoke.json`) and
+screenshot after restart (local-only: `.test/trilium/evidence/07-after-server-restart.png`).
 
 The subsequent integration spike mounted `mr` in a shared Render Note bundle and
 verified map persistence and lifecycle in the browser, plus desktop mount/edit/

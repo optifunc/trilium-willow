@@ -1,10 +1,11 @@
 # Trilium Willow
 
 An experimental stock-Trilium adapter for the mind-map editor in [`mr`](mr/README.md).
-The usable adapter is tested on Trilium v0.105.0 in Chrome and an isolated macOS
-desktop build. An installable experimental package is available locally; the
-distribution lifecycle is tested on both clients. Windows desktop and Chrome
-zoom isolation is covered by [the Windows test report](docs/test-windows.md).
+Tested scope and dates are listed in the [compatibility table](docs/compatibility.md).
+Windows and macOS are supported. Windows support is confirmed by the owner’s
+daily use; recorded macOS checks use Trilium v0.105.0. Linux and touch interaction
+remain unverified. [MIT licensed](LICENSE), including the bundled widget;
+see [licensing and notices](docs/licensing.md).
 
 Each map is a Render Note containing versioned JSON. All maps reference one shared
 JSX code note containing the bundled editor. No server modification or widget
@@ -31,15 +32,15 @@ Without the add-on, maps retain their JSON and open in Trilium's Render Note set
 screen. **Note source** still exposes the document. After reinstalling, reconnect
 old maps as described in the installation instructions.
 
-## Try the development instance
+## Use a test instance
 
-The test instance is at http://127.0.0.1:37841/. Right-click a note in the tree,
+Start a fresh isolated instance using [the reproducible setup](docs/testing.md).
+The historical developer fixture, when provisioned, uses http://127.0.0.1:37841/. Right-click a note in the tree,
 choose **Insert note after** or **Insert child note**, then **Willow Mind Map**
 under Templates. Enter the title in Trilium's normal title field. The map root
 follows the title; editing the root also renames the note. On first opening a
 map with different values, the Trilium title replaces the root text. Native title
-typing updates the root after leaving the title field. The test
-password and server instructions are in [the environment report](docs/test-trilium.md).
+typing updates the root after leaving the title field. Choose your own test password; no pre-existing database or credentials are supplied.
 
 Edit a selected node with F2, commit with Enter, and insert a child with Tab.
 Maps autosave committed changes. Fit the map with **Cmd/Ctrl+Shift+0**.
@@ -93,7 +94,8 @@ deferred.
 
 ## Manual desktop testing
 
-Run from this repository (macOS arm64 or Windows x64 test installation):
+For a fresh checkout, use [the clean desktop setup](docs/testing.md).
+The older launcher below requires already-provisioned local fixtures:
 
 ```sh
 pnpm dev:desktop
@@ -122,12 +124,14 @@ Release with all distribution files. Its package version includes a build number
 for example `0.3.0+build.7.1`, while its release tag is `v0.3.0`.
 
 Both are manual. This repository and the [`mr` editor](https://github.com/optifunc/mr)
-are public. The current workflows still explicitly require the **`MR_READ_TOKEN`**
-Actions secret with read-only Contents access to `optifunc/mr`; this is a legacy
-workflow requirement, not a restriction on downloading or building the source.
+are public. Actions uses the standard GitHub token to check out the pinned public
+widget commit; no custom widget secret is required.
 See [workflow setup, usage, and failure recovery](docs/github-actions.md).
 
 ## Development
+
+Prerequisites: Git, Node 24, Python 3 and pnpm 10.28.1 (the version pinned in
+`package.json`). See [reproducible setup and checks](docs/testing.md).
 
 ```sh
 git clone --recurse-submodules https://github.com/optifunc/trilium-willow.git

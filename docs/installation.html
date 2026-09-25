@@ -1,5 +1,28 @@
+<!--
+MIT License
+
+Copyright (c) 2026 Optifunc
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
 <h2>Willow Mind Map for Trilium</h2>
-<p>Experimental add-on for stock Trilium Notes v0.105.0. Tested in Chrome and the macOS/Windows desktop app. The editor and styles are bundled here; no CDN or extra server is needed.</p>
+<p>Experimental add-on for stock Trilium Notes v0.105.0. Windows and macOS are supported. Windows support is confirmed by the owner’s daily use; recorded macOS checks cover Chrome and the ARM64 desktop app. Linux, other host versions and touch interaction remain unverified. See the <a href="https://github.com/optifunc/trilium-willow/blob/main/docs/compatibility.md">dated compatibility table</a>. The editor and styles are bundled here; no CDN or extra server is needed.</p>
 <h3>Install</h3>
 <ol>
 <li>Import the release ZIP under a note of your choice using Trilium's native Import action. Keep archive extraction enabled. Import this whole subtree, including its shared editor, template, and example.</li>
@@ -24,3 +47,6 @@
 <h3>Limits</h3>
 <p>For a detected conflict, Keep both saves a recovery map before loading the incoming version. Use incoming asks before discarding your draft. Drafts remain in memory until saved; forced termination can lose unfinished work. A desktop close attempt commits an unfinished label and waits for saving; retry closing after Saved or resolve the reported error.</p>
 <p>Trilium's native sync can choose one whole document when two devices already saved competing versions. Guaranteed preservation of both versions is outside this add-on's scope. Internal note links, migration from other map formats, and dedicated image/document export are deferred.</p>
+
+<h3>License</h3>
+<p>Willow and its bundled mind-map widget are MIT licensed. The complete notices are included in this installation’s <strong>Licensing and notices</strong> note and in the editor file. Trilium and host-provided components retain their own licenses.</p>

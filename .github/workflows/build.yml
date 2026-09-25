@@ -16,8 +16,6 @@ jobs:
       - name: Choose unique development version
         run: python3 scripts/ci-version.py build
       - uses: ./.github/actions/build-distribution
-        with:
-          widget-token: ${{ secrets.MR_READ_TOKEN }}
       - name: Upload distribution
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:

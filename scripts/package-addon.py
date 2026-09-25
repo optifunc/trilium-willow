@@ -12,7 +12,11 @@ ROOT = Path(__file__).resolve().parent.parent
 DIST = ROOT / 'dist'
 base_version = json.loads((ROOT / 'package.json').read_text())['version']
 version = validate_version(os.environ.get('WILLOW_VERSION', base_version))
-bundle = (DIST / 'willow-spike.js').read_bytes()
+licenses = ('Willow\n\n' + (ROOT / 'LICENSE').read_text()
+            + '\nMind-map widget (mr)\n\n' + (ROOT / 'mr' / 'LICENSE').read_text())
+notices = (licenses + '\nTrilium and Preact are supplied by the host, not bundled in this archive.\n'
+           'Their licenses remain separate. See https://github.com/optifunc/trilium-willow/blob/main/docs/licensing.md\n').encode()
+bundle = b'/*!\n' + notices + b'*/\n' + (DIST / 'willow-spike.js').read_bytes()
 instructions = (ROOT / 'docs' / 'installation.html').read_bytes()
 
 
@@ -35,7 +39,8 @@ example = note('willowExample', 'Example mind map', 'example.json', 'render', 'a
     attribute('label', 'willowMindMap'), attribute('relation', 'renderNote', 'willowEditor')])
 folder = note('willowAddon', 'Willow Mind Map add-on', 'Willow.html', 'text', 'text/html',
               [attribute('label', 'willowAddon', version)])
-folder.update(dirFileName='Willow', children=[editor, template, example])
+license_note = note('willowLicenses', 'Licensing and notices', 'licenses.txt', 'code', 'text/plain')
+folder.update(dirFileName='Willow', children=[editor, template, example, license_note])
 
 
 def document(root, **extra):
@@ -47,6 +52,7 @@ entries = {
     '!!!meta.json': json.dumps(dict(formatVersion=2, appVersion='0.105.0', files=[folder]), indent=2).encode(),
     'Willow.html': instructions,
     'Willow/editor.jsx': bundle,
+    'Willow/licenses.txt': notices,
     'Willow/template.json': document(dict(id='willow-template-root', text='Mind map', children=[]), initializeFromTitle=True),
     'Willow/example.json': document(dict(id='example-root', text='Willow', children=[
         dict(id='example-ideas', text='Ideas', side='left', children=[]),
@@ -76,7 +82,7 @@ if os.environ.get('GITHUB_ACTIONS') == 'true':
                     runId=os.environ['GITHUB_RUN_ID'], runNumber=os.environ['GITHUB_RUN_NUMBER'],
                     attempt=os.environ['GITHUB_RUN_ATTEMPT'],
                     url=f"{os.environ['GITHUB_SERVER_URL']}/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}/attempts/{os.environ['GITHUB_RUN_ATTEMPT']}")
-manifest = dict(version=version, baseVersion=base_version, source=source, workflow=workflow,
+manifest = dict(version=version, baseVersion=base_version, source=source, workflow=workflow, license='MIT',
                 trilium='0.105.0', documentVersion=1,
                 files={p.name: hashlib.sha256(p.read_bytes()).hexdigest()
                        for p in [archive, DIST / 'willow-editor.jsx', DIST / 'installation.html']})

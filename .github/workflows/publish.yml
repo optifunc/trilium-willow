@@ -35,8 +35,6 @@ jobs:
       - name: Commit the base version locally
         run: bash scripts/publish-git.sh commit
       - uses: ./.github/actions/build-distribution
-        with:
-          widget-token: ${{ secrets.MR_READ_TOKEN }}
       - name: Upload tested distribution for this run
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:

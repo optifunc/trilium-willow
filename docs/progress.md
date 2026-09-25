@@ -1,5 +1,23 @@
 # Progress
 
+## 2026-09-25 — A2 positioning, examples and workflow
+
+Reworked the [README](../README.md) around the user journey, with three canonical
+synthetic examples included in the package: Workshop ideas, Home reference and
+Weekend packing. Added a [recorded workflow and text walkthrough](demo.md), a
+[same-hierarchy native comparison](comparison.md), audience introductions and
+local drafts for GitHub/release copy. Detailed development and usage material now
+has dedicated pages. Source-build media is distinguished from published v0.2.1.
+
+Build, typecheck, 68 adapter tests, six packaging tests, browser/native desktop
+distribution checks and real capture/persistence checks pass.
+[A2 evidence and limits](evidence/a2/report.md). No independent usability trial or
+new Windows device test is claimed; Windows and macOS remain supported.
+
+A1 is now committed at parent `02d9748`, with widget pin `c94ea6e`.
+A2 publication is pending; no remote metadata, releases or outreach were changed.
+The editor runtime and widget pin are unchanged by A2.
+
 ## 2026-09-25 — A1 public baseline and MIT licensing
 
 Added the [dated compatibility baseline](compatibility.md),

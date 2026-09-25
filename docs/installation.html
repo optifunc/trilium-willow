@@ -25,10 +25,17 @@ SOFTWARE.
 <p>Experimental add-on for stock Trilium Notes v0.105.0. Windows and macOS are supported. Windows support is confirmed by the owner’s daily use; recorded macOS checks cover Chrome and the ARM64 desktop app. Linux, other host versions and touch interaction remain unverified. See the <a href="https://github.com/optifunc/trilium-willow/blob/main/docs/compatibility.md">dated compatibility table</a>. The editor and styles are bundled here; no CDN or extra server is needed.</p>
 <h3>Install</h3>
 <ol>
-<li>Import the release ZIP under a note of your choice using Trilium's native Import action. Keep archive extraction enabled. Import this whole subtree, including its shared editor, template, and example.</li>
-<li>With safe import enabled, Trilium disables executable relations. Open the <strong>Willow Mind Map</strong> template and click <strong>Enable render note</strong>, then do the same on <strong>Example mind map</strong>. This activates their <code>renderNote</code> relations. Alternatively, for a package whose code you trust, expand the import dialog's Options and uncheck Safe import.</li>
-<li>Open Example mind map to verify the editor. Reload Trilium if the template menu has not refreshed.</li>
+<li>Import the release ZIP under a note of your choice using Trilium's native Import action. Keep archive extraction enabled. Import this whole subtree, including its shared editor, template, and three examples.</li>
+<li>With safe import enabled, Trilium disables executable relations. Open the <strong>Willow Mind Map</strong> template and click <strong>Enable render note</strong>, then do the same on each example: <strong>Workshop ideas</strong>, <strong>Home reference</strong> and <strong>Weekend packing</strong>. This activates their <code>renderNote</code> relations. Alternatively, for a package whose code you trust, expand the import dialog's Options and uncheck Safe import.</li>
+<li>Open Workshop ideas to verify the editor. Reload Trilium if the template menu has not refreshed.</li>
 </ol>
+<h3>Three ways to use Willow</h3>
+<ul>
+<li><strong>Workshop ideas — thinking:</strong> collect possibilities, group related ideas and move branches as a plan takes shape.</li>
+<li><strong>Home reference — reference:</strong> keep frequent facts visible; select Washer or Coffee maker and press Space to reveal their details. All example facts are synthetic.</li>
+<li><strong>Weekend packing — doing:</strong> keep packing and last-minute errands together. Select a checkbox item and press Ctrl+Space to check it off (also Ctrl+Space on macOS).</li>
+</ul>
+<p>Create your own maps from the template outside this installation. These examples illustrate the workflow; they are not linked to real people, accounts or devices.</p>
 <h3>Create and edit maps</h3>
 <p>Create your documents <strong>outside this add-on subtree</strong>. Right-click a note in the tree, then Insert note after or Insert child note → Templates → Willow Mind Map. F2 edits a node, Enter commits, Tab adds a child. Changes autosave; Trilium's note header shows saving state. Cmd/Ctrl+Shift+0 fits the map. The first opening centres the root at 100%.</p>
 <p>Zoom, position and selection stay local to each browser/desktop profile. Click a map in the tree to focus it for arrow-key navigation. Split panes preserve independent views, with one editor at a time.</p>

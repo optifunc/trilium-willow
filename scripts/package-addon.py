@@ -35,12 +35,14 @@ template = note('willowTemplate', 'Willow Mind Map', 'template.json', 'render', 
     attribute('label', 'template'), attribute('label', 'willowMindMap', inherit=True),
     attribute('label', 'iconClass', 'bx bx-git-branch', True),
     attribute('relation', 'renderNote', 'willowEditor', True)])
-example = note('willowExample', 'Example mind map', 'example.json', 'render', 'application/json', [
-    attribute('label', 'willowMindMap'), attribute('relation', 'renderNote', 'willowEditor')])
+examples = json.loads((ROOT / 'examples' / 'maps.json').read_text())
+example_notes = [note(f'willowExample-{item["key"]}', item['title'], f'{item["key"]}.json',
+                      'render', 'application/json', [attribute('label', 'willowMindMap'),
+                      attribute('relation', 'renderNote', 'willowEditor')]) for item in examples]
 folder = note('willowAddon', 'Willow Mind Map add-on', 'Willow.html', 'text', 'text/html',
               [attribute('label', 'willowAddon', version)])
 license_note = note('willowLicenses', 'Licensing and notices', 'licenses.txt', 'code', 'text/plain')
-folder.update(dirFileName='Willow', children=[editor, template, example, license_note])
+folder.update(dirFileName='Willow', children=[editor, template, *example_notes, license_note])
 
 
 def document(root, **extra):
@@ -54,10 +56,8 @@ entries = {
     'Willow/editor.jsx': bundle,
     'Willow/licenses.txt': notices,
     'Willow/template.json': document(dict(id='willow-template-root', text='Mind map', children=[]), initializeFromTitle=True),
-    'Willow/example.json': document(dict(id='example-root', text='Willow', children=[
-        dict(id='example-ideas', text='Ideas', side='left', children=[]),
-        dict(id='example-start', text='Select a node, then F2 to edit', side='right', children=[]),
-        dict(id='example-child', text='Tab adds a child', side='right', children=[])])),
+    **{f'Willow/{item["key"]}.json': json.dumps(item['document'], ensure_ascii=False).encode()
+       for item in examples},
 }
 archive = DIST / f'trilium-willow-{version}.zip'
 with zipfile.ZipFile(archive, 'w') as out:

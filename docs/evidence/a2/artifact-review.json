@@ -1,0 +1,38 @@
+{
+  "localLinksChecked": 106,
+  "errors": [],
+  "media": {
+    "comparison-native.png": {
+      "bytes": 57738,
+      "sha256": "d496cffd3cfaa5639581b1d61d05ba745f730be229764e8069ab8963bb73e6f1"
+    },
+    "comparison-willow.png": {
+      "bytes": 62795,
+      "sha256": "565ec719a0774cda3c9db696db1d357c15bf6906364996b2143754aeabcd85c3"
+    },
+    "packing.png": {
+      "bytes": 110526,
+      "sha256": "af2bb9549d6bd671ac6a11fa41479b27967c702bcb9c5b702c033d08a613a0bf"
+    },
+    "reference.png": {
+      "bytes": 104068,
+      "sha256": "28e852582508c73aeacdace4c69342c4f3fdfd1ea7fd730430562d3e458a4959"
+    },
+    "workflow-end.png": {
+      "bytes": 108596,
+      "sha256": "6e851b1c9b45a59f3f5f72f1631fbd1e72d53f9a30b70b3b1e7f1d000db57a38"
+    },
+    "workflow.gif": {
+      "bytes": 2311712,
+      "sha256": "7daa1b68ce82a1e5a049671ded4178424115b4c5ca5cad81b7aa2e5ca060637a"
+    },
+    "workflow.mp4": {
+      "bytes": 523454,
+      "sha256": "fa6f6037b220220e398a288b1d61f25e3245f9fb68f8a97ac3edd96317999686"
+    },
+    "workshop.png": {
+      "bytes": 114094,
+      "sha256": "6e94dff1f410faec935bba9db812311a3d68fca511d64764ca9cbd43f83034a5"
+    }
+  }
+}

@@ -80,6 +80,7 @@ class Archive(RepositoryFixture):
         shutil.copy(ROOT / 'docs/installation.html', self.root / 'docs/installation.html')
         shutil.copy(ROOT / 'LICENSE', self.root / 'LICENSE')
         shutil.copy(ROOT / 'mr/LICENSE', self.root / 'mr/LICENSE')
+        shutil.copytree(ROOT / 'examples', self.root / 'examples')
         (self.root / '.gitignore').write_text('dist/\n__pycache__/\nmr/\n')
         self.git(self.root / 'mr', 'init', '-b', 'main')
         self.git(self.root / 'mr', 'config', 'user.name', 'Packaging test')
@@ -121,6 +122,18 @@ class Archive(RepositoryFixture):
             guide = (self.root / 'dist/installation.html').read_bytes()
             self.assertIn((ROOT / 'LICENSE').read_bytes(), guide)
             self.assertEqual(guide, archive.read('Willow.html'))
+            examples = json.loads((ROOT / 'examples/maps.json').read_text())
+            self.assertEqual({e['useCase'] for e in examples}, {'Thinking', 'Reference', 'Doing'})
+            self.assertEqual(len(examples), 3)
+            for example in examples:
+                packaged = json.loads(archive.read(f'Willow/{example["key"]}.json'))
+                self.assertEqual(packaged, example['document'])
+                example_note = next(n for n in folder['children'] if n['title'] == example['title'])
+                self.assertEqual(example_note['type'], 'render')
+                self.assertEqual(example_note['dataFileName'], f'{example["key"]}.json')
+                self.assertEqual(packaged['document']['root']['text'], example_note['title'])
+                self.assertIn({'type': 'relation', 'name': 'renderNote', 'value': 'willowEditor',
+                               'isInheritable': False}, example_note['attributes'])
         env['WILLOW_VERSION'] = '0.1.0-dev.42.3'
         self.assertNotEqual(package()['version'], first['version'])
         self.assertEqual(json.loads((self.root / 'package.json').read_text())['version'], '0.1.0')

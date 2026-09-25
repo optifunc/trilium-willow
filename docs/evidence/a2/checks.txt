@@ -1,0 +1,34 @@
+
+> trilium-willow@0.2.1 typecheck <checkout>
+> tsc --noEmit
+
+
+> trilium-willow@0.2.1 test <checkout>
+> vitest run
+
+
+ RUN  v4.0.18 <checkout>
+
+ ✓ tests/document.test.ts (10 tests) 4ms
+ ✓ tests/documentation.test.ts (3 tests) 3ms
+ ✓ tests/view-state.test.ts (8 tests) 2ms
+ ✓ tests/chrome.test.ts (10 tests) 3ms
+ ✓ tests/ui-visibility.test.ts (6 tests) 56ms
+ ✓ tests/zoom.test.ts (3 tests) 2ms
+ ✓ tests/title-session.test.ts (15 tests) 109ms
+ ✓ tests/save-session.test.ts (13 tests) 312ms
+
+ Test Files  8 passed (8)
+      Tests  68 passed (68)
+   Start at  15:08:29
+   Duration  483ms (transform 347ms, setup 0ms, import 491ms, tests 490ms, environment 1ms)
+
+
+> trilium-willow@0.2.1 test:packaging <checkout>
+> python3 -m unittest discover -s tests -p '*_test.py'
+
+......
+----------------------------------------------------------------------
+Ran 6 tests in 1.102s
+
+OK

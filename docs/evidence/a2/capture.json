@@ -1,0 +1,106 @@
+{
+  "testedAt": "2026-09-25T13:14:24.606Z",
+  "manifest": {
+    "version": "0.2.1",
+    "baseVersion": "0.2.1",
+    "source": {
+      "commit": "02d97489847fcadadd891a24eb6172f6dc2bf3ff",
+      "mrCommit": "c94ea6efb7e08da1bec188fb447c96a3c34cd879",
+      "dirty": true
+    },
+    "workflow": null,
+    "license": "MIT",
+    "trilium": "0.105.0",
+    "documentVersion": 1,
+    "files": {
+      "trilium-willow-0.2.1.zip": "23d616d47dcb666033df9a048e4b6c3f27025af75afbb91be4cba419e03e36bb",
+      "willow-editor.jsx": "99a9d1ce352dcbba7e36d7c2be10167a22de711abfa104027022422852e2c8f6",
+      "installation.html": "7245c718adb591052b51326b082084cb10a04aec1d86df0823c3dc01722c97de"
+    }
+  },
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "passed": [
+    "Fresh native Safe import and activation preserve all three canonical example documents",
+    "Same complete workshop text/hierarchy/order in native Mind Map and Willow at equal pane dimensions; native keyboard creation exercised",
+    "All packaged examples survive reload with canonical content, folded details and checkbox state",
+    "Recorded real keyboard creation/nesting/reordering/folding/checking and tree navigation; saved document retains the demonstrated structure and checks"
+  ],
+  "errors": [],
+  "environment": {
+    "trilium": "0.105.0",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "platform": "MacIntel"
+  },
+  "comparison": {
+    "nodes": 28,
+    "willowBox": {
+      "x": 422.5,
+      "y": 94,
+      "width": 999.5,
+      "height": 777
+    },
+    "nativeBox": {
+      "x": 422.5,
+      "y": 94,
+      "width": 999.5,
+      "height": 777
+    },
+    "nativeDirection": 2,
+    "nativeTheme": "Latte",
+    "nativeCompact": false
+  },
+  "videoTrim": {
+    "start": 0.857,
+    "duration": 32.887
+  },
+  "demoSteps": [
+    {
+      "atSeconds": 3.06,
+      "title": "Add an idea under Day bag",
+      "keys": "Tab"
+    },
+    {
+      "atSeconds": 6.973,
+      "title": "Nest a useful detail",
+      "keys": "Tab"
+    },
+    {
+      "atSeconds": 10.865,
+      "title": "Move the whole branch up",
+      "keys": "⌘ArrowUp"
+    },
+    {
+      "atSeconds": 13.412,
+      "title": "Turn the idea into a checklist item",
+      "keys": "⌘1"
+    },
+    {
+      "atSeconds": 15.951,
+      "title": "Check it off",
+      "keys": "Ctrl+Space"
+    },
+    {
+      "atSeconds": 19.18,
+      "title": "Fold Clothes to keep the essentials in view",
+      "keys": "Space"
+    },
+    {
+      "atSeconds": 22.452,
+      "title": "Leave the map and open a reference",
+      "keys": "Click"
+    },
+    {
+      "atSeconds": 25.477,
+      "title": "Expand the details you need",
+      "keys": "Space"
+    },
+    {
+      "atSeconds": 28.391,
+      "title": "Return to the saved packing list",
+      "keys": "Click"
+    }
+  ]
+}

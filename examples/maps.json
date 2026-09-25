@@ -1,0 +1,509 @@
+[
+  {
+    "key": "workshop",
+    "title": "Workshop ideas",
+    "useCase": "Thinking",
+    "description": "Explore possible workshop formats, then move ideas into a session plan.",
+    "document": {
+      "format": "trilium-willow-mindmap",
+      "version": 1,
+      "document": {
+        "root": {
+          "id": "example-28",
+          "text": "Workshop ideas",
+          "children": [
+            {
+              "id": "example-7",
+              "text": "People",
+              "children": [
+                {
+                  "id": "example-3",
+                  "text": "Newcomers",
+                  "children": [
+                    {
+                      "id": "example-1",
+                      "text": "Make the first step small",
+                      "children": []
+                    },
+                    {
+                      "id": "example-2",
+                      "text": "Pair up for practice",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "example-6",
+                  "text": "Regulars",
+                  "children": [
+                    {
+                      "id": "example-4",
+                      "text": "Share a useful habit",
+                      "children": []
+                    },
+                    {
+                      "id": "example-5",
+                      "text": "Bring a question",
+                      "children": []
+                    }
+                  ]
+                }
+              ],
+              "side": "left"
+            },
+            {
+              "id": "example-14",
+              "text": "Formats",
+              "children": [
+                {
+                  "id": "example-10",
+                  "text": "Show and tell",
+                  "children": [
+                    {
+                      "id": "example-8",
+                      "text": "One example each",
+                      "children": []
+                    },
+                    {
+                      "id": "example-9",
+                      "text": "Five minutes per person",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "example-13",
+                  "text": "Hands-on lab",
+                  "children": [
+                    {
+                      "id": "example-11",
+                      "text": "Start from a blank page",
+                      "children": []
+                    },
+                    {
+                      "id": "example-12",
+                      "text": "Try a different structure",
+                      "children": []
+                    }
+                  ]
+                }
+              ],
+              "side": "left"
+            },
+            {
+              "id": "example-23",
+              "text": "Session",
+              "children": [
+                {
+                  "id": "example-16",
+                  "text": "Opening",
+                  "children": [
+                    {
+                      "id": "example-15",
+                      "text": "What are we trying to solve?",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "example-19",
+                  "text": "Explore",
+                  "children": [
+                    {
+                      "id": "example-17",
+                      "text": "Collect ideas",
+                      "children": []
+                    },
+                    {
+                      "id": "example-18",
+                      "text": "Group related thoughts",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "example-22",
+                  "text": "Close",
+                  "children": [
+                    {
+                      "id": "example-20",
+                      "text": "Choose one next step",
+                      "children": []
+                    },
+                    {
+                      "id": "example-21",
+                      "text": "Leave room for questions",
+                      "children": []
+                    }
+                  ]
+                }
+              ],
+              "side": "right"
+            },
+            {
+              "id": "example-27",
+              "text": "Questions",
+              "children": [
+                {
+                  "id": "example-24",
+                  "text": "What can we remove?",
+                  "children": []
+                },
+                {
+                  "id": "example-25",
+                  "text": "Where do people get stuck?",
+                  "children": []
+                },
+                {
+                  "id": "example-26",
+                  "text": "What is worth repeating?",
+                  "children": []
+                }
+              ],
+              "side": "right"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "key": "reference",
+    "title": "Home reference",
+    "useCase": "Reference",
+    "description": "Keep frequent facts visible and expand appliance details only when needed.",
+    "document": {
+      "format": "trilium-willow-mindmap",
+      "version": 1,
+      "document": {
+        "root": {
+          "id": "example-61",
+          "text": "Home reference",
+          "children": [
+            {
+              "id": "example-37",
+              "text": "Internet",
+              "children": [
+                {
+                  "id": "example-29",
+                  "text": "Router shelf: hallway",
+                  "children": []
+                },
+                {
+                  "id": "example-33",
+                  "text": "Restart order",
+                  "children": [
+                    {
+                      "id": "example-30",
+                      "text": "Modem first",
+                      "children": []
+                    },
+                    {
+                      "id": "example-31",
+                      "text": "Wait for connection",
+                      "children": []
+                    },
+                    {
+                      "id": "example-32",
+                      "text": "Then router",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "example-36",
+                  "text": "Guest network",
+                  "children": [
+                    {
+                      "id": "example-34",
+                      "text": "Use the guest QR card",
+                      "children": []
+                    },
+                    {
+                      "id": "example-35",
+                      "text": "Keep devices off the main network",
+                      "children": []
+                    }
+                  ],
+                  "collapsed": true
+                }
+              ],
+              "side": "left"
+            },
+            {
+              "id": "example-48",
+              "text": "Appliances",
+              "children": [
+                {
+                  "id": "example-41",
+                  "text": "Washer",
+                  "children": [
+                    {
+                      "id": "example-38",
+                      "text": "Clean filter monthly",
+                      "children": []
+                    },
+                    {
+                      "id": "example-39",
+                      "text": "Leave door ajar",
+                      "children": []
+                    },
+                    {
+                      "id": "example-40",
+                      "text": "Manual in utility drawer",
+                      "children": []
+                    }
+                  ],
+                  "collapsed": true
+                },
+                {
+                  "id": "example-44",
+                  "text": "Coffee maker",
+                  "children": [
+                    {
+                      "id": "example-42",
+                      "text": "Descale every 3 months",
+                      "children": []
+                    },
+                    {
+                      "id": "example-43",
+                      "text": "Filter size 02",
+                      "children": []
+                    }
+                  ],
+                  "collapsed": true
+                },
+                {
+                  "id": "example-47",
+                  "text": "Vacuum",
+                  "children": [
+                    {
+                      "id": "example-45",
+                      "text": "Wash filter, air-dry 24 h",
+                      "children": []
+                    },
+                    {
+                      "id": "example-46",
+                      "text": "Spare bag in cupboard",
+                      "children": []
+                    }
+                  ],
+                  "collapsed": true
+                }
+              ],
+              "side": "left"
+            },
+            {
+              "id": "example-55",
+              "text": "Routines",
+              "children": [
+                {
+                  "id": "example-51",
+                  "text": "Weekly",
+                  "children": [
+                    {
+                      "id": "example-49",
+                      "text": "Water plants",
+                      "children": []
+                    },
+                    {
+                      "id": "example-50",
+                      "text": "Check food before shopping",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "example-54",
+                  "text": "Seasonal",
+                  "children": [
+                    {
+                      "id": "example-52",
+                      "text": "Test smoke alarms",
+                      "children": []
+                    },
+                    {
+                      "id": "example-53",
+                      "text": "Clean window tracks",
+                      "children": []
+                    }
+                  ],
+                  "collapsed": true
+                }
+              ],
+              "side": "right"
+            },
+            {
+              "id": "example-60",
+              "text": "Where things live",
+              "children": [
+                {
+                  "id": "example-56",
+                  "text": "Spare keys: entry drawer",
+                  "children": []
+                },
+                {
+                  "id": "example-57",
+                  "text": "Batteries: utility box",
+                  "children": []
+                },
+                {
+                  "id": "example-58",
+                  "text": "Light bulbs: top shelf",
+                  "children": []
+                },
+                {
+                  "id": "example-59",
+                  "text": "Documents: blue folder",
+                  "children": []
+                }
+              ],
+              "side": "right"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "key": "packing",
+    "title": "Weekend packing",
+    "useCase": "Doing",
+    "description": "Pack for two nights and keep the last few errands beside the things to bring.",
+    "document": {
+      "format": "trilium-willow-mindmap",
+      "version": 1,
+      "document": {
+        "root": {
+          "id": "example-82",
+          "text": "Weekend packing",
+          "children": [
+            {
+              "id": "example-66",
+              "text": "Clothes",
+              "children": [
+                {
+                  "id": "example-62",
+                  "text": "T-shirts × 2",
+                  "children": [],
+                  "checked": true
+                },
+                {
+                  "id": "example-63",
+                  "text": "Warm layer",
+                  "children": [],
+                  "checked": false
+                },
+                {
+                  "id": "example-64",
+                  "text": "Socks × 2",
+                  "children": [],
+                  "checked": true
+                },
+                {
+                  "id": "example-65",
+                  "text": "Rain jacket",
+                  "children": [],
+                  "checked": false
+                }
+              ],
+              "side": "left"
+            },
+            {
+              "id": "example-70",
+              "text": "Wash kit",
+              "children": [
+                {
+                  "id": "example-67",
+                  "text": "Toothbrush",
+                  "children": [],
+                  "checked": true
+                },
+                {
+                  "id": "example-68",
+                  "text": "Toothpaste",
+                  "children": [],
+                  "checked": false
+                },
+                {
+                  "id": "example-69",
+                  "text": "Sunscreen",
+                  "children": [],
+                  "checked": false
+                }
+              ],
+              "side": "left"
+            },
+            {
+              "id": "example-76",
+              "text": "Day bag",
+              "children": [
+                {
+                  "id": "example-71",
+                  "text": "Water bottle",
+                  "children": [],
+                  "checked": true
+                },
+                {
+                  "id": "example-74",
+                  "text": "Camera",
+                  "children": [
+                    {
+                      "id": "example-72",
+                      "text": "Charge battery",
+                      "children": []
+                    },
+                    {
+                      "id": "example-73",
+                      "text": "Empty memory card",
+                      "children": []
+                    }
+                  ],
+                  "checked": false
+                },
+                {
+                  "id": "example-75",
+                  "text": "Book",
+                  "children": [],
+                  "checked": false
+                }
+              ],
+              "side": "right"
+            },
+            {
+              "id": "example-81",
+              "text": "Before leaving",
+              "children": [
+                {
+                  "id": "example-77",
+                  "text": "Check forecast",
+                  "children": [],
+                  "checked": true
+                },
+                {
+                  "id": "example-78",
+                  "text": "Download route",
+                  "children": [],
+                  "checked": false
+                },
+                {
+                  "id": "example-79",
+                  "text": "Close windows",
+                  "children": [],
+                  "checked": false
+                },
+                {
+                  "id": "example-80",
+                  "text": "Water plants",
+                  "children": [],
+                  "checked": false
+                }
+              ],
+              "side": "right"
+            }
+          ]
+        }
+      }
+    }
+  }
+]

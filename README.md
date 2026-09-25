@@ -1,190 +1,87 @@
-# Trilium Willow
+# Willow for Trilium
 
-An experimental stock-Trilium adapter for the mind-map editor in [`mr`](mr/README.md).
-Tested scope and dates are listed in the [compatibility table](docs/compatibility.md).
-Windows and macOS are supported. Windows support is confirmed by the owner’s
-daily use; recorded macOS checks use Trilium v0.105.0. Linux and touch interaction
-remain unverified. [MIT licensed](LICENSE), including the bundled widget;
-see [licensing and notices](docs/licensing.md).
+**Compact, keyboard-driven mind maps for thinking, reference notes and everyday lists.**
 
-Each map is a Render Note containing versioned JSON. All maps reference one shared
-JSX code note containing the bundled editor. No server modification or widget
-submodule change is required.
+Willow is a notepad with room to branch. Add ideas without arranging a canvas,
+move a whole branch as your thinking changes, and fold details while keeping the
+surrounding structure in view.
 
-## Install
+![Home reference in Willow, with frequent facts visible and appliance details folded](docs/media/reference.png)
 
-Download a distribution from GitHub Releases or a manual Build workflow artifact,
-or build locally with `pnpm package` (requires Python 3 and the development
-dependencies). Import the enclosed `trilium-willow-<version>.zip` using Trilium's native Import
-action. Open the imported **Willow Mind Map** template and **Example mind map**,
-and click **Enable render note** on each. Keep your own maps outside the imported
-add-on subtree.
+**Requires [Trilium Notes](https://triliumnotes.org/).** Install Willow inside your
+own Trilium instance. Use its desktop app or access your Trilium server in a browser;
+there is no separate Willow account. Windows and macOS are supported.
+[Compatibility and evidence](docs/compatibility.md) · [MIT license](LICENSE)
 
-The ZIP includes the shared editor/CSS, template, example, and
-[installation, update, removal and recovery instructions](docs/installation.html).
-`dist/willow-editor.jsx` is the update file: replace the code in the existing
-shared editor note, preserving its ID, then reload clients after saving. Importing
-another ZIP creates a separate installation; it does not upgrade existing maps.
-`dist/manifest.json` records versions, source commits, workflow details, artifact
-hashes, and the tested Trilium version.
+## Three ways to use it
 
-Without the add-on, maps retain their JSON and open in Trilium's Render Note setup
-screen. **Note source** still exposes the document. After reinstalling, reconnect
-old maps as described in the installation instructions.
+| Thinking | Reference | Doing |
+| --- | --- | --- |
+| Brainstorm a workshop, group related ideas and reorder branches. | Keep a household guide close at hand; expand details when you need them. | Pack for a weekend and check off the last things before leaving. |
+| [Workshop ideas](docs/examples.md#thinking-workshop-ideas) | [Home reference](docs/examples.md#reference-home-reference) | [Weekend packing](docs/examples.md#doing-weekend-packing) |
 
-## Use a test instance
+[Watch the workflow](docs/demo.md): enter an idea, nest a detail, move it, fold a
+branch, check an item, then leave and return to the saved map. A screenshot and
+text walkthrough are included alongside the recording.
 
-Start a fresh isolated instance using [the reproducible setup](docs/testing.md).
-The historical developer fixture, when provisioned, uses http://127.0.0.1:37841/. Right-click a note in the tree,
-choose **Insert note after** or **Insert child note**, then **Willow Mind Map**
-under Templates. Enter the title in Trilium's normal title field. The map root
-follows the title; editing the root also renames the note. On first opening a
-map with different values, the Trilium title replaces the root text. Native title
-typing updates the root after leaving the title field. Choose your own test password; no pre-existing database or credentials are supplied.
+The screenshots and recording use the current source build on Trilium 0.105.0.
+The three richer examples are included in this source build and prepared for the
+next release; published v0.2.1 contains the smaller **Example mind map** sample.
 
-Edit a selected node with F2, commit with Enter, and insert a child with Tab.
-Maps autosave committed changes. Fit the map with **Cmd/Ctrl+Shift+0**.
-When a map is open twice, the viewer offers **Edit here** to transfer editing.
-The toolbar provides editing commands; **More** contains commands that do not fit.
-The status bar provides zoom, reset and Fit. Willow’s 100% uses the original
-map geometry at 143% scale, keeping all proportions intact. Reset returns to
-this size; buttons step by 10 percentage points within 25–400%. Modifier+wheel
-zooms by one percentage point per event on every platform. Existing saved
-views retain their actual size, except values below the new minimum are clamped. Open **Keyboard shortcuts** for the
-complete reference, sourced directly from the widget. **Documentation** opens this
-installation’s bundled guide in a new tab.
+## Install and make a map
 
-Choose **Hide UI** from More or the map context menu to hide both bars in all Willow maps.
-Right-click the canvas or press Shift+F10 and choose **Show UI** to restore them.
-This preference is stored once on the Trilium root note as the non-inheritable
-`willowUiHidden` label and follows Trilium sync across devices.
-Notices remain visible and the map’s position is preserved. Links show **Cmd+click to open** on macOS
-and **Ctrl+click to open** elsewhere after one second of hovering over the node.
-Leaving hides the hint; every re-entry starts a fresh one-second delay.
-Copied outlines have no final newline.
+1. Set up [Trilium](https://docs.triliumnotes.org/user-guide/setup) first.
+2. From [Willow Releases](https://github.com/optifunc/trilium-willow/releases/latest),
+   download the `trilium-willow-<version>.zip` asset. For v0.2.1, this is
+   `trilium-willow-0.2.1+build.7.1.zip`. GitHub's **Source code** archives are for development.
+3. In Trilium's note tree, choose **Import into note**, select that ZIP, and retain
+   **Safe import**. Open **Willow Mind Map** and each example you want to use;
+   click **Enable render note** on each.
+4. Outside the imported add-on subtree, right-click a note and choose **Insert
+   child note → Templates → Willow Mind Map**. Name it in Trilium's title field.
+5. Click the map, press **Tab** to add a child, type a label and press **Enter**.
+   **Enter** on a selected node adds a sibling; **F2** edits; **Space** folds a branch.
+   Wait for Trilium's **Saved** indicator, then navigate away and return.
 
-New maps open with the root centred at 100% zoom. Position, zoom, selected nodes,
-and the active node are remembered locally per document and browser/desktop
-profile; split panes keep independent views. These changes do not modify note
-content. Saved selections ignore deleted or hidden nodes, falling back to the root.
+Open **Keyboard shortcuts** in the toolbar or **More** for the complete reference.
+For checkbox items, **Ctrl+Space** toggles the check on both Windows and macOS.
 
-Click a Willow note in the left tree to focus its map, then use arrow keys to
-navigate the selection. A newer click or focus change while the map loads takes
-precedence, so editing the native note title retains focus.
+[Installation, update and recovery](docs/installation.html) ·
+[Everyday use](docs/usage.md) · [Build from source](docs/testing.md)
 
-Trilium’s note-header indicator reports map saving state. **Retry save**
-retains the draft after a failure. For a detected external change, **Keep both**
-saves local work as a sibling recovery map before loading the saved original;
-**Use incoming** asks before discarding local work. Drafts stay in memory through
-pane changes, but do not survive an abrupt process loss. Cross-device edits can
-still race. Actual offline-sync tests confirm that Trilium picks one version when
-both databases have already acknowledged competing edits. Invalid documents offer
-their original source and a reload action.
+Already installed? Update the existing shared editor as described in the guide.
+Importing another ZIP creates another installation; it does not upgrade your maps.
 
-Recovery is coordinated across panes, including refreshes. A newer draft or
-unfinished edit invalidates a pending recovery result instead of being discarded.
-On desktop, closing with unfinished work commits the label and starts saving; the first close
-is blocked while saving or recovery is pending. Retry closing after the header
-shows Saved, or use Retry save after a failed write.
+## Why Willow when Trilium has mind maps?
 
-Native subtree export/import preserves map JSON. Exporting only a map omits its
-relation to the shared editor outside the archive; reattach `~renderNote` to the
-installed Willow editor to render that imported map. Dedicated map export remains
-deferred.
+Willow emphasizes compact labels, automatic two-sided layout, branch folding,
+checkboxes and keyboard restructuring. Its examples let you judge whether that
+combination suits your notes.
 
-## Manual desktop testing
+Trilium's built-in **Mind Map** also supports keyboard creation and movement,
+and provides formatting and SVG/PNG export. [Compare the same hierarchy in both
+editors](docs/comparison.md). Note/Tree/Link Maps visualize existing Trilium notes;
+Willow keeps each map's hierarchy inside one note.
 
-For a fresh checkout, use [the clean desktop setup](docs/testing.md).
-The older launcher below requires already-provisioned local fixtures:
+## Boundaries and help
 
-```sh
-pnpm dev:desktop
-# Or: node scripts/run-desktop.mjs
-```
+- A map is one Trilium note; its nodes are not separate notes or a native task database.
+- Sync, self-hosting and protected notes are Trilium features available to Willow.
+  Protection applies to the whole note. Sync is not concurrent collaborative editing;
+  competing saved versions can overwrite one another, and unsaved drafts live in memory.
+- FreeMind file import, internal note links, dedicated image/document export and
+  touch interaction are not available. HTTP(S) URL labels and outline clipboard
+  copying/pasting are available.
 
-This builds the current adapter and opens the downloaded Trilium desktop app.
-On first run it copies the isolated server database into
-`.test/trilium/manual-desktop-data`; later runs preserve your manual test maps
-and update only the shared editor bundle. The app stays open until you quit it
-or press Ctrl+C in the terminal. Use `--no-build` to open the existing build.
+Coming from FreeMind? [Read the migration background and current limits](docs/audiences.md#coming-from-freemind).
+New to Trilium? [Start with the prerequisite](docs/audiences.md#new-to-trilium).
 
-The launcher uses `.test/trilium/manual-desktop-profile`, server port 37843,
-and debug port 39224. It is separate from your personal Trilium and from the
-automated desktop tests. The downloaded test app, initialized server database,
-`pnpm` dependencies, and test SQLite dependency must already be installed as
-explained in [the environment report](docs/test-trilium.md). Logs go to
-`.test/trilium/manual-desktop.log`.
-
-## GitHub Actions
-
-**Build** produces a downloadable artifact with a unique version such as
-`0.2.0-dev.42.1`, without changing `package.json`. **Publish** accepts a base version,
-commits it when changed, builds/tests, tags the tested commit, and creates a GitHub
-Release with all distribution files. Its package version includes a build number,
-for example `0.3.0+build.7.1`, while its release tag is `v0.3.0`.
-
-Both are manual. This repository and the [`mr` editor](https://github.com/optifunc/mr)
-are public. Actions uses the standard GitHub token to check out the pinned public
-widget commit; no custom widget secret is required.
-See [workflow setup, usage, and failure recovery](docs/github-actions.md).
+Report problems in [GitHub Issues](https://github.com/optifunc/trilium-willow/issues).
+Include Willow/Trilium versions, OS, client/browser, steps to reproduce and the
+visible error. Use synthetic examples instead of personal note contents.
 
 ## Development
 
-Prerequisites: Git, Node 24, Python 3 and pnpm 10.28.1 (the version pinned in
-`package.json`). See [reproducible setup and checks](docs/testing.md).
-
-```sh
-git clone --recurse-submodules https://github.com/optifunc/trilium-willow.git
-cd trilium-willow
-pnpm install --frozen-lockfile
-pnpm build
-pnpm package
-pnpm typecheck
-pnpm test
-pnpm test:packaging
-```
-
-For an existing clone, run `git submodule update --init --recursive` before
-installing dependencies. The public `mr` submodule needs no special access token
-for a local checkout.
-
-The build produces `dist/willow-spike.js` for a Trilium Code note with JSX MIME
-type. It includes the widget/CSS and imports Preact from Trilium itself.
-
-With the isolated test server and its Chrome CDP session running:
-
-```sh
-pnpm spike:deploy
-pnpm test:trilium
-pnpm test:hardening
-pnpm spike:test:desktop
-pnpm test:desktop:lifecycle
-pnpm test:distribution
-node scripts/test-restart.mjs
-```
-
-These tools target the isolated test installation. The restart check verifies the
-server PID and directory before stopping and restarting it. Deployment updates the
-bundle while retaining maps. Browser tests deliberately reset the two disposable
-maps. Desktop tests refresh a separate database from a consistent backup of the
-test server and close the isolated app afterward. Hardening tests use disposable
-maps and independent browser contexts; they briefly switch the test theme and
-exercise protected-session login/logout. The sync test starts a separate database
-under `.test/trilium/sync-data` on port 37844 and a loopback proxy on 37845, then
-stops both. No external sync service is involved. The downloaded desktop app and
-test SQLite dependency are described in [the progress log](docs/progress.md).
-
-Desktop lifecycle tests use a separate `.test/trilium/lifecycle-data` database and
-`lifecycle-profile`, native window close/reopen, and a loopback sync proxy. They
-cover delayed/failed close-time writes and actual desktop/server conflicts.
-
-Distribution tests create fresh server and desktop databases under
-`.test/trilium/distribution/`, import the built ZIP directly in each client, and
-verify activation, creation, a compatible shared-code replacement, removal/source
-recovery, and reinstall. They use server ports 37848/37849 and desktop CDP 39227,
-and stop their processes afterward. These test databases contain no preinstalled
-Willow notes. The upgrade check covers format-v1-compatible code replacement;
-there is no older published Willow package or document migration in this release.
-
-[Integration plan](docs/trilium-integration-plan.md) ·
-[Progress, evidence and limitations](docs/progress.md)
+[Contributor setup and checks](docs/testing.md) · [Architecture and development](docs/development.md) ·
+[Builds and releases](docs/github-actions.md) · [Progress and evidence](docs/progress.md) ·
+[Widget source](mr/README.md) · [Licensing and notices](docs/licensing.md)

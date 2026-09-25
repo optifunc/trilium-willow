@@ -65,7 +65,8 @@ debugging port is for this disposable test instance only.
    Empty**. Do not connect to an existing server or desktop database.
 2. Import `dist/trilium-willow-<version>.zip` through the tree's **Import** action.
    Retain **Safe import**. Open the imported **Willow Mind Map** template and
-   **Example mind map**, enabling each with **Enable render note**.
+   the examples **Workshop ideas**, **Home reference** and **Weekend packing**,
+   enabling each with **Enable render note**.
 3. Outside the imported add-on subtree, create a map through **Templates → Willow
    Mind Map**. Edit with F2, add a child with Tab, commit with Enter, and wait for
    Saved. Navigate away and return to check persistence. Open **Licensing and

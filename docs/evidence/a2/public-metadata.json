@@ -1,0 +1,32 @@
+{
+  "checkedAt": "2026-09-25T13:07:53.279702+00:00",
+  "sources": [
+    {
+      "url": "https://api.github.com/repos/optifunc/trilium-willow",
+      "html_url": "https://github.com/optifunc/trilium-willow",
+      "description": null,
+      "topics": [],
+      "license": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      },
+      "default_branch": "main"
+    },
+    {
+      "url": "https://api.github.com/repos/optifunc/trilium-willow/releases/latest",
+      "html_url": "https://github.com/optifunc/trilium-willow/releases/tag/v0.2.1",
+      "tag_name": "v0.2.1",
+      "published_at": "2026-09-22T09:32:08Z",
+      "body": "**Full Changelog**: https://github.com/optifunc/trilium-willow/compare/v0.2.0...v0.2.1",
+      "assets": [
+        "installation.html",
+        "manifest.json",
+        "trilium-willow-0.2.1+build.7.1.zip",
+        "willow-editor.jsx"
+      ]
+    }
+  ]
+}

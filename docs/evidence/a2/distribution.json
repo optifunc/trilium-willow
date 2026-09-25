@@ -1,0 +1,86 @@
+{
+  "testedAt": "2026-09-25T13:12:48.568Z",
+  "manifest": {
+    "version": "0.2.1",
+    "baseVersion": "0.2.1",
+    "source": {
+      "commit": "02d97489847fcadadd891a24eb6172f6dc2bf3ff",
+      "mrCommit": "c94ea6efb7e08da1bec188fb447c96a3c34cd879",
+      "dirty": true
+    },
+    "workflow": null,
+    "license": "MIT",
+    "trilium": "0.105.0",
+    "documentVersion": 1,
+    "files": {
+      "trilium-willow-0.2.1.zip": "23d616d47dcb666033df9a048e4b6c3f27025af75afbb91be4cba419e03e36bb",
+      "willow-editor.jsx": "99a9d1ce352dcbba7e36d7c2be10167a22de711abfa104027022422852e2c8f6",
+      "installation.html": "7245c718adb591052b51326b082084cb10a04aec1d86df0823c3dc01722c97de"
+    }
+  },
+  "run": ".test/trilium/distribution/run-S3VaDR",
+  "clients": [
+    {
+      "client": "browser",
+      "passed": [
+        "safe import remaps internal relations; native activation preserves all three canonical examples",
+        "native template creation outside the package, editing, saving and reload work",
+        "replacing shared code preserves existing JSON and template creation with unique root IDs",
+        "removing the package leaves external map JSON intact and readable without Willow",
+        "reinstalling and reconnecting an old map restores editing without changing its JSON"
+      ],
+      "withoutEditor": "root\nMy mind maps\nKeep this user document\nbrowser after update\nKeep this user document\n+\nRender note\nDisplay custom HTML or Preact JSX inside this note\nCreate sample note with Preact\nToggle Dropdown\nLearn more\nNothing to show for this note\nMy mind maps\nKeep this user document\n\u00a0\n1 path\n\u00a0\n0 attributes\n\u00a0",
+      "ids": {
+        "editor": "QQtIvMnmfbo4",
+        "template": "0SjwR8ScUwAt",
+        "examples": [
+          "VVZZpql0c5jI",
+          "wIKzWbv16LND",
+          "bljSCB37rUOa"
+        ],
+        "folder": "sBVNud85T3u7",
+        "id": "IQwKPK09UU6h",
+        "reinstalled": {
+          "editor": "ZkU8g1TSAqou",
+          "template": "0WcCfQaLRa97",
+          "examples": [
+            "tSWLf9UT8YO8",
+            "yuo617PTMmTx",
+            "RB0zRsIg9TQU"
+          ]
+        }
+      }
+    },
+    {
+      "client": "desktop",
+      "passed": [
+        "safe import remaps internal relations; native activation preserves all three canonical examples",
+        "native template creation outside the package, editing, saving and reload work",
+        "replacing shared code preserves existing JSON and template creation with unique root IDs",
+        "removing the package leaves external map JSON intact and readable without Willow",
+        "reinstalling and reconnecting an old map restores editing without changing its JSON"
+      ],
+      "withoutEditor": "Keep this user document\n+\nroot\nMy mind maps\nKeep this user document\ndesktop after update\nRender note\nDisplay custom HTML or Preact JSX inside this note\nCreate sample note with Preact\nToggle Dropdown\nLearn more\nNothing to show for this note\nMy mind maps\nKeep this user document\n\u00a0\n1 path\n\u00a0\n0 attributes\n\u00a0",
+      "ids": {
+        "editor": "ibGEwUDNx4lE",
+        "template": "zUQv16AgrekJ",
+        "examples": [
+          "08gemzu3DuCg",
+          "61TaPAf5xY2r",
+          "Nel9uL9FXleK"
+        ],
+        "folder": "pZIlXEknXuw4",
+        "id": "SPcFXQWnOVds",
+        "reinstalled": {
+          "editor": "ymr6Xp8Aff41",
+          "template": "VBvODNtYm85H",
+          "examples": [
+            "HFWYpNGl8Kt6",
+            "Td1VAGk5gDkg",
+            "syxzxG8WcoPz"
+          ]
+        }
+      }
+    }
+  ]
+}

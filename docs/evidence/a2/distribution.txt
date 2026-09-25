@@ -1,0 +1,10 @@
+browser: safe import remaps internal relations; native activation preserves all three canonical examples
+browser: native template creation outside the package, editing, saving and reload work
+browser: replacing shared code preserves existing JSON and template creation with unique root IDs
+browser: removing the package leaves external map JSON intact and readable without Willow
+browser: reinstalling and reconnecting an old map restores editing without changing its JSON
+desktop: safe import remaps internal relations; native activation preserves all three canonical examples
+desktop: native template creation outside the package, editing, saving and reload work
+desktop: replacing shared code preserves existing JSON and template creation with unique root IDs
+desktop: removing the package leaves external map JSON intact and readable without Willow
+desktop: reinstalling and reconnecting an old map restores editing without changing its JSON

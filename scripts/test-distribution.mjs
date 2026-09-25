@@ -12,6 +12,7 @@ import {createFromMenu,waitSaved} from './test-ui.mjs';
 const manifest=JSON.parse(await readFile(new URL('../dist/manifest.json',import.meta.url),'utf8'));
 const zip=await readFile(new URL(`../dist/trilium-willow-${manifest.version}.zip`,import.meta.url));
 const bundle=await readFile(new URL('../dist/willow-editor.jsx',import.meta.url),'utf8');
+const examples=JSON.parse(await readFile(new URL('../examples/maps.json',import.meta.url),'utf8'));
 const hash=data=>createHash('sha256').update(data).digest('hex');
 assert.equal(hash(zip),manifest.files[`trilium-willow-${manifest.version}.zip`]);
 assert.equal(hash(bundle),manifest.files['willow-editor.jsx']);
@@ -53,11 +54,11 @@ async function importPackage(page){
 async function parts(page,folder){
   await open(page,folder);
   await page.waitForLoadState('networkidle');
-  return page.evaluate(async()=>{
+  return page.evaluate(async titles=>{
     const children=await glob.appContext.tabManager.getActiveContext().note.getChildNotes();
     const find=title=>{const n=children.find(n=>n.title===title);if(!n)throw new Error(`Missing package child: ${title}`);return n.noteId;};
-    return {editor:find('Willow shared editor'),template:find('Willow Mind Map'),example:find('Example mind map')};
-  });
+    return {editor:find('Willow shared editor'),template:find('Willow Mind Map'),examples:titles.map(find)};
+  },examples.map(example=>example.title));
 }
 async function activate(page,id,editor){
   const before=await api(page,'GET',`notes/${id}/attributes`);
@@ -80,9 +81,12 @@ async function check(page,client){
   const installed=await parts(page,imported.noteId);
   assert.equal(await raw(page,installed.editor),bundle);
   await activate(page,installed.template,installed.editor);
-  await activate(page,installed.example,installed.editor);
-  await pane(page,installed.example).locator('[data-ready=true]').waitFor();
-  pass('safe import remaps internal relations; native activation opens the bundled example');
+  for(const [index,id] of installed.examples.entries()) {
+    await activate(page,id,installed.editor);
+    await pane(page,id).locator('[data-ready=true]').waitFor();
+    assert.deepEqual(JSON.parse(await raw(page,id)),examples[index].document);
+  }
+  pass('safe import remaps internal relations; native activation preserves all three canonical examples');
   const container=(await api(page,'POST','notes/root/children?target=into',{title:'My mind maps',type:'text',mime:'text/html',content:'<p>User documents outside the add-on.</p>'})).note.noteId;
   await open(page,container);
   const {id}=await createFromMenu(page,'My mind maps','into',`${client} user map`);
